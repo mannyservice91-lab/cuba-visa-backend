@@ -9,6 +9,7 @@ import {
   Dimensions,
   Image,
   ActivityIndicator,
+  ImageBackground,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient/build/LinearGradient';
@@ -20,6 +21,7 @@ const { width } = Dimensions.get('window');
 const WHATSAPP_NUMBER = '+381693444935';
 const PAYPAL_LINK = 'https://paypal.me/Gonzalezjm91';
 const API_URL = '';
+const BACKGROUND_IMAGE = 'https://customer-assets.emergentagent.com/job_visado-laboral-cuba/artifacts/pu4pdl7e_ChatGPT%20Image%2026%20ene%202026%2C%2012_20_06%20a.m..png';
 
 const VISA_PRICES = {
   turismo: { price: 1500, name: 'Visado de Turismo' },
