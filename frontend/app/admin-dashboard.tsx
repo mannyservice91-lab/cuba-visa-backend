@@ -219,6 +219,21 @@ export default function AdminDashboardScreen() {
                     </View>
                   </LinearGradient>
                 </View>
+
+                {/* Testimonials Button */}
+                <TouchableOpacity
+                  style={styles.testimonialsButton}
+                  onPress={() => router.push('/admin-testimonials')}
+                >
+                  <LinearGradient colors={['#1a2f4a', '#0d1f35']} style={styles.testimonialsBtnGradient}>
+                    <Ionicons name="images" size={24} color="#d4af37" />
+                    <View style={styles.testimonialsBtnText}>
+                      <Text style={styles.testimonialsBtnTitle}>Clientes Satisfechos</Text>
+                      <Text style={styles.testimonialsBtnSubtitle}>Gestionar fotos de visas</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="#d4af37" />
+                  </LinearGradient>
+                </TouchableOpacity>
               </View>
             )}
 
