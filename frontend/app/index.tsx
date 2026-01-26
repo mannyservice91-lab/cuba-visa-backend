@@ -209,13 +209,13 @@ export default function HomeScreen() {
                             {testimonial.description}
                           </Text>
                         </View>
-                      </LinearGradient>
+                      </View>
                     </View>
                   ))}
                 </ScrollView>
               ) : (
                 <View style={styles.noTestimonials}>
-                  <Ionicons name="images-outline" size={40} color="#667788" />
+                  <Ionicons name="images-outline" size={40} color="#d4af37" />
                   <Text style={styles.noTestimonialsText}>
                     Próximamente fotos de visas aprobadas
                   </Text>
