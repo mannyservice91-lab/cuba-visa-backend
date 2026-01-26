@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   testimonialCard: {
-    width: width * 0.7,
+    width: 280,
     marginRight: 15,
     borderRadius: 12,
     overflow: 'hidden',
