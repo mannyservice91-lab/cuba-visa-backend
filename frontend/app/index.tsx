@@ -382,10 +382,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.3)',
+    borderColor: 'rgba(212, 175, 55, 0.5)',
   },
   cardGradient: {
     padding: 20,
+  },
+  cardGradientAlt: {
+    padding: 20,
+    backgroundColor: 'rgba(10, 22, 40, 0.8)',
   },
   cardHeader: {
     flexDirection: 'row',
