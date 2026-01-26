@@ -134,15 +134,12 @@ export default function HomeScreen() {
                   <Text style={styles.processingTime}>
                     <Ionicons name="time-outline" size={14} color="#8899aa" /> Tiempo: 1-2 meses
                   </Text>
-                </LinearGradient>
+                  </View>
               </View>
 
               {/* Work Visa Card */}
               <View style={styles.serviceCard}>
-                <LinearGradient
-                  colors={['#1a2f4a', '#0d1f35']}
-                  style={styles.cardGradient}
-                >
+                <View style={styles.cardGradientAlt}>
                   <View style={styles.cardHeader}>
                     <FontAwesome5 name="briefcase" size={28} color="#d4af37" />
                     <View style={[styles.cardBadge, styles.workBadge]}>
@@ -163,7 +160,7 @@ export default function HomeScreen() {
                   <Text style={styles.processingTime}>
                     <Ionicons name="time-outline" size={14} color="#8899aa" /> Tiempo: 1-2 meses
                   </Text>
-                </LinearGradient>
+                </View>
               </View>
             </View>
 
@@ -192,10 +189,7 @@ export default function HomeScreen() {
                 >
                   {testimonials.map((testimonial) => (
                     <View key={testimonial.id} style={styles.testimonialCard}>
-                      <LinearGradient
-                        colors={['#1a2f4a', '#0d1f35']}
-                        style={styles.testimonialGradient}
-                      >
+                      <View style={styles.testimonialGradientAlt}>
                         {testimonial.image_data && (
                           <Image
                             source={{ uri: `data:image/jpeg;base64,${testimonial.image_data}` }}
