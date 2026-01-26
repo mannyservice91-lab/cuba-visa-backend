@@ -39,6 +39,9 @@ interface Testimonial {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isWeb = Platform.OS === 'web';
+  const isDesktop = width > 768;
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loadingTestimonials, setLoadingTestimonials] = useState(false);
 
@@ -67,6 +70,10 @@ export default function HomeScreen() {
   const openPayPal = () => {
     Linking.openURL(PAYPAL_LINK);
   };
+
+  // Dynamic styles for responsive design
+  const containerMaxWidth = isDesktop ? 800 : '100%';
+  const cardWidth = isDesktop ? '48%' : '100%';
 
   return (
     <View style={styles.container}>
