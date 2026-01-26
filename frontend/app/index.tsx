@@ -47,15 +47,13 @@ export default function HomeScreen() {
   const fetchTestimonials = async () => {
     try {
       const response = await fetch(`${API_URL}/api/testimonials`);
-      if (response.ok) {
-        const data = await response.json();
-        setTestimonials(data);
-      }
+      const data = await response.json();
+      setTestimonials(data || []);
     } catch (error) {
       console.error('Error fetching testimonials:', error);
-    } finally {
-      setLoadingTestimonials(false);
+      setTestimonials([]);
     }
+    setLoadingTestimonials(false);
   };
 
   const openWhatsApp = () => {
