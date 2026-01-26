@@ -23,7 +23,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
-app = FastAPI(title="Manny Visa Serbia API")
+app = FastAPI(title="Cuban-Serbia Visa API")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -129,7 +129,7 @@ def verify_admin(credentials: HTTPBasicCredentials = Depends(security)):
 # Routes
 @api_router.get("/")
 async def root():
-    return {"message": "Bienvenido a Manny Visa Serbia API", "version": "1.0"}
+    return {"message": "Bienvenido a Cuban-Serbia Visa API", "version": "1.0"}
 
 @api_router.get("/visa-types")
 async def get_visa_types():
@@ -360,6 +360,72 @@ async def admin_get_all_users(admin: str = Depends(verify_admin)):
         "passport_number": u["passport_number"],
         "created_at": u["created_at"]
     } for u in users]
+
+# Testimonials / Success Stories (Clientes Satisfechos)
+class Testimonial(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    client_name: str
+    visa_type: str
+    description: str
+    image_data: str  # Base64 encoded image
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    is_active: bool = True
+
+class TestimonialCreate(BaseModel):
+    client_name: str
+    visa_type: str
+    description: str
+    image_data: str  # Base64 encoded image
+
+# Public endpoint to get testimonials
+@api_router.get("/testimonials")
+async def get_testimonials():
+    testimonials = await db.testimonials.find({"is_active": True}).sort("created_at", -1).to_list(50)
+    return [{
+        "id": t["id"],
+        "client_name": t["client_name"],
+        "visa_type": t["visa_type"],
+        "description": t["description"],
+        "image_data": t["image_data"],
+        "created_at": t["created_at"]
+    } for t in testimonials]
+
+# Admin endpoints for testimonials
+@api_router.post("/admin/testimonials")
+async def admin_create_testimonial(testimonial_data: TestimonialCreate, admin: str = Depends(verify_admin)):
+    testimonial = Testimonial(
+        client_name=testimonial_data.client_name,
+        visa_type=testimonial_data.visa_type,
+        description=testimonial_data.description,
+        image_data=testimonial_data.image_data
+    )
+    await db.testimonials.insert_one(testimonial.dict())
+    return {"message": "Testimonio creado exitosamente", "testimonial": testimonial.dict()}
+
+@api_router.get("/admin/testimonials")
+async def admin_get_all_testimonials(admin: str = Depends(verify_admin)):
+    testimonials = await db.testimonials.find().sort("created_at", -1).to_list(100)
+    return [{k: v for k, v in t.items() if k != "_id"} for t in testimonials]
+
+@api_router.delete("/admin/testimonials/{testimonial_id}")
+async def admin_delete_testimonial(testimonial_id: str, admin: str = Depends(verify_admin)):
+    result = await db.testimonials.delete_one({"id": testimonial_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Testimonio no encontrado")
+    return {"message": "Testimonio eliminado exitosamente"}
+
+@api_router.put("/admin/testimonials/{testimonial_id}/toggle")
+async def admin_toggle_testimonial(testimonial_id: str, admin: str = Depends(verify_admin)):
+    testimonial = await db.testimonials.find_one({"id": testimonial_id})
+    if not testimonial:
+        raise HTTPException(status_code=404, detail="Testimonio no encontrado")
+    
+    new_status = not testimonial.get("is_active", True)
+    await db.testimonials.update_one(
+        {"id": testimonial_id},
+        {"$set": {"is_active": new_status}}
+    )
+    return {"message": f"Testimonio {'activado' if new_status else 'desactivado'}", "is_active": new_status}
 
 # Include the router in the main app
 app.include_router(api_router)
