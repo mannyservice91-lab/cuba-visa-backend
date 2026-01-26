@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(10, 22, 40, 0.85)',
+    backgroundColor: 'rgba(10, 22, 40, 0.75)',
   },
   safeArea: {
     flex: 1,
