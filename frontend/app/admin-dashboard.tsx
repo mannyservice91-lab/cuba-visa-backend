@@ -416,6 +416,32 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4caf50',
   },
+  testimonialsButton: {
+    marginTop: 15,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+  },
+  testimonialsBtnGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    gap: 12,
+  },
+  testimonialsBtnText: {
+    flex: 1,
+  },
+  testimonialsBtnTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#d4af37',
+  },
+  testimonialsBtnSubtitle: {
+    fontSize: 12,
+    color: '#8899aa',
+    marginTop: 2,
+  },
   filterScroll: {
     marginBottom: 15,
   },
