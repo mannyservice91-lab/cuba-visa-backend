@@ -115,7 +115,7 @@ export default function RegisterScreen() {
               <View style={styles.header}>
                 <MaterialCommunityIcons name="passport" size={50} color="#d4af37" />
                 <Text style={styles.title}>Crear Cuenta</Text>
-                <Text style={styles.subtitle}>Únete a Manny Visa Serbia</Text>
+                <Text style={styles.subtitle}>Únete a Cuban-Serbia</Text>
               </View>
 
               {/* Form */}
