@@ -110,21 +110,31 @@ export default function AdminDashboardScreen() {
   }, [fetchData]);
 
   const handleLogout = () => {
-    Alert.alert(
-      'Cerrar Sesión',
-      '¿Estás seguro de que quieres salir del panel admin?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Salir',
-          style: 'destructive',
-          onPress: () => {
-            setIsAdmin(false);
-            router.replace('/');
+    if (Platform.OS === 'web') {
+      // En web, usar confirm nativo del navegador
+      const confirmed = window.confirm('¿Estás seguro de que quieres salir del panel admin?');
+      if (confirmed) {
+        setIsAdmin(false);
+        router.replace('/');
+      }
+    } else {
+      // En móvil, usar Alert de React Native
+      Alert.alert(
+        'Cerrar Sesión',
+        '¿Estás seguro de que quieres salir del panel admin?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Salir',
+            style: 'destructive',
+            onPress: () => {
+              setIsAdmin(false);
+              router.replace('/');
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
   };
 
   const filteredApplications = applications.filter((app) => {
