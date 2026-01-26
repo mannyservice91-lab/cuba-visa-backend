@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
   },
   testimonialSubtitle: {
     fontSize: 14,
-    color: '#8899aa',
+    color: '#d4af37',
     textAlign: 'center',
     marginTop: -15,
     marginBottom: 20,
@@ -486,15 +486,18 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.3)',
+    borderColor: 'rgba(212, 175, 55, 0.5)',
   },
   testimonialGradient: {
     padding: 0,
   },
+  testimonialGradientAlt: {
+    backgroundColor: 'rgba(10, 22, 40, 0.85)',
+  },
   testimonialImage: {
     width: '100%',
     height: 150,
-    backgroundColor: '#0d1f35',
+    backgroundColor: 'rgba(10, 22, 40, 0.5)',
   },
   testimonialInfo: {
     padding: 15,
@@ -517,16 +520,16 @@ const styles = StyleSheet.create({
   },
   testimonialDesc: {
     fontSize: 13,
-    color: '#8899aa',
+    color: '#cccccc',
     lineHeight: 18,
   },
   noTestimonials: {
     alignItems: 'center',
     padding: 30,
-    backgroundColor: 'rgba(212, 175, 55, 0.05)',
+    backgroundColor: 'rgba(10, 22, 40, 0.7)',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.2)',
+    borderColor: 'rgba(212, 175, 55, 0.5)',
   },
   noTestimonialsText: {
     fontSize: 14,
