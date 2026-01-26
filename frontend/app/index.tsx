@@ -86,38 +86,43 @@ export default function HomeScreen() {
           <SafeAreaView style={styles.safeArea}>
             <ScrollView
               style={styles.scrollView}
-              contentContainerStyle={styles.scrollContent}
+              contentContainerStyle={[
+                styles.scrollContent,
+                isDesktop && { alignItems: 'center' }
+              ]}
               showsVerticalScrollIndicator={false}
             >
+              <View style={[styles.contentWrapper, { maxWidth: containerMaxWidth, width: '100%' }]}>
               {/* Header */}
               <View style={styles.header}>
                 <View style={styles.logoContainer}>
-                  <MaterialCommunityIcons name="passport" size={40} color="#d4af37" />
+                  <MaterialCommunityIcons name="passport" size={isDesktop ? 50 : 40} color="#d4af37" />
                   <View style={styles.logoTextContainer}>
-                    <Text style={styles.logoText}>CUBAN-SERBIA</Text>
-                    <Text style={styles.logoSubtext}>VISA CENTER</Text>
+                    <Text style={[styles.logoText, isDesktop && { fontSize: 28 }]}>CUBAN-SERBIA</Text>
+                    <Text style={[styles.logoSubtext, isDesktop && { fontSize: 14 }]}>VISA CENTER</Text>
                   </View>
                 </View>
                 <View style={styles.flagsContainer}>
-                  <Text style={styles.flag}>🇨🇺</Text>
-                  <Ionicons name="airplane" size={20} color="#d4af37" />
-                  <Text style={styles.flag}>🇷🇸</Text>
+                  <Text style={[styles.flag, isDesktop && { fontSize: 32 }]}>🇨🇺</Text>
+                  <Ionicons name="airplane" size={isDesktop ? 28 : 20} color="#d4af37" />
+                  <Text style={[styles.flag, isDesktop && { fontSize: 32 }]}>🇷🇸</Text>
                 </View>
               </View>
 
               {/* Hero Section */}
               <View style={styles.heroSection}>
-                <Text style={styles.heroTitle}>Tu Puerta a Serbia</Text>
-                <Text style={styles.heroSubtitle}>
+                <Text style={[styles.heroTitle, isDesktop && { fontSize: 48 }]}>Tu Puerta a Serbia</Text>
+                <Text style={[styles.heroSubtitle, isDesktop && { fontSize: 20 }]}>
                   Gestión profesional de visados para cubanos
                 </Text>
                 <View style={styles.goldLine} />
               </View>
 
               {/* Services Cards */}
-              <View style={styles.servicesSection}>
-                <Text style={styles.sectionTitle}>Nuestros Servicios</Text>
+              <View style={[styles.servicesSection, isDesktop && styles.servicesSectionDesktop]}>
+                <Text style={[styles.sectionTitle, { width: '100%' }]}>Nuestros Servicios</Text>
                 
+                <View style={isDesktop ? styles.cardsRow : undefined}>
                 {/* Tourism Visa Card */}
                 <View style={styles.serviceCard}>
                   <View style={styles.cardGradientAlt}>
