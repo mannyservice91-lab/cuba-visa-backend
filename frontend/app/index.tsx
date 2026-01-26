@@ -293,6 +293,7 @@ export default function HomeScreen() {
                 <Ionicons name="call" size={12} color="#d4af37" /> +381 69 344 4935
               </Text>
             </View>
+            </View>
           </ScrollView>
         </SafeAreaView>
         </View>
@@ -324,6 +325,9 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingBottom: 40,
+  },
+  contentWrapper: {
+    width: '100%',
   },
   header: {
     flexDirection: 'row',
