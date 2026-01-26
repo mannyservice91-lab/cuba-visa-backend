@@ -456,10 +456,12 @@ const styles = StyleSheet.create({
   infoCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    backgroundColor: 'rgba(10, 22, 40, 0.7)',
     padding: 15,
     borderRadius: 12,
     gap: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.5)',
   },
   infoText: {
     flex: 1,
