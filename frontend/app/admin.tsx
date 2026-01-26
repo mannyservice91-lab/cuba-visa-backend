@@ -17,6 +17,15 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from './context/AuthContext';
 
+// Helper function for alerts that works on web
+const showAlert = (title: string, message: string) => {
+  if (Platform.OS === 'web') {
+    window.alert(`${title}\n\n${message}`);
+  } else {
+    Alert.alert(title, message);
+  }
+};
+
 export default function AdminLoginScreen() {
   const router = useRouter();
   const { setIsAdmin } = useAuth();
