@@ -174,6 +174,7 @@ export default function HomeScreen() {
                   </Text>
                 </View>
               </View>
+              </View>
             </View>
 
             {/* Important Info */}
