@@ -70,64 +70,63 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#0a1628', '#132743', '#0a1628']}
-        style={styles.gradient}
+      <ImageBackground
+        source={{ uri: BACKGROUND_IMAGE }}
+        style={styles.backgroundImage}
+        resizeMode="cover"
       >
-        <SafeAreaView style={styles.safeArea}>
-          <ScrollView
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Header */}
-            <View style={styles.header}>
-              <View style={styles.logoContainer}>
-                <MaterialCommunityIcons name="passport" size={40} color="#d4af37" />
-                <View style={styles.logoTextContainer}>
-                  <Text style={styles.logoText}>CUBAN-SERBIA</Text>
-                  <Text style={styles.logoSubtext}>VISA CENTER</Text>
+        <View style={styles.overlay}>
+          <SafeAreaView style={styles.safeArea}>
+            <ScrollView
+              style={styles.scrollView}
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Header */}
+              <View style={styles.header}>
+                <View style={styles.logoContainer}>
+                  <MaterialCommunityIcons name="passport" size={40} color="#d4af37" />
+                  <View style={styles.logoTextContainer}>
+                    <Text style={styles.logoText}>CUBAN-SERBIA</Text>
+                    <Text style={styles.logoSubtext}>VISA CENTER</Text>
+                  </View>
+                </View>
+                <View style={styles.flagsContainer}>
+                  <Text style={styles.flag}>🇨🇺</Text>
+                  <Ionicons name="airplane" size={20} color="#d4af37" />
+                  <Text style={styles.flag}>🇷🇸</Text>
                 </View>
               </View>
-              <View style={styles.flagsContainer}>
-                <Text style={styles.flag}>🇨🇺</Text>
-                <Ionicons name="airplane" size={20} color="#d4af37" />
-                <Text style={styles.flag}>🇷🇸</Text>
+
+              {/* Hero Section */}
+              <View style={styles.heroSection}>
+                <Text style={styles.heroTitle}>Tu Puerta a Serbia</Text>
+                <Text style={styles.heroSubtitle}>
+                  Gestión profesional de visados para cubanos
+                </Text>
+                <View style={styles.goldLine} />
               </View>
-            </View>
 
-            {/* Hero Section */}
-            <View style={styles.heroSection}>
-              <Text style={styles.heroTitle}>Tu Puerta a Serbia</Text>
-              <Text style={styles.heroSubtitle}>
-                Gestión profesional de visados para cubanos
-              </Text>
-              <View style={styles.goldLine} />
-            </View>
-
-            {/* Services Cards */}
-            <View style={styles.servicesSection}>
-              <Text style={styles.sectionTitle}>Nuestros Servicios</Text>
-              
-              {/* Tourism Visa Card */}
-              <View style={styles.serviceCard}>
-                <LinearGradient
-                  colors={['#1a2f4a', '#0d1f35']}
-                  style={styles.cardGradient}
-                >
-                  <View style={styles.cardHeader}>
-                    <FontAwesome5 name="umbrella-beach" size={28} color="#d4af37" />
-                    <View style={styles.cardBadge}>
-                      <Text style={styles.badgeText}>TURISMO</Text>
+              {/* Services Cards */}
+              <View style={styles.servicesSection}>
+                <Text style={styles.sectionTitle}>Nuestros Servicios</Text>
+                
+                {/* Tourism Visa Card */}
+                <View style={styles.serviceCard}>
+                  <View style={styles.cardGradientAlt}>
+                    <View style={styles.cardHeader}>
+                      <FontAwesome5 name="umbrella-beach" size={28} color="#d4af37" />
+                      <View style={styles.cardBadge}>
+                        <Text style={styles.badgeText}>TURISMO</Text>
+                      </View>
                     </View>
-                  </View>
-                  <Text style={styles.cardTitle}>{VISA_PRICES.turismo.name}</Text>
-                  <View style={styles.priceContainer}>
-                    <Text style={styles.priceLabel}>Precio Total</Text>
-                    <Text style={styles.price}>{VISA_PRICES.turismo.price} EUR</Text>
-                  </View>
-                  <View style={styles.depositInfo}>
-                    <Ionicons name="information-circle" size={16} color="#d4af37" />
+                    <Text style={styles.cardTitle}>{VISA_PRICES.turismo.name}</Text>
+                    <View style={styles.priceContainer}>
+                      <Text style={styles.priceLabel}>Precio Total</Text>
+                      <Text style={styles.price}>{VISA_PRICES.turismo.price} EUR</Text>
+                    </View>
+                    <View style={styles.depositInfo}>
+                      <Ionicons name="information-circle" size={16} color="#d4af37" />
                     <Text style={styles.depositText}>
                       Depósito inicial: {VISA_PRICES.turismo.price / 2} EUR (50%)
                     </Text>
