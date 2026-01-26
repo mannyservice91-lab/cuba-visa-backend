@@ -38,23 +38,23 @@ interface Testimonial {
 export default function HomeScreen() {
   const router = useRouter();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
+  const [loadingTestimonials, setLoadingTestimonials] = useState(false);
 
   useEffect(() => {
-    fetchTestimonials();
+    const loadTestimonials = async () => {
+      setLoadingTestimonials(true);
+      try {
+        const response = await fetch(`${API_URL}/api/testimonials`);
+        const data = await response.json();
+        setTestimonials(data || []);
+      } catch (error) {
+        console.error('Error fetching testimonials:', error);
+        setTestimonials([]);
+      }
+      setLoadingTestimonials(false);
+    };
+    loadTestimonials();
   }, []);
-
-  const fetchTestimonials = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/testimonials`);
-      const data = await response.json();
-      setTestimonials(data || []);
-    } catch (error) {
-      console.error('Error fetching testimonials:', error);
-      setTestimonials([]);
-    }
-    setLoadingTestimonials(false);
-  };
 
   const openWhatsApp = () => {
     const message = 'Hola, estoy interesado en los servicios de visa para Serbia.';
