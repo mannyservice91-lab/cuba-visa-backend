@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,27 +6,57 @@ import {
   TouchableOpacity,
   ScrollView,
   Linking,
-  ImageBackground,
   Dimensions,
-  Platform,
+  Image,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient/build/LinearGradient';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const WHATSAPP_NUMBER = '+381693444935';
 const PAYPAL_LINK = 'https://paypal.me/Gonzalezjm91';
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
 const VISA_PRICES = {
   turismo: { price: 1500, name: 'Visado de Turismo' },
   trabajo: { price: 2500, name: 'Visado por Contrato de Trabajo' },
 };
 
+interface Testimonial {
+  id: string;
+  client_name: string;
+  visa_type: string;
+  description: string;
+  image_data: string;
+  created_at: string;
+}
+
 export default function HomeScreen() {
   const router = useRouter();
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
+
+  useEffect(() => {
+    fetchTestimonials();
+  }, []);
+
+  const fetchTestimonials = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/testimonials`);
+      if (response.ok) {
+        const data = await response.json();
+        setTestimonials(data);
+      }
+    } catch (error) {
+      console.error('Error fetching testimonials:', error);
+    } finally {
+      setLoadingTestimonials(false);
+    }
+  };
 
   const openWhatsApp = () => {
     const message = 'Hola, estoy interesado en los servicios de visa para Serbia.';
@@ -55,8 +85,8 @@ export default function HomeScreen() {
               <View style={styles.logoContainer}>
                 <MaterialCommunityIcons name="passport" size={40} color="#d4af37" />
                 <View style={styles.logoTextContainer}>
-                  <Text style={styles.logoText}>MANNY VISA</Text>
-                  <Text style={styles.logoSubtext}>SERBIA</Text>
+                  <Text style={styles.logoText}>CUBAN-SERBIA</Text>
+                  <Text style={styles.logoSubtext}>VISA CENTER</Text>
                 </View>
               </View>
               <View style={styles.flagsContainer}>
@@ -148,6 +178,58 @@ export default function HomeScreen() {
               </View>
             </View>
 
+            {/* Testimonials Section - Clientes Satisfechos */}
+            <View style={styles.testimonialsSection}>
+              <Text style={styles.sectionTitle}>Clientes Satisfechos</Text>
+              <Text style={styles.testimonialSubtitle}>Visas aprobadas exitosamente</Text>
+              
+              {loadingTestimonials ? (
+                <ActivityIndicator size="large" color="#d4af37" style={styles.loader} />
+              ) : testimonials.length > 0 ? (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.testimonialScroll}
+                >
+                  {testimonials.map((testimonial) => (
+                    <View key={testimonial.id} style={styles.testimonialCard}>
+                      <LinearGradient
+                        colors={['#1a2f4a', '#0d1f35']}
+                        style={styles.testimonialGradient}
+                      >
+                        {testimonial.image_data && (
+                          <Image
+                            source={{ uri: `data:image/jpeg;base64,${testimonial.image_data}` }}
+                            style={styles.testimonialImage}
+                            resizeMode="cover"
+                          />
+                        )}
+                        <View style={styles.testimonialInfo}>
+                          <Text style={styles.testimonialName}>{testimonial.client_name}</Text>
+                          <View style={styles.testimonialBadge}>
+                            <Ionicons name="checkmark-circle" size={14} color="#4caf50" />
+                            <Text style={styles.testimonialType}>
+                              {testimonial.visa_type === 'turismo' ? 'Visa Turismo' : 'Visa Trabajo'}
+                            </Text>
+                          </View>
+                          <Text style={styles.testimonialDesc} numberOfLines={2}>
+                            {testimonial.description}
+                          </Text>
+                        </View>
+                      </LinearGradient>
+                    </View>
+                  ))}
+                </ScrollView>
+              ) : (
+                <View style={styles.noTestimonials}>
+                  <Ionicons name="images-outline" size={40} color="#667788" />
+                  <Text style={styles.noTestimonialsText}>
+                    Próximamente fotos de visas aprobadas
+                  </Text>
+                </View>
+              )}
+            </View>
+
             {/* Action Buttons */}
             <View style={styles.actionsSection}>
               <TouchableOpacity
@@ -200,7 +282,7 @@ export default function HomeScreen() {
             {/* Footer */}
             <View style={styles.footer}>
               <View style={styles.footerLine} />
-              <Text style={styles.footerText}>Manny Visa Serbia © 2025</Text>
+              <Text style={styles.footerText}>Cuban-Serbia Visa Center © 2025</Text>
               <Text style={styles.footerContact}>
                 <Ionicons name="call" size={12} color="#667788" /> +381 69 344 4935
               </Text>
@@ -250,9 +332,9 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   logoSubtext: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#8899aa',
-    letterSpacing: 4,
+    letterSpacing: 3,
   },
   flagsContainer: {
     flexDirection: 'row',
@@ -379,6 +461,77 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: '#d4af37',
+  },
+  // Testimonials Styles
+  testimonialsSection: {
+    marginVertical: 20,
+  },
+  testimonialSubtitle: {
+    fontSize: 14,
+    color: '#8899aa',
+    textAlign: 'center',
+    marginTop: -15,
+    marginBottom: 20,
+  },
+  testimonialScroll: {
+    paddingVertical: 10,
+  },
+  testimonialCard: {
+    width: width * 0.7,
+    marginRight: 15,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+  },
+  testimonialGradient: {
+    padding: 0,
+  },
+  testimonialImage: {
+    width: '100%',
+    height: 150,
+    backgroundColor: '#0d1f35',
+  },
+  testimonialInfo: {
+    padding: 15,
+  },
+  testimonialName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: 5,
+  },
+  testimonialBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginBottom: 8,
+  },
+  testimonialType: {
+    fontSize: 12,
+    color: '#4caf50',
+  },
+  testimonialDesc: {
+    fontSize: 13,
+    color: '#8899aa',
+    lineHeight: 18,
+  },
+  noTestimonials: {
+    alignItems: 'center',
+    padding: 30,
+    backgroundColor: 'rgba(212, 175, 55, 0.05)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.2)',
+  },
+  noTestimonialsText: {
+    fontSize: 14,
+    color: '#667788',
+    marginTop: 10,
+    textAlign: 'center',
+  },
+  loader: {
+    marginVertical: 30,
   },
   actionsSection: {
     gap: 15,
