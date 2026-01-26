@@ -19,7 +19,7 @@ const { width } = Dimensions.get('window');
 
 const WHATSAPP_NUMBER = '+381693444935';
 const PAYPAL_LINK = 'https://paypal.me/Gonzalezjm91';
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+const API_URL = '';
 
 const VISA_PRICES = {
   turismo: { price: 1500, name: 'Visado de Turismo' },
