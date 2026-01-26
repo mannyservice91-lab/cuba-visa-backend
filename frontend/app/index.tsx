@@ -387,6 +387,17 @@ const styles = StyleSheet.create({
   servicesSection: {
     marginTop: 20,
   },
+  servicesSectionDesktop: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  cardsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
   sectionTitle: {
     fontSize: 22,
     fontWeight: 'bold',
