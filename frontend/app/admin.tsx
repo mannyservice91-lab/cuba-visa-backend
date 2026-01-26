@@ -36,7 +36,7 @@ export default function AdminLoginScreen() {
 
   const handleAdminLogin = () => {
     if (!username || !password) {
-      Alert.alert('Error', 'Por favor ingrese usuario y contraseña');
+      showAlert('Error', 'Por favor ingrese usuario y contraseña');
       return;
     }
 
@@ -46,7 +46,7 @@ export default function AdminLoginScreen() {
       setIsAdmin(true);
       router.replace('/admin-dashboard');
     } else {
-      Alert.alert('Error', 'Credenciales de administrador incorrectas');
+      showAlert('Error', 'Credenciales de administrador incorrectas');
     }
     setIsLoading(false);
   };
