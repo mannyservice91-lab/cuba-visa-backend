@@ -277,12 +277,13 @@ export default function HomeScreen() {
               <View style={styles.footerLine} />
               <Text style={styles.footerText}>Cuban-Serbia Visa Center © 2025</Text>
               <Text style={styles.footerContact}>
-                <Ionicons name="call" size={12} color="#667788" /> +381 69 344 4935
+                <Ionicons name="call" size={12} color="#d4af37" /> +381 69 344 4935
               </Text>
             </View>
           </ScrollView>
         </SafeAreaView>
-      </LinearGradient>
+        </View>
+      </ImageBackground>
     </View>
   );
 }
@@ -292,8 +293,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0a1628',
   },
-  gradient: {
+  backgroundImage: {
     flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(10, 22, 40, 0.85)',
   },
   safeArea: {
     flex: 1,
@@ -326,7 +333,7 @@ const styles = StyleSheet.create({
   },
   logoSubtext: {
     fontSize: 10,
-    color: '#8899aa',
+    color: '#d4af37',
     letterSpacing: 3,
   },
   flagsContainer: {
