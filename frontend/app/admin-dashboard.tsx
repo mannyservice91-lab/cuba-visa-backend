@@ -123,13 +123,20 @@ export default function AdminDashboardScreen() {
     fetchData();
   }, [fetchData]);
 
-  const handleLogout = async () => {
-    if (Platform.OS === 'web') {
-      // En web, usar confirm nativo del navegador
-      const confirmed = window.confirm('¿Estás seguro de que quieres salir del panel admin?');
-      if (confirmed) {
+  const handleLogout = () => {
+    const doLogout = async () => {
+      try {
         await adminLogout();
         router.replace('/');
+      } catch (error) {
+        console.error('Error during logout:', error);
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      // En web, usar confirm nativo del navegador
+      if (window.confirm('¿Estás seguro de que quieres salir del panel admin?')) {
+        doLogout();
       }
     } else {
       // En móvil, usar Alert de React Native
@@ -141,10 +148,7 @@ export default function AdminDashboardScreen() {
           {
             text: 'Salir',
             style: 'destructive',
-            onPress: async () => {
-              await adminLogout();
-              router.replace('/');
-            },
+            onPress: doLogout,
           },
         ]
       );
