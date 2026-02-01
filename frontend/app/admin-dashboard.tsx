@@ -127,7 +127,14 @@ export default function AdminDashboardScreen() {
     const doLogout = async () => {
       try {
         await adminLogout();
-        router.replace('/');
+        // En web, forzar limpieza y recarga
+        if (Platform.OS === 'web' && typeof window !== 'undefined') {
+          localStorage.clear();
+          sessionStorage.clear();
+          window.location.href = '/';
+        } else {
+          router.replace('/');
+        }
       } catch (error) {
         console.error('Error during logout:', error);
       }
