@@ -268,6 +268,21 @@ export default function AdminDashboardScreen() {
                     <Ionicons name="chevron-forward" size={20} color="#d4af37" />
                   </LinearGradient>
                 </TouchableOpacity>
+
+                {/* Destinations Management Button */}
+                <TouchableOpacity
+                  style={styles.testimonialsButton}
+                  onPress={() => router.push('/admin-destinations')}
+                >
+                  <LinearGradient colors={['#1a2f4a', '#0d1f35']} style={styles.testimonialsBtnGradient}>
+                    <Ionicons name="globe" size={24} color="#d4af37" />
+                    <View style={styles.testimonialsBtnText}>
+                      <Text style={styles.testimonialsBtnTitle}>Gestión de Destinos</Text>
+                      <Text style={styles.testimonialsBtnSubtitle}>Países y tipos de visa</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="#d4af37" />
+                  </LinearGradient>
+                </TouchableOpacity>
               </View>
             )}
 
