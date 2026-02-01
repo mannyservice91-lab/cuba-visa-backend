@@ -102,7 +102,7 @@ export default function AdminApplicationScreen() {
   }, [isAdmin, fetchApplication, router]);
 
   const handleSave = async () => {
-    if (!application) return;
+    if (!application || !admin?.access_token) return;
     setIsSaving(true);
 
     try {
@@ -110,7 +110,7 @@ export default function AdminApplicationScreen() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Basic ${ADMIN_CREDENTIALS}`,
+          Authorization: `Bearer ${admin.access_token}`,
         },
         body: JSON.stringify({
           status: selectedStatus,
@@ -142,12 +142,13 @@ export default function AdminApplicationScreen() {
           text: 'Eliminar',
           style: 'destructive',
           onPress: async () => {
+            if (!admin?.access_token) return;
             try {
               const response = await fetch(
                 `${API_URL}/api/admin/applications/${application?.id}`,
                 {
                   method: 'DELETE',
-                  headers: { Authorization: `Basic ${ADMIN_CREDENTIALS}` },
+                  headers: { Authorization: `Bearer ${admin.access_token}` },
                 }
               );
               if (!response.ok) throw new Error('Error al eliminar');
