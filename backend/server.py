@@ -240,10 +240,26 @@ class AdvisorUpdate(BaseModel):
 # ============== HELPER FUNCTIONS ==============
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    # Try bcrypt hash first
+    try:
+        return pwd_context.verify(plain_password, hashed_password)
+    except Exception:
+        # If hash is unrecognized, check if it's plain text (legacy)
+        # This handles users created before password hashing was implemented
+        if plain_password == hashed_password:
+            return True
+        return False
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
+
+async def migrate_user_password(user_id: str, plain_password: str):
+    """Migrate a user's plain text password to hashed password"""
+    new_hash = get_password_hash(plain_password)
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"password_hash": new_hash}}
+    )
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
