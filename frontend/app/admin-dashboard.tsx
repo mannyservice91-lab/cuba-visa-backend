@@ -14,10 +14,9 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient/build/LinearGradient';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from './context/AuthContext';
+import { useAuth } from '../src/context/AuthContext';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
-const ADMIN_CREDENTIALS = btoa('admin:Jmg910217*');
 
 interface Application {
   id: string;
