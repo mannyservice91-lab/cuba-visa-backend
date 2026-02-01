@@ -109,14 +109,14 @@ export default function AdminDashboardScreen() {
 
   useEffect(() => {
     // Wait for auth context to finish loading
-    if (isLoading) return;
+    if (authLoading) return;
     
     if (!isAdmin) {
       router.replace('/admin');
       return;
     }
     fetchData();
-  }, [isAdmin, isLoading, fetchData, router]);
+  }, [isAdmin, authLoading, fetchData, router]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
