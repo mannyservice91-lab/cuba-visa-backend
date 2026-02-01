@@ -120,12 +120,12 @@ export default function AdminDashboardScreen() {
     fetchData();
   }, [fetchData]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (Platform.OS === 'web') {
       // En web, usar confirm nativo del navegador
       const confirmed = window.confirm('¿Estás seguro de que quieres salir del panel admin?');
       if (confirmed) {
-        setIsAdmin(false);
+        await adminLogout();
         router.replace('/');
       }
     } else {
@@ -138,8 +138,8 @@ export default function AdminDashboardScreen() {
           {
             text: 'Salir',
             style: 'destructive',
-            onPress: () => {
-              setIsAdmin(false);
+            onPress: async () => {
+              await adminLogout();
               router.replace('/');
             },
           },
