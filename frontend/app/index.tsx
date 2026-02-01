@@ -109,9 +109,8 @@ export default function HomeScreen() {
   };
 
   const handleDestinationSelect = (destination: Destination) => {
-    if (destination.enabled) {
-      setSelectedDestination(destination);
-    }
+    // Navigate to destination detail page
+    router.push(`/destination?id=${destination.id}`);
   };
 
   // Dynamic styles for responsive design
