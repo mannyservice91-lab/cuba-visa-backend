@@ -846,6 +846,68 @@ async def admin_toggle_testimonial(testimonial_id: str, current_admin: dict = De
     )
     return {"message": f"Testimonio {'activado' if new_status else 'desactivado'}", "is_active": new_status}
 
+# ============== ADVISORS ==============
+
+@api_router.get("/advisors")
+async def get_advisors():
+    """Get all active advisors"""
+    advisors = await db.advisors.find({"is_active": True}).to_list(50)
+    return [{k: v for k, v in a.items() if k != "_id"} for a in advisors]
+
+@api_router.get("/admin/advisors")
+async def admin_get_all_advisors(current_admin: dict = Depends(get_current_admin)):
+    """Get all advisors (admin)"""
+    advisors = await db.advisors.find().sort("created_at", -1).to_list(100)
+    return [{k: v for k, v in a.items() if k != "_id"} for a in advisors]
+
+@api_router.post("/admin/advisors")
+async def admin_create_advisor(advisor_data: AdvisorCreate, current_admin: dict = Depends(get_current_admin)):
+    """Create a new advisor"""
+    advisor = Advisor(
+        name=advisor_data.name,
+        whatsapp=advisor_data.whatsapp,
+        role=advisor_data.role,
+        photo_url=advisor_data.photo_url
+    )
+    await db.advisors.insert_one(advisor.dict())
+    return {"message": "Asesor creado exitosamente", "advisor": advisor.dict()}
+
+@api_router.put("/admin/advisors/{advisor_id}")
+async def admin_update_advisor(advisor_id: str, advisor_data: AdvisorUpdate, current_admin: dict = Depends(get_current_admin)):
+    """Update an advisor"""
+    advisor = await db.advisors.find_one({"id": advisor_id})
+    if not advisor:
+        raise HTTPException(status_code=404, detail="Asesor no encontrado")
+    
+    update_dict = {k: v for k, v in advisor_data.dict().items() if v is not None}
+    if update_dict:
+        await db.advisors.update_one({"id": advisor_id}, {"$set": update_dict})
+    
+    updated = await db.advisors.find_one({"id": advisor_id})
+    return {k: v for k, v in updated.items() if k != "_id"}
+
+@api_router.delete("/admin/advisors/{advisor_id}")
+async def admin_delete_advisor(advisor_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Delete an advisor"""
+    result = await db.advisors.delete_one({"id": advisor_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Asesor no encontrado")
+    return {"message": "Asesor eliminado exitosamente"}
+
+@api_router.put("/admin/advisors/{advisor_id}/toggle")
+async def admin_toggle_advisor(advisor_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Toggle advisor active status"""
+    advisor = await db.advisors.find_one({"id": advisor_id})
+    if not advisor:
+        raise HTTPException(status_code=404, detail="Asesor no encontrado")
+    
+    new_status = not advisor.get("is_active", True)
+    await db.advisors.update_one(
+        {"id": advisor_id},
+        {"$set": {"is_active": new_status}}
+    )
+    return {"message": f"Asesor {'activado' if new_status else 'desactivado'}", "is_active": new_status}
+
 # ============== ADMIN LIST ==============
 
 @api_router.get("/admin/admins")
