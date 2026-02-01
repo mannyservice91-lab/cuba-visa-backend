@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 interface User {
   id: string;
@@ -32,6 +33,18 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Helper to clear storage on web
+const clearWebStorage = (key: string) => {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    try {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    } catch (e) {
+      console.error('Error clearing web storage:', e);
+    }
+  }
+};
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -70,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     setUser(null);
     await AsyncStorage.removeItem('user');
+    clearWebStorage('user');
   };
 
   const updateUser = async (userData: Partial<User>) => {
@@ -86,8 +100,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const adminLogout = async () => {
+    console.log('Admin logout called');
     setAdmin(null);
     await AsyncStorage.removeItem('admin');
+    clearWebStorage('admin');
+    // Force clear all AsyncStorage keys related to admin
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      Object.keys(localStorage).forEach(key => {
+        if (key.includes('admin')) {
+          localStorage.removeItem(key);
+        }
+      });
+    }
+    console.log('Admin logout complete');
   };
 
   const isAdmin = admin !== null && admin.access_token !== undefined;
