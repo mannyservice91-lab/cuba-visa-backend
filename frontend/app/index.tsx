@@ -223,6 +223,29 @@ export default function HomeScreen() {
                 </View>
               </View>
 
+              {/* User Access Section */}
+              <View style={styles.userAccessSection}>
+                <Text style={styles.accessTitle}>¿Ya tienes una solicitud?</Text>
+                <View style={styles.accessButtons}>
+                  <TouchableOpacity 
+                    style={styles.loginBtn}
+                    onPress={() => router.push('/login')}
+                  >
+                    <LinearGradient colors={['#d4af37', '#b8962f']} style={styles.loginBtnGradient}>
+                      <Ionicons name="log-in" size={20} color="#0a1628" />
+                      <Text style={styles.loginBtnText}>Iniciar Sesión</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.registerBtn}
+                    onPress={() => router.push('/register')}
+                  >
+                    <Ionicons name="person-add" size={20} color="#d4af37" />
+                    <Text style={styles.registerBtnText}>Registrarse</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
             {/* Testimonials Section - Clientes Satisfechos */}
             <View style={styles.testimonialsSection}>
               <Text style={styles.sectionTitle}>Clientes Satisfechos</Text>
