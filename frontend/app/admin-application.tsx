@@ -58,7 +58,7 @@ const STATUS_OPTIONS = [
 export default function AdminApplicationScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { isAdmin } = useAuth();
+  const { admin, adminLogout, isAdmin } = useAuth();
   const [application, setApplication] = useState<Application | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -68,11 +68,16 @@ export default function AdminApplicationScreen() {
   const [selectedStatus, setSelectedStatus] = useState('');
 
   const fetchApplication = useCallback(async () => {
-    if (!id) return;
+    if (!id || !admin?.access_token) return;
     try {
       const response = await fetch(`${API_URL}/api/admin/applications/${id}`, {
-        headers: { Authorization: `Basic ${ADMIN_CREDENTIALS}` },
+        headers: { Authorization: `Bearer ${admin.access_token}` },
       });
+      if (response.status === 401) {
+        await adminLogout();
+        router.replace('/admin');
+        return;
+      }
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail);
       setApplication(data);
@@ -86,7 +91,7 @@ export default function AdminApplicationScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [id]);
+  }, [id, admin, adminLogout, router]);
 
   useEffect(() => {
     if (!isAdmin) {
