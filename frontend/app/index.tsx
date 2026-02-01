@@ -106,7 +106,7 @@ export default function HomeScreen() {
 
   const handleDestinationSelect = (destination: Destination) => {
     // Navigate to destination detail page
-    router.push(`/destination?id=${destination.id}`);
+    router.push(`/destination/${destination.id}`);
   };
 
   // Dynamic styles for responsive design
