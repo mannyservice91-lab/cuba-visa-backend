@@ -93,7 +93,7 @@ export default function AdminTestimonialsScreen() {
   };
 
   const handleSubmit = async () => {
-    if (!clientName || !description || !selectedImage) {
+    if (!clientName || !description || !selectedImage || !admin?.access_token) {
       Alert.alert('Error', 'Por favor completa todos los campos y selecciona una imagen');
       return;
     }
@@ -104,7 +104,7 @@ export default function AdminTestimonialsScreen() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Basic ${ADMIN_CREDENTIALS}`,
+          Authorization: `Bearer ${admin.access_token}`,
         },
         body: JSON.stringify({
           client_name: clientName,
@@ -139,10 +139,11 @@ export default function AdminTestimonialsScreen() {
           text: 'Eliminar',
           style: 'destructive',
           onPress: async () => {
+            if (!admin?.access_token) return;
             try {
               await fetch(`${API_URL}/api/admin/testimonials/${id}`, {
                 method: 'DELETE',
-                headers: { Authorization: `Basic ${ADMIN_CREDENTIALS}` },
+                headers: { Authorization: `Bearer ${admin.access_token}` },
               });
               fetchTestimonials();
             } catch (error) {
@@ -155,10 +156,11 @@ export default function AdminTestimonialsScreen() {
   };
 
   const handleToggle = async (id: string) => {
+    if (!admin?.access_token) return;
     try {
       await fetch(`${API_URL}/api/admin/testimonials/${id}/toggle`, {
         method: 'PUT',
-        headers: { Authorization: `Basic ${ADMIN_CREDENTIALS}` },
+        headers: { Authorization: `Bearer ${admin.access_token}` },
       });
       fetchTestimonials();
     } catch (error) {
