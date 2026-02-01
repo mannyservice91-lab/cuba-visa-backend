@@ -283,6 +283,21 @@ export default function AdminDashboardScreen() {
                     <Ionicons name="chevron-forward" size={20} color="#d4af37" />
                   </LinearGradient>
                 </TouchableOpacity>
+
+                {/* Advisors Management Button */}
+                <TouchableOpacity
+                  style={styles.testimonialsButton}
+                  onPress={() => router.push('/admin-advisors')}
+                >
+                  <LinearGradient colors={['#1a2f4a', '#0d1f35']} style={styles.testimonialsBtnGradient}>
+                    <Ionicons name="people" size={24} color="#25D366" />
+                    <View style={styles.testimonialsBtnText}>
+                      <Text style={styles.testimonialsBtnTitle}>Gestión de Asesores</Text>
+                      <Text style={styles.testimonialsBtnSubtitle}>WhatsApp de asesores</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="#d4af37" />
+                  </LinearGradient>
+                </TouchableOpacity>
               </View>
             )}
 
