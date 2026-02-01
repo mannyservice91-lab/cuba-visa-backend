@@ -441,8 +441,16 @@ async def login_user(credentials: UserLogin):
     if not user:
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")
     
-    if not verify_password(credentials.password, user["password_hash"]):
+    password_valid = verify_password(credentials.password, user["password_hash"])
+    
+    if not password_valid:
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+    
+    # Migrate plain text passwords to hashed passwords (legacy users)
+    stored_password = user["password_hash"]
+    if not stored_password.startswith("$2") and credentials.password == stored_password:
+        # Password was plain text, migrate it to bcrypt hash
+        await migrate_user_password(user["id"], credentials.password)
     
     return {
         "message": "Login exitoso",
