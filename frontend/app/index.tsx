@@ -173,11 +173,10 @@ export default function HomeScreen() {
                         key={destination.id}
                         style={[
                           styles.destinationCard,
-                          selectedDestination?.id === destination.id && styles.destinationCardSelected,
                           !destination.enabled && styles.destinationCardDisabled,
                         ]}
                         onPress={() => handleDestinationSelect(destination)}
-                        activeOpacity={destination.enabled ? 0.7 : 1}
+                        activeOpacity={0.7}
                       >
                         {destination.image_url ? (
                           <Image
