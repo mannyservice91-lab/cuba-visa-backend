@@ -60,7 +60,7 @@ const STATUS_LABELS: { [key: string]: string } = {
 
 export default function AdminDashboardScreen() {
   const router = useRouter();
-  const { isAdmin, setIsAdmin } = useAuth();
+  const { admin, adminLogout, isAdmin } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,17 +68,28 @@ export default function AdminDashboardScreen() {
   const [activeFilter, setActiveFilter] = useState<string>('all');
 
   const fetchData = useCallback(async () => {
+    if (!admin?.access_token) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const [appsRes, statsRes] = await Promise.all([
         fetch(`${API_URL}/api/admin/applications`, {
-          headers: { Authorization: `Basic ${ADMIN_CREDENTIALS}` },
+          headers: { Authorization: `Bearer ${admin.access_token}` },
         }),
         fetch(`${API_URL}/api/admin/stats`, {
-          headers: { Authorization: `Basic ${ADMIN_CREDENTIALS}` },
+          headers: { Authorization: `Bearer ${admin.access_token}` },
         }),
       ]);
 
       if (!appsRes.ok || !statsRes.ok) {
+        if (appsRes.status === 401 || statsRes.status === 401) {
+          // Token expired, logout
+          await adminLogout();
+          router.replace('/admin');
+          return;
+        }
         throw new Error('Error al cargar datos');
       }
 
@@ -94,7 +105,7 @@ export default function AdminDashboardScreen() {
       setIsLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [admin, adminLogout, router]);
 
   useEffect(() => {
     if (!isAdmin) {
