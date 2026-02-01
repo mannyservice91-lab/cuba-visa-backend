@@ -21,7 +21,6 @@ import * as FileSystem from 'expo-file-system';
 import { useAuth } from '../src/context/AuthContext';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
-const ADMIN_CREDENTIALS = btoa('admin:Jmg910217*');
 
 interface Testimonial {
   id: string;
@@ -35,7 +34,7 @@ interface Testimonial {
 
 export default function AdminTestimonialsScreen() {
   const router = useRouter();
-  const { isAdmin } = useAuth();
+  const { admin, adminLogout, isAdmin } = useAuth();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,10 +47,16 @@ export default function AdminTestimonialsScreen() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const fetchTestimonials = useCallback(async () => {
+    if (!admin?.access_token) return;
     try {
       const response = await fetch(`${API_URL}/api/admin/testimonials`, {
-        headers: { Authorization: `Basic ${ADMIN_CREDENTIALS}` },
+        headers: { Authorization: `Bearer ${admin.access_token}` },
       });
+      if (response.status === 401) {
+        await adminLogout();
+        router.replace('/admin');
+        return;
+      }
       if (response.ok) {
         const data = await response.json();
         setTestimonials(data);
@@ -61,7 +66,7 @@ export default function AdminTestimonialsScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [admin, adminLogout, router]);
 
   useEffect(() => {
     if (!isAdmin) {
