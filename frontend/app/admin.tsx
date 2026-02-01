@@ -15,7 +15,9 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient/build/LinearGradient';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from './context/AuthContext';
+import { useAuth } from '../src/context/AuthContext';
+
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
 // Helper function for alerts that works on web
 const showAlert = (title: string, message: string) => {
@@ -28,27 +30,48 @@ const showAlert = (title: string, message: string) => {
 
 export default function AdminLoginScreen() {
   const router = useRouter();
-  const { setIsAdmin } = useAuth();
-  const [username, setUsername] = useState('');
+  const { adminLogin } = useAuth();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleAdminLogin = () => {
-    if (!username || !password) {
-      showAlert('Error', 'Por favor ingrese usuario y contraseña');
+  const handleAdminLogin = async () => {
+    if (!email || !password) {
+      showAlert('Error', 'Por favor ingrese email y contraseña');
       return;
     }
 
     setIsLoading(true);
-    // Simple admin validation (matches backend)
-    if (username === 'admin' && password === 'Jmg910217*') {
-      setIsAdmin(true);
+    try {
+      const response = await fetch(`${API_URL}/api/admin/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Credenciales incorrectas');
+      }
+
+      // Save admin data with JWT token
+      await adminLogin({
+        id: data.admin_id,
+        email: data.email,
+        full_name: data.full_name,
+        access_token: data.access_token,
+      });
+
       router.replace('/admin-dashboard');
-    } else {
-      showAlert('Error', 'Credenciales de administrador incorrectas');
+    } catch (error: any) {
+      showAlert('Error', error.message || 'Error al iniciar sesión');
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
