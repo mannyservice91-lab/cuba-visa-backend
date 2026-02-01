@@ -118,16 +118,10 @@ export default function ApplicationDetailsScreen() {
         encoding: FileSystem.EncodingType.Base64,
       });
 
-      const formData = new FormData();
-      formData.append('file_name', file.name);
-      formData.append('file_type', file.mimeType || 'application/octet-stream');
-      formData.append('file_data', base64);
-
       const response = await fetch(
-        `${API_URL}/api/applications/${application.id}/documents?user_id=${user.id}`,
+        `${API_URL}/api/applications/${application.id}/documents?user_id=${user.id}&file_name=${encodeURIComponent(file.name)}&file_type=${encodeURIComponent(file.mimeType || 'application/octet-stream')}&file_data=${encodeURIComponent(base64)}`,
         {
           method: 'POST',
-          body: formData,
         }
       );
 
