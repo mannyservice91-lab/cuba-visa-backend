@@ -64,7 +64,6 @@ export default function HomeScreen() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loadingDestinations, setLoadingDestinations] = useState(true);
   const [loadingTestimonials, setLoadingTestimonials] = useState(false);
-  const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -73,9 +72,6 @@ export default function HomeScreen() {
         const destResponse = await fetch(`${API_URL}/api/destinations`);
         const destData = await destResponse.json();
         setDestinations(destData || []);
-        // Auto-select first enabled destination
-        const enabledDest = destData?.find((d: Destination) => d.enabled);
-        if (enabledDest) setSelectedDestination(enabledDest);
       } catch (error) {
         console.error('Error fetching destinations:', error);
       }
