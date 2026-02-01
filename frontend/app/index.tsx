@@ -20,13 +20,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const WHATSAPP_NUMBER = '+381693444935';
 const PAYPAL_LINK = 'https://paypal.me/Gonzalezjm91';
-const API_URL = '';
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 const BACKGROUND_IMAGE = 'https://customer-assets.emergentagent.com/job_visado-laboral-cuba/artifacts/pu4pdl7e_ChatGPT%20Image%2026%20ene%202026%2C%2012_20_06%20a.m..png';
 
-const VISA_PRICES = {
-  turismo: { price: 1500, name: 'Visado de Turismo' },
-  trabajo: { price: 2500, name: 'Visado por Contrato de Trabajo' },
-};
+interface VisaType {
+  id: string;
+  name: string;
+  price: number;
+  currency: string;
+  processing_time: string;
+}
+
+interface Destination {
+  id: string;
+  country: string;
+  country_code: string;
+  enabled: boolean;
+  image_url: string;
+  visa_types: VisaType[];
+  message: string;
+}
 
 interface Testimonial {
   id: string;
@@ -37,16 +50,38 @@ interface Testimonial {
   created_at: string;
 }
 
+const FLAG_EMOJIS: Record<string, string> = {
+  RS: '🇷🇸', AM: '🇦🇲', GE: '🇬🇪', IN: '🇮🇳', AE: '🇦🇪', EG: '🇪🇬',
+  CU: '🇨🇺', RU: '🇷🇺', ES: '🇪🇸', US: '🇺🇸', DE: '🇩🇪', FR: '🇫🇷',
+};
+
 export default function HomeScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
   const isDesktop = width > 768;
+  const [destinations, setDestinations] = useState<Destination[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loadingDestinations, setLoadingDestinations] = useState(true);
   const [loadingTestimonials, setLoadingTestimonials] = useState(false);
+  const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
 
   useEffect(() => {
-    const loadTestimonials = async () => {
+    const loadData = async () => {
+      // Load destinations
+      try {
+        const destResponse = await fetch(`${API_URL}/api/destinations`);
+        const destData = await destResponse.json();
+        setDestinations(destData || []);
+        // Auto-select first enabled destination
+        const enabledDest = destData?.find((d: Destination) => d.enabled);
+        if (enabledDest) setSelectedDestination(enabledDest);
+      } catch (error) {
+        console.error('Error fetching destinations:', error);
+      }
+      setLoadingDestinations(false);
+
+      // Load testimonials
       setLoadingTestimonials(true);
       try {
         const response = await fetch(`${API_URL}/api/testimonials`);
@@ -58,11 +93,13 @@ export default function HomeScreen() {
       }
       setLoadingTestimonials(false);
     };
-    loadTestimonials();
+    loadData();
   }, []);
 
-  const openWhatsApp = () => {
-    const message = 'Hola, estoy interesado en los servicios de visa para Serbia.';
+  const openWhatsApp = (destination?: string) => {
+    const message = destination 
+      ? `Hola, estoy interesado en los servicios de visa para ${destination}.`
+      : 'Hola, estoy interesado en los servicios de visa.';
     const url = `https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}?text=${encodeURIComponent(message)}`;
     Linking.openURL(url);
   };
@@ -71,9 +108,14 @@ export default function HomeScreen() {
     Linking.openURL(PAYPAL_LINK);
   };
 
+  const handleDestinationSelect = (destination: Destination) => {
+    if (destination.enabled) {
+      setSelectedDestination(destination);
+    }
+  };
+
   // Dynamic styles for responsive design
-  const containerMaxWidth = isDesktop ? 800 : '100%';
-  const cardWidth = isDesktop ? '48%' : '100%';
+  const containerMaxWidth = isDesktop ? 900 : '100%';
 
   return (
     <View style={styles.container}>
@@ -102,90 +144,141 @@ export default function HomeScreen() {
                     <Text style={[styles.logoSubtext, isDesktop && { fontSize: 14 }]}>VISA CENTER</Text>
                   </View>
                 </View>
-                <View style={styles.flagsContainer}>
-                  <Text style={[styles.flag, isDesktop && { fontSize: 32 }]}>🇨🇺</Text>
-                  <Ionicons name="airplane" size={isDesktop ? 28 : 20} color="#d4af37" />
-                  <Text style={[styles.flag, isDesktop && { fontSize: 32 }]}>🇷🇸</Text>
-                </View>
+                <TouchableOpacity onPress={() => router.push('/admin')} style={styles.adminButton}>
+                  <Ionicons name="settings-outline" size={24} color="#667788" />
+                </TouchableOpacity>
               </View>
 
               {/* Hero Section */}
               <View style={styles.heroSection}>
-                <Text style={[styles.heroTitle, isDesktop && { fontSize: 48 }]}>Tu Puerta a Serbia</Text>
-                <Text style={[styles.heroSubtitle, isDesktop && { fontSize: 20 }]}>
+                <Text style={[styles.heroTitle, isDesktop && { fontSize: 42 }]}>
+                  Tu Puerta al Mundo
+                </Text>
+                <Text style={[styles.heroSubtitle, isDesktop && { fontSize: 18 }]}>
                   Gestión profesional de visados para cubanos
                 </Text>
                 <View style={styles.goldLine} />
               </View>
 
-              {/* Services Cards */}
-              <View style={[styles.servicesSection, isDesktop && styles.servicesSectionDesktop]}>
-                <Text style={[styles.sectionTitle, { width: '100%' }]}>Nuestros Servicios</Text>
+              {/* Destinations Section */}
+              <View style={styles.destinationsSection}>
+                <Text style={styles.sectionTitle}>Destinos Disponibles</Text>
+                <Text style={styles.sectionSubtitle}>Seleccione un país para ver opciones de visa</Text>
                 
-                <View style={isDesktop ? styles.cardsRow : undefined}>
-                {/* Tourism Visa Card */}
-                <View style={styles.serviceCard}>
-                  <View style={styles.cardGradientAlt}>
-                    <View style={styles.cardHeader}>
-                      <FontAwesome5 name="umbrella-beach" size={28} color="#d4af37" />
-                      <View style={styles.cardBadge}>
-                        <Text style={styles.badgeText}>TURISMO</Text>
-                      </View>
-                    </View>
-                    <Text style={styles.cardTitle}>{VISA_PRICES.turismo.name}</Text>
-                    <View style={styles.priceContainer}>
-                      <Text style={styles.priceLabel}>Precio Total</Text>
-                      <Text style={styles.price}>{VISA_PRICES.turismo.price} EUR</Text>
-                    </View>
-                    <View style={styles.depositInfo}>
-                      <Ionicons name="information-circle" size={16} color="#d4af37" />
-                    <Text style={styles.depositText}>
-                      Depósito inicial: {VISA_PRICES.turismo.price / 2} EUR (50%)
-                    </Text>
-                  </View>
-                  <Text style={styles.processingTime}>
-                    <Ionicons name="time-outline" size={14} color="#8899aa" /> Tiempo: 1-2 meses
-                  </Text>
-                  </View>
+                {loadingDestinations ? (
+                  <ActivityIndicator size="large" color="#d4af37" />
+                ) : (
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.destinationsScroll}
+                  >
+                    {destinations.map((destination) => (
+                      <TouchableOpacity
+                        key={destination.id}
+                        style={[
+                          styles.destinationCard,
+                          selectedDestination?.id === destination.id && styles.destinationCardSelected,
+                          !destination.enabled && styles.destinationCardDisabled,
+                        ]}
+                        onPress={() => handleDestinationSelect(destination)}
+                        activeOpacity={destination.enabled ? 0.7 : 1}
+                      >
+                        {destination.image_url ? (
+                          <Image
+                            source={{ uri: destination.image_url }}
+                            style={styles.destinationImage}
+                          />
+                        ) : (
+                          <View style={[styles.destinationImage, styles.destinationImagePlaceholder]}>
+                            <Text style={styles.flagLarge}>
+                              {FLAG_EMOJIS[destination.country_code] || '🌍'}
+                            </Text>
+                          </View>
+                        )}
+                        <View style={styles.destinationOverlay}>
+                          {!destination.enabled && (
+                            <View style={styles.lockBadge}>
+                              <Ionicons name="lock-closed" size={14} color="#fff" />
+                              <Text style={styles.lockText}>Pronto</Text>
+                            </View>
+                          )}
+                          <Text style={styles.destinationFlag}>
+                            {FLAG_EMOJIS[destination.country_code] || '🌍'}
+                          </Text>
+                          <Text style={styles.destinationName}>{destination.country}</Text>
+                          {destination.enabled && destination.visa_types?.length > 0 && (
+                            <Text style={styles.destinationPrice}>
+                              desde {Math.min(...destination.visa_types.map(v => v.price))} EUR
+                            </Text>
+                          )}
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                )}
               </View>
 
-              {/* Work Visa Card */}
-              <View style={styles.serviceCard}>
-                <View style={styles.cardGradientAlt}>
-                  <View style={styles.cardHeader}>
-                    <FontAwesome5 name="briefcase" size={28} color="#d4af37" />
-                    <View style={[styles.cardBadge, styles.workBadge]}>
-                      <Text style={styles.badgeText}>TRABAJO</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.cardTitle}>{VISA_PRICES.trabajo.name}</Text>
-                  <View style={styles.priceContainer}>
-                    <Text style={styles.priceLabel}>Precio Total</Text>
-                    <Text style={styles.price}>{VISA_PRICES.trabajo.price} EUR</Text>
-                  </View>
-                  <View style={styles.depositInfo}>
-                    <Ionicons name="information-circle" size={16} color="#d4af37" />
-                    <Text style={styles.depositText}>
-                      Depósito inicial: {VISA_PRICES.trabajo.price / 2} EUR (50%)
+              {/* Selected Destination Visa Types */}
+              {selectedDestination && selectedDestination.enabled && (
+                <View style={styles.visaTypesSection}>
+                  <View style={styles.selectedDestHeader}>
+                    <Text style={styles.selectedDestTitle}>
+                      Visas para {selectedDestination.country} {FLAG_EMOJIS[selectedDestination.country_code]}
                     </Text>
                   </View>
-                  <Text style={styles.processingTime}>
-                    <Ionicons name="time-outline" size={14} color="#8899aa" /> Tiempo: 1-2 meses
+
+                  {selectedDestination.visa_types?.map((visa, index) => (
+                    <View key={visa.id || index} style={styles.visaTypeCard}>
+                      <LinearGradient colors={['#1a2f4a', '#0d1f35']} style={styles.visaTypeGradient}>
+                        <View style={styles.visaTypeHeader}>
+                          <FontAwesome5 
+                            name={visa.name.toLowerCase().includes('turismo') ? 'umbrella-beach' : 'briefcase'} 
+                            size={24} 
+                            color="#d4af37" 
+                          />
+                          <View style={styles.visaTypeBadge}>
+                            <Text style={styles.visaTypeBadgeText}>
+                              {visa.name.toLowerCase().includes('turismo') ? 'TURISMO' : 'TRABAJO'}
+                            </Text>
+                          </View>
+                        </View>
+                        <Text style={styles.visaTypeName}>{visa.name}</Text>
+                        <View style={styles.visaTypePriceRow}>
+                          <Text style={styles.visaTypePrice}>{visa.price} {visa.currency}</Text>
+                          <View style={styles.visaTypeTime}>
+                            <Ionicons name="time-outline" size={14} color="#8899aa" />
+                            <Text style={styles.visaTypeTimeText}>{visa.processing_time}</Text>
+                          </View>
+                        </View>
+                        <View style={styles.depositInfo}>
+                          <Ionicons name="information-circle" size={16} color="#d4af37" />
+                          <Text style={styles.depositText}>
+                            Depósito inicial: {visa.price / 2} EUR (50%)
+                          </Text>
+                        </View>
+                        <TouchableOpacity 
+                          style={styles.consultButton}
+                          onPress={() => openWhatsApp(selectedDestination.country)}
+                        >
+                          <Ionicons name="logo-whatsapp" size={20} color="#25D366" />
+                          <Text style={styles.consultButtonText}>Consultar</Text>
+                        </TouchableOpacity>
+                      </LinearGradient>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {/* Important Info */}
+              <View style={styles.infoSection}>
+                <View style={styles.infoCard}>
+                  <Ionicons name="alert-circle" size={24} color="#d4af37" />
+                  <Text style={styles.infoText}>
+                    * No incluye pasaje — solo gestión y asesoría
                   </Text>
                 </View>
               </View>
-              </View>
-            </View>
-
-            {/* Important Info */}
-            <View style={styles.infoSection}>
-              <View style={styles.infoCard}>
-                <Ionicons name="alert-circle" size={24} color="#d4af37" />
-                <Text style={styles.infoText}>
-                  * No incluye pasaje — solo gestión y asesoría
-                </Text>
-              </View>
-            </View>
 
             {/* Testimonials Section - Clientes Satisfechos */}
             <View style={styles.testimonialsSection}>
