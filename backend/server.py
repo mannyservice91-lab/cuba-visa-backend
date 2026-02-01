@@ -215,6 +215,28 @@ class DocumentInfo(BaseModel):
     uploaded_at: datetime = Field(default_factory=datetime.utcnow)
     data: str
 
+class Advisor(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    whatsapp: str
+    role: str = "Asesor de Visas"
+    photo_url: Optional[str] = None
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class AdvisorCreate(BaseModel):
+    name: str
+    whatsapp: str
+    role: str = "Asesor de Visas"
+    photo_url: Optional[str] = None
+
+class AdvisorUpdate(BaseModel):
+    name: Optional[str] = None
+    whatsapp: Optional[str] = None
+    role: Optional[str] = None
+    photo_url: Optional[str] = None
+    is_active: Optional[bool] = None
+
 # ============== HELPER FUNCTIONS ==============
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
