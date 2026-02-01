@@ -669,13 +669,16 @@ async def get_application(application_id: str):
         raise HTTPException(status_code=404, detail="Solicitud no encontrada")
     return {k: v for k, v in application.items() if k != "_id"}
 
+class DocumentUpload(BaseModel):
+    file_name: str
+    file_type: str
+    file_data: str
+
 @api_router.post("/applications/{application_id}/documents")
 async def upload_document(
     application_id: str,
     user_id: str,
-    file_name: str,
-    file_type: str,
-    file_data: str
+    doc_data: DocumentUpload
 ):
     application = await db.applications.find_one({"id": application_id})
     if not application:
@@ -685,9 +688,9 @@ async def upload_document(
         raise HTTPException(status_code=403, detail="No autorizado")
     
     document = DocumentInfo(
-        name=file_name,
-        type=file_type,
-        data=file_data
+        name=doc_data.file_name,
+        type=doc_data.file_type,
+        data=doc_data.file_data
     )
     
     await db.applications.update_one(
