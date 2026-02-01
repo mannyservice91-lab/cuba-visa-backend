@@ -119,9 +119,17 @@ export default function ApplicationDetailsScreen() {
       });
 
       const response = await fetch(
-        `${API_URL}/api/applications/${application.id}/documents?user_id=${user.id}&file_name=${encodeURIComponent(file.name)}&file_type=${encodeURIComponent(file.mimeType || 'application/octet-stream')}&file_data=${encodeURIComponent(base64)}`,
+        `${API_URL}/api/applications/${application.id}/documents?user_id=${user.id}`,
         {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            file_name: file.name,
+            file_type: file.mimeType || 'application/octet-stream',
+            file_data: base64,
+          }),
         }
       );
 
