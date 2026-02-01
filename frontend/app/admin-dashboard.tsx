@@ -186,8 +186,14 @@ export default function AdminDashboardScreen() {
               <Ionicons name="shield-checkmark" size={28} color="#d4af37" />
               <Text style={styles.headerTitle}>Panel Admin</Text>
             </View>
-            <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <TouchableOpacity 
+              onPress={handleLogout} 
+              style={styles.logoutButton}
+              testID="logout-button"
+              accessibilityLabel="Cerrar sesión"
+            >
               <Ionicons name="log-out" size={24} color="#f44336" />
+              <Text style={styles.logoutText}>Salir</Text>
             </TouchableOpacity>
           </View>
 
