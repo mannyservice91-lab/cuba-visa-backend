@@ -218,57 +218,6 @@ export default function HomeScreen() {
                 )}
               </View>
 
-              {/* Selected Destination Visa Types */}
-              {selectedDestination && selectedDestination.enabled && (
-                <View style={styles.visaTypesSection}>
-                  <View style={styles.selectedDestHeader}>
-                    <Text style={styles.selectedDestTitle}>
-                      Visas para {selectedDestination.country} {FLAG_EMOJIS[selectedDestination.country_code]}
-                    </Text>
-                  </View>
-
-                  {selectedDestination.visa_types?.map((visa, index) => (
-                    <View key={visa.id || index} style={styles.visaTypeCard}>
-                      <LinearGradient colors={['#1a2f4a', '#0d1f35']} style={styles.visaTypeGradient}>
-                        <View style={styles.visaTypeHeader}>
-                          <FontAwesome5 
-                            name={visa.name.toLowerCase().includes('turismo') ? 'umbrella-beach' : 'briefcase'} 
-                            size={24} 
-                            color="#d4af37" 
-                          />
-                          <View style={styles.visaTypeBadge}>
-                            <Text style={styles.visaTypeBadgeText}>
-                              {visa.name.toLowerCase().includes('turismo') ? 'TURISMO' : 'TRABAJO'}
-                            </Text>
-                          </View>
-                        </View>
-                        <Text style={styles.visaTypeName}>{visa.name}</Text>
-                        <View style={styles.visaTypePriceRow}>
-                          <Text style={styles.visaTypePrice}>{visa.price} {visa.currency}</Text>
-                          <View style={styles.visaTypeTime}>
-                            <Ionicons name="time-outline" size={14} color="#8899aa" />
-                            <Text style={styles.visaTypeTimeText}>{visa.processing_time}</Text>
-                          </View>
-                        </View>
-                        <View style={styles.depositInfo}>
-                          <Ionicons name="information-circle" size={16} color="#d4af37" />
-                          <Text style={styles.depositText}>
-                            Depósito inicial: {visa.price / 2} EUR (50%)
-                          </Text>
-                        </View>
-                        <TouchableOpacity 
-                          style={styles.consultButton}
-                          onPress={() => openWhatsApp(selectedDestination.country)}
-                        >
-                          <Ionicons name="logo-whatsapp" size={20} color="#25D366" />
-                          <Text style={styles.consultButtonText}>Consultar</Text>
-                        </TouchableOpacity>
-                      </LinearGradient>
-                    </View>
-                  ))}
-                </View>
-              )}
-
               {/* Important Info */}
               <View style={styles.infoSection}>
                 <View style={styles.infoCard}>
