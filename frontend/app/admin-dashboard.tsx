@@ -60,7 +60,7 @@ const STATUS_LABELS: { [key: string]: string } = {
 
 export default function AdminDashboardScreen() {
   const router = useRouter();
-  const { admin, adminLogout, isAdmin } = useAuth();
+  const { admin, adminLogout, isAdmin, isLoading: authLoading } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
