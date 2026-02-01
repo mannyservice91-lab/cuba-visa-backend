@@ -11,7 +11,7 @@ from datetime import datetime
 import uuid
 
 # Get backend URL from environment
-BACKEND_URL = "https://visado-laboral-cuba.preview.emergentagent.com/api"
+BACKEND_URL = "https://visa-express-13.preview.emergentagent.com/api"
 
 # Test data - realistic Cuban user data
 TEST_USER_DATA = {
