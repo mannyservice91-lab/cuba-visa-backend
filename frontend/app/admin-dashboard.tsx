@@ -394,7 +394,15 @@ const styles = StyleSheet.create({
     color: '#d4af37',
   },
   logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 10,
+    gap: 5,
+  },
+  logoutText: {
+    color: '#f44336',
+    fontSize: 14,
+    fontWeight: '600',
   },
   scrollView: {
     flex: 1,
