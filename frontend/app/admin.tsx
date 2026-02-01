@@ -109,14 +109,15 @@ export default function AdminLoginScreen() {
               {/* Form */}
               <View style={styles.form}>
                 <View style={styles.inputContainer}>
-                  <Ionicons name="person" size={20} color="#d4af37" style={styles.inputIcon} />
+                  <Ionicons name="mail" size={20} color="#d4af37" style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
-                    placeholder="Usuario"
+                    placeholder="Email"
                     placeholderTextColor="#667788"
-                    value={username}
-                    onChangeText={setUsername}
+                    value={email}
+                    onChangeText={setEmail}
                     autoCapitalize="none"
+                    keyboardType="email-address"
                   />
                 </View>
 
