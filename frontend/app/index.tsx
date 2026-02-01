@@ -555,6 +555,58 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#d4af37',
   },
+  // User Access Styles
+  userAccessSection: {
+    marginTop: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  accessTitle: {
+    fontSize: 16,
+    color: '#8899aa',
+    marginBottom: 15,
+  },
+  accessButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+    justifyContent: 'center',
+  },
+  loginBtn: {
+    flex: 1,
+    maxWidth: 180,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  loginBtnGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 14,
+    gap: 8,
+  },
+  loginBtnText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#0a1628',
+  },
+  registerBtn: {
+    flex: 1,
+    maxWidth: 180,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 14,
+    gap: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#d4af37',
+  },
+  registerBtnText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#d4af37',
+  },
   // Testimonials Styles
   testimonialsSection: {
     marginVertical: 20,
