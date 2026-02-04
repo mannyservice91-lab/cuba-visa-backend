@@ -372,14 +372,30 @@ export default function AdminApplicationScreen() {
                   {application.documents.length > 0 ? (
                     application.documents.map((doc, index) => (
                       <View key={doc.id || index} style={styles.documentItem}>
-                        <Ionicons
-                          name={doc.type.includes('pdf') ? 'document-text' : 'image'}
-                          size={20}
-                          color="#d4af37"
-                        />
-                        <Text style={styles.documentName} numberOfLines={1}>
-                          {doc.name}
-                        </Text>
+                        <View style={styles.documentInfo}>
+                          <Ionicons
+                            name={doc.type.includes('pdf') ? 'document-text' : 'image'}
+                            size={20}
+                            color="#d4af37"
+                          />
+                          <Text style={styles.documentName} numberOfLines={1}>
+                            {doc.name}
+                          </Text>
+                        </View>
+                        <View style={styles.documentActions}>
+                          <TouchableOpacity
+                            style={styles.docActionBtn}
+                            onPress={() => handleDownloadDocument(doc.id, doc.name, doc.type)}
+                          >
+                            <Ionicons name="download" size={18} color="#4caf50" />
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={styles.docActionBtn}
+                            onPress={() => handleDeleteDocument(doc.id, doc.name)}
+                          >
+                            <Ionicons name="trash" size={18} color="#f44336" />
+                          </TouchableOpacity>
+                        </View>
                       </View>
                     ))
                   ) : (
