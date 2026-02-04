@@ -175,6 +175,13 @@ export default function DestinationScreen() {
               <View style={styles.heroSection}>
                 <Text style={styles.flagEmoji}>{FLAG_EMOJIS[destination.country_code]}</Text>
                 <Text style={styles.countryName}>{destination.country}</Text>
+                {/* E-visa badge */}
+                {EVISA_COUNTRIES.includes(destination.country_code) && (
+                  <View style={styles.evisaBadge}>
+                    <Ionicons name="globe" size={16} color="#4caf50" />
+                    <Text style={styles.evisaText}>E-Visa (Electrónica)</Text>
+                  </View>
+                )}
                 <View style={styles.goldLine} />
               </View>
 
