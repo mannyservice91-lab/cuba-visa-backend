@@ -831,8 +831,40 @@ async def admin_get_all_users(current_admin: dict = Depends(get_current_admin)):
         "phone": u["phone"],
         "passport_number": u["passport_number"],
         "country_of_residence": u.get("country_of_residence", "Cuba"),
-        "created_at": u["created_at"]
+        "created_at": u["created_at"],
+        "is_active": u.get("is_active", True)
     } for u in users]
+
+@api_router.delete("/admin/users/{user_id}")
+async def admin_delete_user(user_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Delete a user and all their applications (anti-spam)"""
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    # Delete all user's applications first
+    await db.applications.delete_many({"user_id": user_id})
+    
+    # Delete the user
+    result = await db.users.delete_one({"id": user_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    return {"message": "Usuario y sus solicitudes eliminados exitosamente"}
+
+@api_router.put("/admin/users/{user_id}/toggle")
+async def admin_toggle_user(user_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Toggle user active status"""
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    new_status = not user.get("is_active", True)
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"is_active": new_status}}
+    )
+    return {"message": f"Usuario {'activado' if new_status else 'desactivado'}", "is_active": new_status}
 
 # ============== TESTIMONIALS ROUTES ==============
 
