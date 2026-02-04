@@ -142,10 +142,67 @@ export default function ApplicationDetailsScreen() {
   }, [fetchApplication]);
 
   const handleUploadDocument = async () => {
-    if (!application || !user) return;
+    if (!application || !user) {
+      showAlert('Error', 'Debes iniciar sesión para subir documentos');
+      return;
+    }
 
     try {
       console.log('Starting document picker...');
+      
+      // Request permissions on mobile
+      if (Platform.OS !== 'web') {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+          showAlert('Permiso Requerido', 'Necesitamos acceso a tu galería para subir documentos');
+          return;
+        }
+      }
+
+      // Show options for mobile - image picker is more reliable
+      if (Platform.OS !== 'web') {
+        // Use ImagePicker for mobile as it's more reliable
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: false,
+          quality: 0.7,
+          base64: true,
+        });
+
+        if (result.canceled || !result.assets[0]) return;
+
+        const asset = result.assets[0];
+        setIsUploading(true);
+
+        const base64Data = asset.base64 || '';
+        const fileName = `documento_${Date.now()}.jpg`;
+
+        console.log('Uploading image document...');
+        const response = await fetch(
+          `${API_URL}/api/applications/${application.id}/documents?user_id=${user.id}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file_name: fileName,
+              file_type: 'image/jpeg',
+              file_data: base64Data,
+            }),
+          }
+        );
+
+        const data = await response.json();
+        console.log('Upload response:', data);
+        
+        if (!response.ok) throw new Error(data.detail || 'Error al subir');
+
+        showAlert('Éxito', 'Documento subido correctamente');
+        fetchApplication();
+        setIsUploading(false);
+        return;
+      }
+
+      // Web: Use DocumentPicker
       const result = await DocumentPicker.getDocumentAsync({
         type: ['image/*', 'application/pdf'],
         copyToCacheDirectory: true,
@@ -161,35 +218,28 @@ export default function ApplicationDetailsScreen() {
 
       let base64Data: string;
       
-      if (Platform.OS === 'web') {
-        // On web, convert file URI to base64
-        try {
-          if (file.uri.startsWith('data:')) {
-            base64Data = file.uri.split(',')[1];
-          } else {
-            const response = await fetch(file.uri);
-            const blob = await response.blob();
-            base64Data = await new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                const result = reader.result as string;
-                resolve(result.split(',')[1]);
-              };
-              reader.onerror = reject;
-              reader.readAsDataURL(blob);
-            });
-          }
-        } catch (e) {
-          console.error('Error converting file:', e);
-          showAlert('Error', 'No se pudo procesar el archivo');
-          setIsUploading(false);
-          return;
+      // On web, convert file URI to base64
+      try {
+        if (file.uri.startsWith('data:')) {
+          base64Data = file.uri.split(',')[1];
+        } else {
+          const response = await fetch(file.uri);
+          const blob = await response.blob();
+          base64Data = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const result = reader.result as string;
+              resolve(result.split(',')[1]);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
         }
-      } else {
-        // On native, use FileSystem
-        base64Data = await FileSystem.readAsStringAsync(file.uri, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
+      } catch (e) {
+        console.error('Error converting file:', e);
+        showAlert('Error', 'No se pudo procesar el archivo');
+        setIsUploading(false);
+        return;
       }
 
       console.log('Uploading document to server...');
