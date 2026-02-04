@@ -59,6 +59,15 @@ EMBASSIES = {
     "default": "Consultar Embajada más cercana"
 }
 
+# Países que usan E-visa (visa electrónica, no requiere embajada)
+EVISA_COUNTRIES = ["Georgia", "Armenia", "India", "Dubai"]
+
+def get_visa_pickup_location(destination_country: str, user_residence: str) -> str:
+    """Determina donde se recoge la visa según el destino"""
+    if destination_country in EVISA_COUNTRIES:
+        return "E-Visa (Electrónica - No requiere recogida física)"
+    return EMBASSIES.get(user_residence, EMBASSIES["default"])
+
 # ============== MODELS ==============
 
 class Token(BaseModel):
