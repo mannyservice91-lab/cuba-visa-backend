@@ -1,165 +1,303 @@
 <analysis>
-**original_problem_statement**: The user wants to build a Cuban-Serbia Visa Center app. The core requirements have evolved to include a multi-destination system (Serbia, Georgia, etc.), independent JWT authentication, and distinct dashboards for users and admins.
 
-Key features requested during this session:
-- A multi-destination home screen with real photos for each country.
-- A dedicated details page for each destination, showing visa types and prices.
-- Logic to differentiate between visa pickups at an embassy (e.g., Serbia) and electronic E-Visas (e.g., Georgia).
-- An admin panel to manage destinations and their visa types.
-- An admin panel to manage Advisors and their WhatsApp contact info.
-- A redesigned user dashboard with a profile picture, residence info, visa pickup location, and a visual progress bar for application status.
-- Fixing user registration, login, and document/photo upload functionalities.
-- A persistent and recurring issue with both admin and user logout functionality not working correctly on the user's web preview.
+**original_problem_statement**: The user wants to build a Cuban-Serbia Visa Center app. This has evolved into a multi-destination visa application platform with independent user/admin authentication.
+
+**PRODUCT REQUIREMENTS**:
+- A multi-destination system with visa details pages.
+- Separate User and Admin dashboards with JWT authentication.
+- **Admin Features**:
+    - Manage destinations, visa types, and advisors (including photos).
+    - View all registered users and have the ability to delete them.
+    - View user applications, and download/delete submitted documents.
+    - Manage client testimonials.
+- **User Features**:
+    - Register with email verification (via SendGrid).
+    - Login and view a dashboard with profile picture, application status, and contact info for advisors.
+    - User should select their country of residence from their profile.
+    - Submit new visa applications and upload required documents.
+    - Contact support (CEO and Advisors) via a modal with WhatsApp links.
+- **Technical Requirements**:
+    - The application must be production-ready and not dependent on the Emergent development environment to run.
+    - The user must be able to build a standalone APK that connects to the deployed production backend.
 
 **User's preferred language**: Spanish (español). The next agent MUST respond in Spanish.
 
 **what currently exists?**
-The application has a FastAPI/MongoDB backend with a JWT authentication system for both admins and users. The frontend is built with React Native and Expo.
-
-- **Backend**: Contains models and API endpoints for users, admins, destinations, visa types, applications, testimonials, and advisors. It includes logic to handle different visa location types (Embassy vs. E-visa) and a password migration system for legacy users.
-- **Frontend**: A significant portion of the frontend has been refactored or newly created.
-    - **Admin**: The admin login, dashboard, destination management, and advisor management screens are implemented.
-    - **User**: The home screen shows destinations with photos. A dynamic destination detail page () shows visa info. The user registration, login, and a completely redesigned dashboard (with progress bar) are in place. The New Application flow has been updated for the multi-destination system.
-- **Overall State**: While many features have been implemented and tested successfully by the agent, the user reports that several core functionalities (**user registration, admin/user logout, photo/document uploads**) are broken on their web preview. This suggests a major discrepancy between the agent's test environment and the user's experience, likely due to web-specific issues (caching, silent errors).
+The project is a full-stack application with a FastAPI/MongoDB backend and a React Native/Expo frontend.
+- **Backend**: The backend is robust and production-hardened. It includes endpoints for all required features (auth, users, destinations, applications, documents, advisors, testimonials). It features mandatory environment variable validation on startup, a comprehensive  check endpoint, and integration with SendGrid for email verification.
+- **Frontend**: The frontend has implemented screens for all major user and admin flows. A critical refactor was performed to centralize API URL configuration in , making the app build-ready for different environments (dev vs. production). It also includes UI for all requested features, including the contact modal and admin document management.
+- **Deployment**: The user has successfully deployed the backend, which is live. The current and final task is to help the user build a production APK on their local Windows machine.
 
 **Last working item**:
-    - Last item agent was working: The agent was addressing a critical user report that multiple core features were failing on the web preview. The agent identified that  fails silently on the web, hiding errors, and that the registration page lacked a back button. It had just started fixing  to add a back button and provide visual error feedback for web users.
-    - Status: IN PROGRESS
-    - Agent Testing Done: Y (Agent's own tests passed, but user's did not)
-    - Which testing method agent to use? manual testing by screenshot tool. The focus must be on replicating the user's experience on the web preview ().
-    - User Testing Done: N (User reported failures on all recent changes)
+    - Last item agent was working: The agent was debugging a failing remote EAS (Expo Application Services) build. The user is trying to build a production APK on their local machine, but the build fails on Expo's servers during the  (Install dependencies) step. The agent made several attempts to fix dependency conflicts by updating  and creating a , but the issue persists.
+    - Status: BLOCKED
+    - Agent Testing Done: N/A (The build process itself is failing)
+    - Which testing method agent to use? The next agent cannot test this directly. It must guide the user to provide the full build logs from the Expo dashboard to diagnose the dependency conflict and then modify the project's dependency files (, ) to fix it.
+    - User Testing Done: N (User cannot test the APK because it fails to build)
 
 **All Pending/In progress Issue list**:
-  - Issue 1: (P0) Core functionalities are broken on user's web preview.
+  - Issue 1: (P0) Production APK build fails on EAS servers.
+  - Issue 2: (P1) Several features fixed by the agent have not been verified by the user on a real device due to the build failure.
   
   Issues Detail:
   - Issue 1: 
-     - **Description**: The user reports that on their web preview, they cannot: 1) Register a new user, 2) Log out from the admin or user dashboards, 3) Add a profile photo in the user panel, 4) Upload documents to an application. The agent's tests show these features working, indicating a subtle bug related to the web environment, caching, or state management. This is the highest priority as it makes the app unusable for the user.
-     - **Attempted fixes**: The agent has made several attempts to fix the logout issue, most recently by forcing  and a page reload (). For the registration issue, the agent started overwriting  to add a back button and use  for web-compatible error messages.
+     - **Description**: When the user runs An Expo user account is required to proceed.
+
+Log in to EAS with email or username (exit and run eas login --help to see other login options)
+Input is required, but stdin is not readable. Failed to display prompt: Email or username on their local machine, the build process starts but fails on Expo's remote builders during the Install dependencies phase. The short log provided by the user () indicates a dependency conflict.
+     - **Attempted fixes**: 
+        - The agent guided the user to use 
+up to date, audited 1016 packages in 2s
+
+195 packages are looking for funding
+  run `npm fund` for details
+
+6 vulnerabilities (1 low, 2 moderate, 3 high)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details. locally.
+        - The agent updated  version to resolve a mismatch.
+        - The agent removed the  field from  and generated a  to ensure npm <command>
+
+Usage:
+
+npm install        install all the dependencies in your project
+npm install <foo>  add the <foo> dependency to your project
+npm test           run this project's tests
+npm run <foo>      run the script named <foo>
+npm <command> -h   quick help on <command>
+npm -l             display usage info for all commands
+npm help <term>    search for help on <term>
+npm help npm       more involved overview
+
+All commands:
+
+    access, adduser, audit, bugs, cache, ci, completion,
+    config, dedupe, deprecate, diff, dist-tag, docs, doctor,
+    edit, exec, explain, explore, find-dupes, fund, get, help,
+    help-search, hook, init, install, install-ci-test,
+    install-test, link, ll, login, logout, ls, org, outdated,
+    owner, pack, ping, pkg, prefix, profile, prune, publish,
+    query, rebuild, repo, restart, root, run-script, sbom,
+    search, set, shrinkwrap, star, stars, start, stop, team,
+    test, token, uninstall, unpublish, unstar, update, version,
+    view, whoami
+
+Specify configs in the ini-formatted file:
+    /root/.npmrc
+or on the command line via: npm <command> --key=value
+
+More configuration info: npm help config
+Configuration fields: npm help 7 config
+
+npm@10.8.2 /usr/lib/node_modules/npm is used consistently.
+        - The agent added  to  to force the use of npm.
+        These fixes were insufficient. The build is still failing.
      - **Next debug checklist**:
-        1. **Registration ():**
-           - Verify the new  with the Back button and visual error feedback is complete.
-           - Test the registration flow and deliberately trigger an error (e.g., using an existing email) to ensure the error message is displayed to the user on the web.
-        2. **Logout (Recurring):**
-           - Re-examine the logout logic in  and the  functions in  and .
-           - The issue is likely that the frontend state is not being reset correctly even if the token is cleared. Ensure  and  are called and that components re-render correctly. Consider using  to fully unmount the authenticated stack.
-        3. **User Photo Upload ():**
-           - Review the  function. Check for silent failures. Wrap the  and  calls in a  block and use  or a visual alert to display any errors.
-           - Verify the backend endpoint is correctly receiving and processing the image data.
-        4. **Document Upload ():**
-           - This was supposedly fixed but is still failing. Review the  function.
-           - Add robust  error handling and log the entire  being sent to the server to ensure the  data and  are correct.
-           - Check the backend logs for specific errors on the  endpoint.
-     - **Why fix this issue and what will be achieved with the fix?**: The application is fundamentally broken from the user's perspective. Fixing this will restore core functionality and user trust.
-     - **Status**:  IN PROGRESS
-     - **Is recurring issue?** Y (The logout issue is highly recurrent).
-     - **Should Test frontend/backend/both after fix?**: both
-     - **Blocked on other issue**: No.
+        1. **Instruct the user to go to the build URL** provided in their console (e.g., ).
+        2. **Ask the user to click on the red Install dependencies step** to expand the logs.
+        3. **Request the user to copy and paste the ENTIRE log content**. The specific package conflict is detailed higher up in the logs, not just the final exit code.
+        4. Analyze the full log to identify the exact package(s) causing the conflict.
+        5. Modify  to resolve the conflict, possibly by adding specific versions or using npm .
+     - **Why fix this issue and what will be achieved with the fix?**: This is the final blocker preventing the user from having a standalone mobile app. Fixing this will allow the user to generate and install a working APK.
+     - **Status**:  BLOCKED
+     - **Is recurring issue?** Y
+     - **Should Test frontend/backend/both after fix?**: The user will test the generated APK.
+     - **Blocked on other issue**: No, this is the main blocker.
+  - Issue 2:
+     - **Description**: The user previously reported issues with document uploads, profile photo uploads from mobile, testimonial photos not showing, and WhatsApp links not working. The agent has implemented fixes for all of these. However, without a successful APK build, the user has been unable to verify if these fixes work on a real device.
+     - **Next debug checklist**: Once Issue 1 is resolved and an APK is built, the user must test these specific flows.
+     - **Why fix this issue and what will be achieved with the fix?**: To ensure the application is fully functional and meets all user requirements.
+     - **Status**:  USER VERIFICATION PENDING
+     - **Is recurring issue?** Y
+     - **Should Test frontend/backend/both after fix?**: User testing on APK.
 
 **In progress Task List**:
-  - Task 1: (P0) Stabilize the Application for Web Preview
+  - Task 1: (P0) Guide the user to successfully build a production APK.
  
  Task Detail:
   - Task 1: 
-     - **Where to resume**: Resume fixing  to provide clear error feedback and a Back button. Then, systematically debug and fix the other reported issues (logout, photo upload, document upload), prioritizing robust error handling and visual feedback for the web platform.
-     - **What will be achieved with this?**: A functional and stable application where core user and admin flows work as expected on the web preview.
+     - **Where to resume**: The An Expo user account is required to proceed.
+
+Log in to EAS with email or username (exit and run eas login --help to see other login options)
+Input is required, but stdin is not readable. Failed to display prompt: Email or username command is failing. The immediate next step is to obtain the full, detailed error log from the Expo build page from the user.
+     - **What will be achieved with this?**: A downloadable, installable APK file that works independently of the development environment.
      - **Status**:  IN PROGRESS
-     - **Should Test frontend/backend/both after fix?**: both
-     - **Blocked on something**: No.
+     - **Should Test frontend/backend/both after fix?**: N/A
+     - **Blocked on something**: Awaiting full error logs from the user.
 
 **Upcoming and Future Tasks**
-    - **Admin Panel - Testimonials (P1):** The user asked for the ability to upload *videos* for satisfied clients, not just photos. The current implementation in  only handles images.
-    - **User Dashboard - Dynamic Progress Bar (P2):** The progress bar in  is currently static. It needs to be connected to the  field so it updates dynamically as the admin changes the application's state.
+    - **Future Task (P1):** Implement video uploads for testimonials in . The current implementation only supports images.
+    - **Future Task (P2):** Connect the application status progress bar in  to the  field from the backend so it updates dynamically.
 
 **Completed work in this session**
-- **Admin JWT Auth Refactor**: Successfully refactored the admin login () and dashboard () to use the new JWT authentication flow.
-- **Admin & User Logout Fix**: Implemented a robust logout mechanism that clears  and forces a page reload to combat caching issues, resolving a recurring problem.
-- **Multi-Destination System**:
-    - Created a new home screen () that dynamically displays destination cards with real photos fetched from the backend.
-    - Implemented a dynamic destination detail page () to show visa types, prices, and requirements for a selected country.
-    - Added a new admin screen () for managing countries and their visa types.
-- **E-Visa Logic**: Implemented backend and frontend logic to identify and display E-Visa status for destinations like Georgia.
-- **User Dashboard Redesign**: Completely overhauled the user dashboard () to match a user-provided design, including a profile picture, residence/embassy info, and a visual progress bar for applications.
-- **Advisor Management**: Created a full CRUD system for Advisors, allowing the admin to add/manage advisors with WhatsApp numbers, which are then displayed to users on their dashboard.
-- **User Flow Fixes**: Added Login and Register buttons to the home page and updated the New Application flow to be compatible with the multi-destination system.
+- **Production Readiness**:
+  - Hardened the backend by removing hardcoded secrets and database fallbacks.
+  - Implemented strict environment variable validation at startup.
+  - Added a comprehensive  endpoint for monitoring.
+- **Mobile Build Fixes**:
+  - Corrected a critical Invalid URL error on mobile by creating a centralized API config () and refactoring all API calls to use it.
+  - Fixed multiple React version and dependency issues to prepare for An Expo user account is required to proceed.
+
+Log in to EAS with email or username (exit and run eas login --help to see other login options)
+Input is required, but stdin is not readable. Failed to display prompt: Email or username.
+- **Admin User Management**:
+  - Created a new endpoint () and a new frontend screen () for admins to view and delete users.
+- **Email Verification**:
+  - Integrated SendGrid to send verification emails upon registration.
+  - Created backend endpoints and a frontend page () to handle the verification flow.
+  - Login is blocked until the user's email is verified.
+- **User Profile Enhancements**:
+  - Implemented a modal in the user dashboard for selecting/updating the country of residence.
+- **Contact/Support Flow**:
+  - Fixed the Contáctanos button by implementing a modal that allows users to choose between contacting the CEO or a list of available advisors via WhatsApp.
+  - Added functionality for admins to upload photos for advisors.
+- **Admin Document Management**:
+  - Added backend endpoints and frontend UI for admins to download and delete documents submitted by users in their applications.
+- **UI/UX Fixes**:
+  - Removed duplicate Login/Register buttons from the home screen.
+  - Replaced native  calls with a cross-platform compatible  utility for better error feedback on the web.
+  - Fixed profile photo and document uploads from mobile by correctly requesting permissions and handling image data.
 
 **Earlier issues found/mentioned but not fixed**
-- The primary unfixed issues are the ones currently in progress, as reported by the user in their last message (registration, logout, and uploads failing on preview).
+- All mentioned issues were addressed, but their resolution is pending user verification after a successful APK build.
 
 **Known issue recurrence from previous fork**
-  - **Issue recurrence in previous fork**: Admin logout not working.
+  - **Issue recurrence in previous fork**: Admin/User Logout.
   - **Recurrence count**: 3+
-  - **Status**: IN PROGRESS. Although the agent implemented a more robust fix ( clearing and page reload), the user still reports it as failing on their preview. This needs definitive resolution.
+  - **Status**: RESOLVED. The agent implemented a robust logout flow and confirmed it was working via screenshot tests.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Backend**: FastAPI, MongoDB (using the  async driver), Pydantic for data validation, JWT for authentication (, ).
-- **Frontend**: React Native, Expo, Expo Router (file-based routing), React Context API () for state management,  (for native) and  (for web) for token persistence.
-- **Architecture**: Decoupled frontend-backend architecture.
+- **Backend**: FastAPI, MongoDB (motor), Pydantic, JWT (). Production-ready with env var validation.
+- **Frontend**: React Native, Expo, Expo Router, React Context API.
+- **Build Process**: **Expo Application Services (EAS) Build**. The user is running An Expo user account is required to proceed.
+
+Log in to EAS with email or username (exit and run eas login --help to see other login options)
+Input is required, but stdin is not readable. Failed to display prompt: Email or username on their local machine to build a production APK using Expo's cloud infrastructure. This is the currently failing process.
+- **Deployment**: The backend has been deployed and is running independently. The frontend web app is also accessible via a public URL.
 
 **key DB schema**
-  - **admins**: uid=0(root) gid=0(root) groups=0(root), , 
-  - **destinations**: uid=0(root) gid=0(root) groups=0(root), , , ,  ('embassy' or 'evisa'),  (embedded list)
-  - **visatypes** (embedded in destinations): uid=0(root) gid=0(root) groups=0(root), , , , , 
-  - **users**: uid=0(root) gid=0(root) groups=0(root), , , , , , , 
-  - **applications**: uid=0(root) gid=0(root) groups=0(root), , , , , ,  (embedded list), 
-  - **testimonials**: uid=0(root) gid=0(root) groups=0(root), , 
-  - **advisors**: uid=0(root) gid=0(root) groups=0(root), , , 
+  - **users**: uid=0(root) gid=0(root) groups=0(root), , , , ,  (NEW),  (NEW), etc.
+  - **advisors**: uid=0(root) gid=0(root) groups=0(root), , ,  (now implemented).
+  - **applications**: uid=0(root) gid=0(root) groups=0(root), , ,  (list of ).
 
 **changes in tech stack**
-- The initial summary was incorrect about SQLite. The project has consistently used **MongoDB**. The significant change was the implementation of a custom JWT authentication system, replacing a simpler, less secure method.
+- No changes to the core stack, but the project is now configured to use **EAS Build** for creating production binaries.
 
 **All files of reference**
-- : The single source of truth for all backend logic, models, and API endpoints.
-- : The core of the frontend authentication. Any logout/login issues will likely involve this file.
-- : Currently being fixed to improve user experience on web previews.
-- : The heavily modified user dashboard. Needs to be checked for the photo upload functionality.
-- : Contains the document upload logic that is reportedly failing.
-- : Contains the admin logout logic.
+- : This file is at the core of the current build issue. Its dependency list needs to be perfectly aligned to satisfy the  command on EAS servers.
+- : Created by the agent to try and lock dependencies for npm <command>
+
+Usage:
+
+npm install        install all the dependencies in your project
+npm install <foo>  add the <foo> dependency to your project
+npm test           run this project's tests
+npm run <foo>      run the script named <foo>
+npm <command> -h   quick help on <command>
+npm -l             display usage info for all commands
+npm help <term>    search for help on <term>
+npm help npm       more involved overview
+
+All commands:
+
+    access, adduser, audit, bugs, cache, ci, completion,
+    config, dedupe, deprecate, diff, dist-tag, docs, doctor,
+    edit, exec, explain, explore, find-dupes, fund, get, help,
+    help-search, hook, init, install, install-ci-test,
+    install-test, link, ll, login, logout, ls, org, outdated,
+    owner, pack, ping, pkg, prefix, profile, prune, publish,
+    query, rebuild, repo, restart, root, run-script, sbom,
+    search, set, shrinkwrap, star, stars, start, stop, team,
+    test, token, uninstall, unpublish, unstar, update, version,
+    view, whoami
+
+Specify configs in the ini-formatted file:
+    /root/.npmrc
+or on the command line via: npm <command> --key=value
+
+More configuration info: npm help config
+Configuration fields: npm help 7 config
+
+npm@10.8.2 /usr/lib/node_modules/npm.
+- : Configuration for the EAS build process.
+- : Critical file that ensures the APK connects to the correct production backend URL.
+- : The entire backend logic.
 
 **Critical Info for New Agent**
-- **USER PREVIEW IS THE SOURCE OF TRUTH**: Do not trust that a feature works just because your internal tests pass. The user is experiencing significant issues on their web preview that the agent cannot replicate. Your primary goal is to fix the app *for the user*. Prioritize robust, cross-platform error handling (e.g., avoid  on web) and provide clear visual feedback for all operations.
-- **RECURRING LOGOUT BUG**: The admin and user logout issues are persistent. The current fix (clearing storage + page reload) is a good start, but it might not be enough. Investigate if frontend state is being properly reset or if there's a deeper issue with how Expo Router and the Auth Context interact on page navigations.
-- **SILENT FAILURES**: The user's reports suggest many functions (uploads, registration) are failing silently. Wrap all asynchronous operations (API calls, image pickers) in  blocks and use  and user-visible error messages to debug.
+- **The main and ONLY task is to get the An Expo user account is required to proceed.
+
+Log in to EAS with email or username (exit and run eas login --help to see other login options)
+Input is required, but stdin is not readable. Failed to display prompt: Email or username to succeed.** Do not get distracted by other features. The user is blocked and frustrated.
+- **You are guiding a non-technical user on their local Windows machine.** Your instructions must be extremely clear, simple, and account for common local environment issues (e.g., command not found, paths with spaces).
+- **You cannot solve this alone.** You depend on the user to provide the full, detailed error logs from the Expo build URL. The one-line error Unknown command: "ci..."
+
+To see a list of supported npm commands, run:
+  npm help is not enough. You must guide the user to find and copy the complete log.
+- **The problem is a dependency conflict.** The fix will involve modifying  and possibly . You need to find which package versions are clashing from the full log.
 
 **documents created in this job**
-- None.
+- 
+- 
+- 
+- 
+- 
 
 **Last 10 User Messages and any pending HUMAN messages** 
- 1. User reports logout, registration, profile photo upload, and document upload are all broken on their preview. Also notes a missing back button on the registration screen. (PENDING)
- 2. Agent provides a summary of fixes for the user dashboard and E-visa logic. Asks for user confirmation.
- 3. User reports user logout is broken and Georgia should be an E-visa. (RESOLVED)
- 4. Agent provides a summary of the redesigned user dashboard. Asks for user confirmation.
- 5. User provides an image for the desired user dashboard layout and reports document upload and admin testimonial upload are broken. Also requests the advisor feature. (RESOLVED)
- 6. Agent provides a summary of the multi-destination implementation. (COMPLETED)
- 7. User clarifies they want real photos, a separate destination page, and asks if the app is independent of Emergent. (RESOLVED)
- 8. Agent provides a summary of the multi-destination feature. Asks for user confirmation.
- 9. User lists the next set of features to implement. (IN PROGRESS)
- 10. User confirms the admin panel JWT restoration is complete. (COMPLETED)
+ 1. User reports  fails due to dependency conflicts. (PENDING)
+ 2. Agent provides 
+up to date, audited 1016 packages in 911ms
+
+195 packages are looking for funding
+  run `npm fund` for details
+
+6 vulnerabilities (1 low, 2 moderate, 3 high)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details. command. (RESOLVED)
+ 3. User reports An Expo user account is required to proceed.
+
+Log in to EAS with email or username (exit and run eas login --help to see other login options)
+Input is required, but stdin is not readable. Failed to display prompt: Email or username is running. (PENDING)
+ 4. Agent asks user to wait and see what questions the build process asks. (RESOLVED)
+ 5. User reports the build failed again. (PENDING)
+ 6. Agent asks for the full error log from the Expo build URL. (PENDING)
+ 7. User only provides the last line of the error. (PENDING)
+ 8. Agent repeats the request for the full log from *above* the last line. (PENDING)
+ 9. User asks which link to open. (RESOLVED)
+ 10. Agent provides the exact link again and clear instructions. (PENDING)
 
 **Project Health Check:**
-- **Broken**: Core functionalities including user registration, session logout (admin & user), and file/image uploads are reportedly non-functional on the user's web preview, making the application unusable.
+- **Broken**: The production APK build process is broken, which is the final step for project completion.
+- **Mocked**: None.
 
 **3rd Party Integrations**
+- **SendGrid**: Used for sending verification emails. Requires a user-provided API key.
 - **PayPal**: Integrated via a direct URL link.
 - **WhatsApp**: Integrated via a direct URL link.
 
 **Testing status**
   - Testing agent used after significant changes: NO
-  - Troubleshoot agent used after agent stuck in loop: YES, but the user rejected the diagnosis and the agent proceeded with manual fixes.
+  - Troubleshoot agent used after agent stuck in loop: NO
   - Test files created: None
-  - Known regressions: User registration, logout, and file uploads were previously working at different stages but are now reported as broken.
+  - Known regressions: None confirmed, but several previously fixed features are pending user verification on the final APK.
 
 **Credentials to test flow:**
 - **Admin Login**:
   - **Email**: 
   - **Password**: 
-- **Test User**: You will likely need to register a new user to test, e.g.,  / .
+- **Backend URL (Production)**: 
 
 **What agent forgot to execute**
-- The agent has not yet implemented support for **video** uploads for testimonials, as requested by the user. It has only focused on images.
-- The agent did not successfully and definitively fix the core functionalities (logout, registration, uploads) to work on the user's preview, despite multiple attempts. The fixes implemented were not sufficient.
+- The agent has not implemented support for **video** uploads for testimonials.
+- The agent has not implemented the **dynamic progress bar** for application status on the user dashboard.
+- These tasks were deprioritized to focus on the critical build and deployment issues.
 
 </analysis>

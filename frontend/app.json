@@ -9,7 +9,7 @@
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "extra": {
-      "backendUrl": "https://cuba-visa-hub.preview.emergentagent.com"
+      "backendUrl": "https://visa-portal-21.preview.emergentagent.com"
     },
     "ios": {
       "supportsTablet": true,
