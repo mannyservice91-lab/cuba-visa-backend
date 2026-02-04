@@ -658,4 +658,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  photoPickerContainer: {
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  photoPreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 3,
+    borderColor: '#d4af37',
+  },
+  photoPlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+    borderWidth: 2,
+    borderColor: 'rgba(212, 175, 55, 0.5)',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  photoPlaceholderText: {
+    color: '#d4af37',
+    fontSize: 11,
+    marginTop: 5,
+  },
 });
