@@ -77,18 +77,28 @@ export default function AdminTestimonialsScreen() {
   }, [isAdmin, fetchTestimonials, router]);
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.7,
-    });
-
-    if (!result.canceled) {
-      const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
-        encoding: FileSystem.EncodingType.Base64,
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.5,
       });
-      setSelectedImage(base64);
+
+      if (!result.canceled && result.assets[0]) {
+        const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        // Save with proper data URI format
+        setSelectedImage(`data:image/jpeg;base64,${base64}`);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      if (Platform.OS === 'web') {
+        window.alert('Error al seleccionar imagen');
+      } else {
+        Alert.alert('Error', 'No se pudo seleccionar la imagen');
+      }
     }
   };
 
