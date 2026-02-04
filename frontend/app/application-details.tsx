@@ -10,6 +10,8 @@ import {
   Linking,
   RefreshControl,
   Platform,
+  Modal,
+  Image,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient/build/LinearGradient';
@@ -21,7 +23,23 @@ import { useAuth } from '../src/context/AuthContext';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 const PAYPAL_LINK = 'https://paypal.me/Gonzalezjm91';
-const WHATSAPP_NUMBER = '+381693444935';
+
+// CEO Information
+const CEO_INFO = {
+  name: 'Jose Manuel Gonzalez',
+  role: 'CEO',
+  whatsapp: '+381693444935',
+  photo: 'https://customer-assets.emergentagent.com/job_deaa944a-8794-4ce3-aef8-ec2d6c8949f6/artifacts/hdvxwttk_Foto%20Profesional%20Dise%C3%B1ador%20Gr%C3%A1fico%20M91%20con%20Ropa%20de%20Invierno.png',
+};
+
+interface Advisor {
+  id: string;
+  name: string;
+  whatsapp: string;
+  role: string;
+  photo_url: string | null;
+  is_active: boolean;
+}
 
 // Cross-platform alert helper
 const showAlert = (title: string, message: string, onOk?: () => void) => {
