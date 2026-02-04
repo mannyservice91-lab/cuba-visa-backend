@@ -21,7 +21,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { useAuth } from '../src/context/AuthContext';
 
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+import { API_URL } from '../src/config/api';
 
 // Cross-platform alert
 const showAlert = (title: string, message: string, onOk?: () => void) => {
