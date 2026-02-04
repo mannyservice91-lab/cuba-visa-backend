@@ -19,6 +19,16 @@ import { useAuth } from '../src/context/AuthContext';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
+// Helper for cross-platform alerts
+const showAlert = (title: string, message: string, onOk?: () => void) => {
+  if (Platform.OS === 'web') {
+    window.alert(`${title}\n\n${message}`);
+    if (onOk) onOk();
+  } else {
+    Alert.alert(title, message, [{ text: 'OK', onPress: onOk }]);
+  }
+};
+
 export default function RegisterScreen() {
   const router = useRouter();
   const { login } = useAuth();
@@ -32,27 +42,30 @@ export default function RegisterScreen() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleRegister = async () => {
     const { full_name, email, phone, passport_number, password, confirmPassword } = formData;
+    setErrorMessage('');
 
     if (!full_name || !email || !phone || !passport_number || !password) {
-      Alert.alert('Error', 'Por favor complete todos los campos');
+      setErrorMessage('Por favor complete todos los campos');
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Las contraseñas no coinciden');
+      setErrorMessage('Las contraseñas no coinciden');
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
+      setErrorMessage('La contraseña debe tener al menos 6 caracteres');
       return;
     }
 
     setIsLoading(true);
     try {
+      console.log('Registering with API:', API_URL);
       const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
@@ -68,55 +81,70 @@ export default function RegisterScreen() {
       });
 
       const data = await response.json();
+      console.log('Register response:', data);
 
       if (!response.ok) {
         throw new Error(data.detail || 'Error al registrarse');
       }
 
       await login(data.user);
-      Alert.alert('Éxito', 'Cuenta creada exitosamente', [
-        { text: 'OK', onPress: () => router.replace('/dashboard') },
-      ]);
+      showAlert('Éxito', 'Cuenta creada exitosamente', () => {
+        if (Platform.OS === 'web') {
+          window.location.href = '/dashboard';
+        } else {
+          router.replace('/dashboard');
+        }
+      });
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Error al registrarse');
+      console.error('Register error:', error);
+      setErrorMessage(error.message || 'Error al registrarse');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updateFormData = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#0a1628', '#132743', '#0a1628']}
-        style={styles.gradient}
-      >
+      <LinearGradient colors={['#0a1628', '#132743', '#0a1628']} style={styles.gradient}>
         <SafeAreaView style={styles.safeArea}>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.keyboardView}
           >
             <ScrollView
+              style={styles.scrollView}
               contentContainerStyle={styles.scrollContent}
               showsVerticalScrollIndicator={false}
             >
-              {/* Back Button */}
-              <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => router.back()}
-              >
-                <Ionicons name="arrow-back" size={24} color="#d4af37" />
-              </TouchableOpacity>
-
-              {/* Header */}
+              {/* Header with Back Button */}
               <View style={styles.header}>
-                <MaterialCommunityIcons name="passport" size={50} color="#d4af37" />
-                <Text style={styles.title}>Crear Cuenta</Text>
-                <Text style={styles.subtitle}>Únete a Cuban-Serbia</Text>
+                <TouchableOpacity 
+                  style={styles.backButton} 
+                  onPress={() => router.back()}
+                >
+                  <Ionicons name="arrow-back" size={24} color="#d4af37" />
+                  <Text style={styles.backText}>Volver</Text>
+                </TouchableOpacity>
               </View>
+
+              {/* Logo */}
+              <View style={styles.logoContainer}>
+                <MaterialCommunityIcons name="passport" size={50} color="#d4af37" />
+                <Text style={styles.logoText}>CUBAN-SERBIA</Text>
+                <Text style={styles.logoSubtext}>VISA CENTER</Text>
+              </View>
+
+              {/* Title */}
+              <Text style={styles.title}>Crear Cuenta</Text>
+              <Text style={styles.subtitle}>Complete sus datos para registrarse</Text>
+
+              {/* Error Message */}
+              {errorMessage ? (
+                <View style={styles.errorContainer}>
+                  <Ionicons name="alert-circle" size={20} color="#f44336" />
+                  <Text style={styles.errorText}>{errorMessage}</Text>
+                </View>
+              ) : null}
 
               {/* Form */}
               <View style={styles.form}>
@@ -127,7 +155,7 @@ export default function RegisterScreen() {
                     placeholder="Nombre completo"
                     placeholderTextColor="#667788"
                     value={formData.full_name}
-                    onChangeText={(v) => updateFormData('full_name', v)}
+                    onChangeText={(text) => setFormData({ ...formData, full_name: text })}
                   />
                 </View>
 
@@ -137,10 +165,10 @@ export default function RegisterScreen() {
                     style={styles.input}
                     placeholder="Correo electrónico"
                     placeholderTextColor="#667788"
-                    value={formData.email}
-                    onChangeText={(v) => updateFormData('email', v)}
                     keyboardType="email-address"
                     autoCapitalize="none"
+                    value={formData.email}
+                    onChangeText={(text) => setFormData({ ...formData, email: text })}
                   />
                 </View>
 
@@ -148,11 +176,11 @@ export default function RegisterScreen() {
                   <Ionicons name="call" size={20} color="#d4af37" style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
-                    placeholder="Teléfono (ej: +53 12345678)"
+                    placeholder="Teléfono (+53...)"
                     placeholderTextColor="#667788"
-                    value={formData.phone}
-                    onChangeText={(v) => updateFormData('phone', v)}
                     keyboardType="phone-pad"
+                    value={formData.phone}
+                    onChangeText={(text) => setFormData({ ...formData, phone: text })}
                   />
                 </View>
 
@@ -162,9 +190,9 @@ export default function RegisterScreen() {
                     style={styles.input}
                     placeholder="Número de pasaporte"
                     placeholderTextColor="#667788"
-                    value={formData.passport_number}
-                    onChangeText={(v) => updateFormData('passport_number', v)}
                     autoCapitalize="characters"
+                    value={formData.passport_number}
+                    onChangeText={(text) => setFormData({ ...formData, passport_number: text })}
                   />
                 </View>
 
@@ -174,14 +202,11 @@ export default function RegisterScreen() {
                     style={styles.input}
                     placeholder="Contraseña"
                     placeholderTextColor="#667788"
-                    value={formData.password}
-                    onChangeText={(v) => updateFormData('password', v)}
                     secureTextEntry={!showPassword}
+                    value={formData.password}
+                    onChangeText={(text) => setFormData({ ...formData, password: text })}
                   />
-                  <TouchableOpacity
-                    onPress={() => setShowPassword(!showPassword)}
-                    style={styles.eyeIcon}
-                  >
+                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                     <Ionicons
                       name={showPassword ? 'eye-off' : 'eye'}
                       size={20}
@@ -196,9 +221,9 @@ export default function RegisterScreen() {
                     style={styles.input}
                     placeholder="Confirmar contraseña"
                     placeholderTextColor="#667788"
-                    value={formData.confirmPassword}
-                    onChangeText={(v) => updateFormData('confirmPassword', v)}
                     secureTextEntry={!showPassword}
+                    value={formData.confirmPassword}
+                    onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}
                   />
                 </View>
 
@@ -207,29 +232,33 @@ export default function RegisterScreen() {
                   onPress={handleRegister}
                   disabled={isLoading}
                 >
-                  <LinearGradient
-                    colors={['#d4af37', '#b8962f']}
-                    style={styles.buttonGradient}
-                  >
+                  <LinearGradient colors={['#d4af37', '#b8962f']} style={styles.buttonGradient}>
                     {isLoading ? (
                       <ActivityIndicator color="#0a1628" />
                     ) : (
                       <>
-                        <Ionicons name="person-add" size={22} color="#0a1628" />
-                        <Text style={styles.registerButtonText}>Registrarse</Text>
+                        <Ionicons name="person-add" size={20} color="#0a1628" />
+                        <Text style={styles.buttonText}>Registrarse</Text>
                       </>
                     )}
                   </LinearGradient>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={styles.loginLink}
-                  onPress={() => router.push('/login')}
+                {/* Login Link */}
+                <View style={styles.loginLinkContainer}>
+                  <Text style={styles.loginText}>¿Ya tienes cuenta? </Text>
+                  <TouchableOpacity onPress={() => router.push('/login')}>
+                    <Text style={styles.loginLink}>Inicia sesión</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Home Link */}
+                <TouchableOpacity 
+                  style={styles.homeLink}
+                  onPress={() => router.push('/')}
                 >
-                  <Text style={styles.loginText}>
-                    ¿Ya tienes cuenta?{' '}
-                    <Text style={styles.loginTextBold}>Inicia sesión</Text>
-                  </Text>
+                  <Ionicons name="home" size={18} color="#667788" />
+                  <Text style={styles.homeLinkText}>Volver al inicio</Text>
                 </TouchableOpacity>
               </View>
             </ScrollView>
@@ -254,36 +283,74 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
+  scrollView: {
+    flex: 1,
+  },
   scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 20,
+    padding: 20,
     paddingBottom: 40,
   },
-  backButton: {
-    marginTop: 10,
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   header: {
+    marginBottom: 10,
+  },
+  backButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 30,
+    gap: 8,
+    padding: 8,
+    alignSelf: 'flex-start',
+  },
+  backText: {
+    color: '#d4af37',
+    fontSize: 16,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logoText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#d4af37',
+    marginTop: 10,
+    letterSpacing: 2,
+  },
+  logoSubtext: {
+    fontSize: 12,
+    color: '#8899aa',
+    letterSpacing: 3,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#ffffff',
-    marginTop: 15,
+    textAlign: 'center',
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#8899aa',
-    marginTop: 5,
+    textAlign: 'center',
+    marginBottom: 25,
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(244, 67, 54, 0.15)',
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 15,
+    gap: 10,
+  },
+  errorText: {
+    color: '#f44336',
+    fontSize: 14,
+    flex: 1,
   },
   form: {
-    flex: 1,
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -300,40 +367,51 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: 50,
-    color: '#ffffff',
+    paddingVertical: 15,
     fontSize: 16,
-  },
-  eyeIcon: {
-    padding: 10,
+    color: '#ffffff',
   },
   registerButton: {
     borderRadius: 12,
     overflow: 'hidden',
-    marginTop: 20,
+    marginTop: 10,
   },
   buttonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
+    paddingVertical: 16,
     gap: 10,
   },
-  registerButtonText: {
+  buttonText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#0a1628',
   },
-  loginLink: {
-    marginTop: 30,
-    alignItems: 'center',
+  loginLinkContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
   },
   loginText: {
-    fontSize: 15,
     color: '#8899aa',
+    fontSize: 14,
   },
-  loginTextBold: {
+  loginLink: {
     color: '#d4af37',
+    fontSize: 14,
     fontWeight: 'bold',
+  },
+  homeLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    gap: 8,
+    padding: 10,
+  },
+  homeLinkText: {
+    color: '#667788',
+    fontSize: 14,
   },
 });
