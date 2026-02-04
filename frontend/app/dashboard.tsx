@@ -123,34 +123,86 @@ export default function DashboardScreen() {
 
   const handlePickImage = async () => {
     try {
+      console.log('Starting image picker...');
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.5,
+        base64: Platform.OS === 'web' ? true : false,
       });
+
+      console.log('Image picker result:', result.canceled ? 'cancelled' : 'selected');
 
       if (!result.canceled && result.assets[0]) {
         setUploadingPhoto(true);
-        const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
+        const asset = result.assets[0];
         
-        const imageData = `data:image/jpeg;base64,${base64}`;
+        let base64Data: string;
         
-        const response = await fetch(`${API_URL}/api/users/${user?.id}`, {
+        if (Platform.OS === 'web') {
+          // On web, handle base64 conversion
+          if (asset.base64) {
+            base64Data = asset.base64;
+          } else if (asset.uri.startsWith('data:')) {
+            base64Data = asset.uri.split(',')[1] || '';
+          } else {
+            try {
+              const response = await fetch(asset.uri);
+              const blob = await response.blob();
+              base64Data = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                  const result = reader.result as string;
+                  resolve(result.split(',')[1]);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              });
+            } catch (e) {
+              console.error('Error converting blob:', e);
+              if (Platform.OS === 'web') {
+                window.alert('Error al procesar la imagen');
+              }
+              setUploadingPhoto(false);
+              return;
+            }
+          }
+        } else {
+          base64Data = await FileSystem.readAsStringAsync(asset.uri, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+        }
+        
+        const imageData = `data:image/jpeg;base64,${base64Data}`;
+        console.log('Uploading profile image...');
+        
+        const response = await fetch(`${API_URL}/api/user/${user?.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ profile_image: imageData }),
         });
         
         if (response.ok) {
+          console.log('Profile image uploaded successfully');
           await updateUser({ profile_image: imageData });
+          if (Platform.OS === 'web') {
+            window.alert('Foto de perfil actualizada');
+          }
+        } else {
+          const errorData = await response.json();
+          console.error('Upload error:', errorData);
+          if (Platform.OS === 'web') {
+            window.alert('Error al subir la foto: ' + (errorData.detail || 'Error desconocido'));
+          }
         }
         setUploadingPhoto(false);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error in handlePickImage:', error);
+      if (Platform.OS === 'web') {
+        window.alert('Error al seleccionar la imagen');
+      }
       setUploadingPhoto(false);
     }
   };
