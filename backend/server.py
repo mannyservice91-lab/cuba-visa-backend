@@ -316,6 +316,61 @@ async def get_current_admin(token: str = Depends(oauth2_scheme)):
 def get_embassy_location(country: str) -> str:
     return EMBASSIES.get(country, EMBASSIES["default"])
 
+def generate_verification_token() -> str:
+    """Generate a secure random verification token"""
+    return secrets.token_urlsafe(32)
+
+async def send_verification_email(email: str, full_name: str, verification_code: str):
+    """Send verification email using SendGrid"""
+    if not SENDGRID_API_KEY:
+        logging.warning("SendGrid API key not configured, skipping email")
+        return False
+    
+    try:
+        message = Mail(
+            from_email=SENDGRID_FROM_EMAIL,
+            to_emails=email,
+            subject='Verifica tu cuenta - Cuban Visa Center',
+            html_content=f'''
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #0a1628, #132743); padding: 30px; border-radius: 10px; text-align: center;">
+                    <h1 style="color: #d4af37; margin: 0;">Cuban Visa Center</h1>
+                    <p style="color: #ffffff; margin-top: 10px;">Tu puerta a nuevos destinos</p>
+                </div>
+                
+                <div style="padding: 30px; background: #f8f9fa; border-radius: 0 0 10px 10px;">
+                    <h2 style="color: #0a1628;">¡Hola {full_name}!</h2>
+                    <p style="color: #333; font-size: 16px;">
+                        Gracias por registrarte en Cuban Visa Center. Para completar tu registro y poder hacer solicitudes de visa, necesitamos verificar tu correo electrónico.
+                    </p>
+                    
+                    <div style="background: #0a1628; padding: 20px; border-radius: 8px; text-align: center; margin: 30px 0;">
+                        <p style="color: #d4af37; font-size: 14px; margin: 0 0 10px 0;">Tu código de verificación es:</p>
+                        <h1 style="color: #ffffff; font-size: 36px; letter-spacing: 8px; margin: 0;">{verification_code}</h1>
+                    </div>
+                    
+                    <p style="color: #666; font-size: 14px;">
+                        Este código expira en 24 horas. Si no solicitaste esta verificación, puedes ignorar este correo.
+                    </p>
+                    
+                    <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                    
+                    <p style="color: #999; font-size: 12px; text-align: center;">
+                        © 2025 Cuban Visa Center. Todos los derechos reservados.
+                    </p>
+                </div>
+            </div>
+            '''
+        )
+        
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        logging.info(f"Email sent to {email}, status: {response.status_code}")
+        return response.status_code == 202
+    except Exception as e:
+        logging.error(f"Error sending email: {e}")
+        return False
+
 # ============== ROUTES ==============
 
 @api_router.get("/")
