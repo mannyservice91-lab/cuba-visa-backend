@@ -77,6 +77,7 @@ export default function RegisterScreen() {
           phone,
           passport_number,
           password,
+          country_of_residence: 'Por definir', // User will set this in their profile
         }),
       });
 
@@ -87,14 +88,26 @@ export default function RegisterScreen() {
         throw new Error(data.detail || 'Error al registrarse');
       }
 
-      await login(data.user);
-      showAlert('Éxito', 'Cuenta creada exitosamente', () => {
-        if (Platform.OS === 'web') {
-          window.location.href = '/dashboard';
-        } else {
-          router.replace('/dashboard');
-        }
-      });
+      // Check if email verification is required
+      if (data.requires_verification) {
+        showAlert('Verifica tu Email', 'Te hemos enviado un código de verificación a tu correo electrónico.', () => {
+          if (Platform.OS === 'web') {
+            window.location.href = `/verify-email?email=${encodeURIComponent(email)}`;
+          } else {
+            router.push({ pathname: '/verify-email', params: { email } });
+          }
+        });
+      } else {
+        // Legacy flow - direct login
+        await login(data.user);
+        showAlert('Éxito', 'Cuenta creada exitosamente', () => {
+          if (Platform.OS === 'web') {
+            window.location.href = '/dashboard';
+          } else {
+            router.replace('/dashboard');
+          }
+        });
+      }
     } catch (error: any) {
       console.error('Register error:', error);
       setErrorMessage(error.message || 'Error al registrarse');
