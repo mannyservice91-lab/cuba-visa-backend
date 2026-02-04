@@ -145,12 +145,22 @@ export default function DashboardScreen() {
   const handlePickImage = async () => {
     try {
       console.log('Starting image picker...');
+      
+      // Request permissions on mobile
+      if (Platform.OS !== 'web') {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Permiso Requerido', 'Necesitamos acceso a tu galería para cambiar la foto de perfil');
+          return;
+        }
+      }
+
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.5,
-        base64: Platform.OS === 'web' ? true : false,
+        base64: true, // Always request base64 for both platforms
       });
 
       console.log('Image picker result:', result.canceled ? 'cancelled' : 'selected');
@@ -161,11 +171,12 @@ export default function DashboardScreen() {
         
         let base64Data: string;
         
-        if (Platform.OS === 'web') {
-          // On web, handle base64 conversion
-          if (asset.base64) {
-            base64Data = asset.base64;
-          } else if (asset.uri.startsWith('data:')) {
+        // Use base64 directly if available (works on both platforms)
+        if (asset.base64) {
+          base64Data = asset.base64;
+        } else if (Platform.OS === 'web') {
+          // Fallback for web if base64 not available
+          if (asset.uri.startsWith('data:')) {
             base64Data = asset.uri.split(',')[1] || '';
           } else {
             try {
@@ -174,22 +185,21 @@ export default function DashboardScreen() {
               base64Data = await new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onloadend = () => {
-                  const result = reader.result as string;
-                  resolve(result.split(',')[1]);
+                  const res = reader.result as string;
+                  resolve(res.split(',')[1]);
                 };
                 reader.onerror = reject;
                 reader.readAsDataURL(blob);
               });
             } catch (e) {
               console.error('Error converting blob:', e);
-              if (Platform.OS === 'web') {
-                window.alert('Error al procesar la imagen');
-              }
+              window.alert('Error al procesar la imagen');
               setUploadingPhoto(false);
               return;
             }
           }
         } else {
+          // Fallback for mobile - use FileSystem
           base64Data = await FileSystem.readAsStringAsync(asset.uri, {
             encoding: FileSystem.EncodingType.Base64,
           });
@@ -209,12 +219,17 @@ export default function DashboardScreen() {
           await updateUser({ profile_image: imageData });
           if (Platform.OS === 'web') {
             window.alert('Foto de perfil actualizada');
+          } else {
+            Alert.alert('Éxito', 'Foto de perfil actualizada');
           }
         } else {
           const errorData = await response.json();
           console.error('Upload error:', errorData);
+          const errorMsg = errorData.detail || 'Error desconocido';
           if (Platform.OS === 'web') {
-            window.alert('Error al subir la foto: ' + (errorData.detail || 'Error desconocido'));
+            window.alert('Error al subir la foto: ' + errorMsg);
+          } else {
+            Alert.alert('Error', 'Error al subir la foto: ' + errorMsg);
           }
         }
         setUploadingPhoto(false);
@@ -223,6 +238,8 @@ export default function DashboardScreen() {
       console.error('Error in handlePickImage:', error);
       if (Platform.OS === 'web') {
         window.alert('Error al seleccionar la imagen');
+      } else {
+        Alert.alert('Error', 'Error al seleccionar la imagen');
       }
       setUploadingPhoto(false);
     }
