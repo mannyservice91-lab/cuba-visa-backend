@@ -305,6 +305,21 @@ export default function AdminDashboardScreen() {
                     <Ionicons name="chevron-forward" size={20} color="#d4af37" />
                   </LinearGradient>
                 </TouchableOpacity>
+
+                {/* Users Management Button */}
+                <TouchableOpacity
+                  style={styles.testimonialsButton}
+                  onPress={() => router.push('/admin-users')}
+                >
+                  <LinearGradient colors={['#1a2f4a', '#0d1f35']} style={styles.testimonialsBtnGradient}>
+                    <Ionicons name="person-circle" size={24} color="#f44336" />
+                    <View style={styles.testimonialsBtnText}>
+                      <Text style={styles.testimonialsBtnTitle}>Gestión de Usuarios</Text>
+                      <Text style={styles.testimonialsBtnSubtitle}>Ver, desactivar o eliminar usuarios</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="#d4af37" />
+                  </LinearGradient>
+                </TouchableOpacity>
               </View>
             )}
 
