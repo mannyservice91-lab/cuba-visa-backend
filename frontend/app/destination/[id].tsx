@@ -381,6 +381,23 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
   },
+  evisaBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 10,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(76, 175, 80, 0.5)',
+  },
+  evisaText: {
+    color: '#4caf50',
+    fontSize: 14,
+    fontWeight: '600',
+  },
   goldLine: {
     width: 60,
     height: 3,
