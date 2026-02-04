@@ -427,7 +427,7 @@ export default function AdminTestimonialsScreen() {
                       </View>
                       {testimonial.image_data && (
                         <Image
-                          source={{ uri: `data:image/jpeg;base64,${testimonial.image_data}` }}
+                          source={{ uri: testimonial.image_data.startsWith('data:') ? testimonial.image_data : `data:image/jpeg;base64,${testimonial.image_data}` }}
                           style={styles.testimonialImage}
                           resizeMode="cover"
                         />
