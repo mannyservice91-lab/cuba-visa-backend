@@ -102,6 +102,8 @@ export default function ApplicationDetailsScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [advisors, setAdvisors] = useState<Advisor[]>([]);
 
   const fetchApplication = useCallback(async () => {
     if (!id) return;
@@ -119,9 +121,20 @@ export default function ApplicationDetailsScreen() {
     }
   }, [id]);
 
+  const fetchAdvisors = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/advisors`);
+      const data = await response.json();
+      setAdvisors(data.filter((a: Advisor) => a.is_active));
+    } catch (error) {
+      console.error('Error fetching advisors:', error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchApplication();
-  }, [fetchApplication]);
+    fetchAdvisors();
+  }, [fetchApplication, fetchAdvisors]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
