@@ -84,6 +84,8 @@ export default function DashboardScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [showCountryModal, setShowCountryModal] = useState(false);
+  const [updatingCountry, setUpdatingCountry] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!user) return;
