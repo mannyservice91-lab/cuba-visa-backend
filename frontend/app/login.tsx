@@ -19,6 +19,16 @@ import { useAuth } from '../src/context/AuthContext';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
+// Cross-platform alert
+const showAlert = (title: string, message: string, onOk?: () => void) => {
+  if (Platform.OS === 'web') {
+    window.alert(`${title}\n\n${message}`);
+    if (onOk) onOk();
+  } else {
+    Alert.alert(title, message, [{ text: 'OK', onPress: onOk }]);
+  }
+};
+
 export default function LoginScreen() {
   const router = useRouter();
   const { login } = useAuth();
@@ -44,14 +54,33 @@ export default function LoginScreen() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
       });
 
       const data = await response.json();
       console.log('Login response:', response.status, data);
 
       if (!response.ok) {
-        throw new Error(data.detail || 'Credenciales incorrectas');
+        if (response.status === 401) {
+          throw new Error('Email o contraseña incorrectos. Por favor verifique sus credenciales.');
+        }
+        throw new Error(data.detail || 'Error al iniciar sesión');
+      }
+
+      // Check if email verification is required
+      if (data.email_verified === false) {
+        showAlert(
+          'Verificación Requerida', 
+          'Tu email no ha sido verificado. Te enviaremos un nuevo código.',
+          () => {
+            if (Platform.OS === 'web') {
+              window.location.href = `/verify-email?email=${encodeURIComponent(email)}`;
+            } else {
+              router.push({ pathname: '/verify-email', params: { email } });
+            }
+          }
+        );
+        return;
       }
 
       await login(data.user);
