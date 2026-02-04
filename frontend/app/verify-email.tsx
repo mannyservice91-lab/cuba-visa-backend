@@ -253,8 +253,16 @@ const styles = StyleSheet.create({
   },
   backButton: {
     alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 10,
     marginBottom: 20,
+    gap: 8,
+  },
+  backText: {
+    color: '#d4af37',
+    fontSize: 16,
+    fontWeight: '600',
   },
   iconContainer: {
     width: 100,
