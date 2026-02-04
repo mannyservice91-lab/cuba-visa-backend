@@ -19,7 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const WHATSAPP_NUMBER = '+381693444935';
 const PAYPAL_LINK = 'https://paypal.me/Gonzalezjm91';
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+import { API_URL } from '../../src/config/api';
 
 interface VisaType {
   id: string;
