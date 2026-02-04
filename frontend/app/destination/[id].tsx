@@ -46,6 +46,9 @@ const FLAG_EMOJIS: Record<string, string> = {
   CU: '🇨🇺', RU: '🇷🇺', ES: '🇪🇸', US: '🇺🇸', DE: '🇩🇪', FR: '🇫🇷',
 };
 
+// Países que usan E-visa (visa electrónica)
+const EVISA_COUNTRIES = ['GE', 'AM', 'IN', 'AE']; // Georgia, Armenia, India, Dubai
+
 export default function DestinationScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
