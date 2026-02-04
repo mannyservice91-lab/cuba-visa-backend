@@ -361,6 +361,18 @@ export default function AdminAdvisorsScreen() {
               {editingAdvisor ? 'Editar Asesor' : 'Nuevo Asesor'}
             </Text>
 
+            {/* Photo Picker */}
+            <TouchableOpacity style={styles.photoPickerContainer} onPress={pickImage}>
+              {formData.photo_url ? (
+                <Image source={{ uri: formData.photo_url }} style={styles.photoPreview} />
+              ) : (
+                <View style={styles.photoPlaceholder}>
+                  <Ionicons name="camera" size={30} color="#d4af37" />
+                  <Text style={styles.photoPlaceholderText}>Agregar Foto</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Nombre</Text>
               <TextInput
