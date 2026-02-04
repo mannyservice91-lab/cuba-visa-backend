@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+import sys
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, EmailStr
@@ -18,32 +19,103 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection - handle both local and production environments
-mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
-db_name = os.environ.get('DB_NAME', 'test_database')
+# =============================================================================
+# CRITICAL: Environment Variable Validation for Production
+# =============================================================================
+def validate_required_env_vars():
+    """
+    Validates that all required environment variables are set.
+    Fails explicitly if any required variable is missing.
+    """
+    required_vars = {
+        'MONGO_URL': 'MongoDB connection string (required for database)',
+        'DB_NAME': 'Database name (required for database)',
+    }
+    
+    missing_vars = []
+    for var, description in required_vars.items():
+        value = os.environ.get(var)
+        if not value:
+            missing_vars.append(f"  - {var}: {description}")
+        else:
+            # Log that variable is set (mask sensitive data)
+            if 'URL' in var or 'KEY' in var:
+                masked = value[:20] + '...' if len(value) > 20 else value
+                logger.info(f"✓ {var} is set: {masked}")
+            else:
+                logger.info(f"✓ {var} is set: {value}")
+    
+    if missing_vars:
+        error_msg = (
+            "\n"
+            "=" * 60 + "\n"
+            "CRITICAL ERROR: Missing required environment variables!\n"
+            "=" * 60 + "\n"
+            "The following environment variables MUST be set:\n\n"
+            + "\n".join(missing_vars) + "\n\n"
+            "For production, these are injected by Emergent deployment.\n"
+            "For local development, create a .env file in /app/backend/\n"
+            "=" * 60
+        )
+        logger.critical(error_msg)
+        sys.exit(1)
 
-logger.info(f"Connecting to MongoDB: {mongo_url[:30]}...")
-client = AsyncIOMotorClient(mongo_url)
-db = client[db_name]
+# Run validation before anything else
+validate_required_env_vars()
 
-# SendGrid configuration
+# =============================================================================
+# MongoDB Connection - NO FALLBACKS (Production Ready)
+# =============================================================================
+MONGO_URL = os.environ['MONGO_URL']  # Will fail if not set (validated above)
+DB_NAME = os.environ['DB_NAME']      # Will fail if not set (validated above)
+
+logger.info("=" * 60)
+logger.info("INITIALIZING DATABASE CONNECTION")
+logger.info("=" * 60)
+logger.info(f"MongoDB URL: {MONGO_URL[:30]}..." if len(MONGO_URL) > 30 else f"MongoDB URL: {MONGO_URL}")
+logger.info(f"Database Name: {DB_NAME}")
+logger.info("=" * 60)
+
+# Create single MongoDB client instance (used throughout the app)
+client = AsyncIOMotorClient(MONGO_URL)
+db = client[DB_NAME]
+
+# =============================================================================
+# SendGrid Configuration (Optional - for email verification)
+# =============================================================================
 SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY', '')
-SENDGRID_FROM_EMAIL = os.environ.get('SENDGRID_FROM_EMAIL', 'gonzalezjosemanuel1991@gmail.com')
+SENDGRID_FROM_EMAIL = os.environ.get('SENDGRID_FROM_EMAIL', '')
 
-# Create the main app
-app = FastAPI(title="Cuban-Serbia Visa API")
-api_router = APIRouter(prefix="/api")
+if SENDGRID_API_KEY:
+    logger.info(f"✓ SendGrid configured with email: {SENDGRID_FROM_EMAIL}")
+else:
+    logger.warning("⚠ SendGrid not configured - email verification will be skipped")
 
+# =============================================================================
 # JWT Configuration
-SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'cuban-serbia-visa-secret-key-2025-very-secure')
+# =============================================================================
+SECRET_KEY = os.environ.get('JWT_SECRET_KEY', '')
+if not SECRET_KEY:
+    logger.warning("⚠ JWT_SECRET_KEY not set - using generated key (not recommended for production)")
+    SECRET_KEY = secrets.token_urlsafe(32)
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
+
+# =============================================================================
+# FastAPI App Initialization
+# =============================================================================
+app = FastAPI(title="Cuban-Serbia Visa API")
+api_router = APIRouter(prefix="/api")
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
