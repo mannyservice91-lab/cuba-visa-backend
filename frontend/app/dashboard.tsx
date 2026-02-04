@@ -11,6 +11,7 @@ import {
   Linking,
   Image,
   Platform,
+  Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient/build/LinearGradient';
@@ -21,6 +22,24 @@ import * as FileSystem from 'expo-file-system';
 import { useAuth } from '../src/context/AuthContext';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+
+// Available countries for residence
+const COUNTRIES_OF_RESIDENCE = [
+  'Cuba',
+  'Rusia',
+  'Egipto',
+  'México',
+  'Venezuela',
+  'Colombia',
+  'España',
+  'Estados Unidos',
+  'Argentina',
+  'Chile',
+  'Perú',
+  'Ecuador',
+  'Brasil',
+  'Otro',
+];
 
 interface Application {
   id: string;
