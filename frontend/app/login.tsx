@@ -224,6 +224,20 @@ const styles = StyleSheet.create({
     color: '#8899aa',
     marginTop: 5,
   },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(244, 67, 54, 0.15)',
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 15,
+    gap: 10,
+  },
+  errorText: {
+    color: '#f44336',
+    fontSize: 14,
+    flex: 1,
+  },
   form: {
     flex: 1,
   },
