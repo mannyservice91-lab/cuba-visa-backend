@@ -228,6 +228,37 @@ export default function DashboardScreen() {
     }
   };
 
+  const handleUpdateCountry = async (country: string) => {
+    if (!user) return;
+    setUpdatingCountry(true);
+    try {
+      const response = await fetch(`${API_URL}/api/user/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ country_of_residence: country }),
+      });
+      
+      if (response.ok) {
+        await updateUser({ country_of_residence: country });
+        setShowCountryModal(false);
+        if (Platform.OS === 'web') {
+          window.alert('País de residencia actualizado');
+        }
+      } else {
+        if (Platform.OS === 'web') {
+          window.alert('Error al actualizar país');
+        }
+      }
+    } catch (error) {
+      console.error('Error updating country:', error);
+      if (Platform.OS === 'web') {
+        window.alert('Error al actualizar país');
+      }
+    } finally {
+      setUpdatingCountry(false);
+    }
+  };
+
   const openWhatsApp = (phone: string, name?: string) => {
     const message = name 
       ? `Hola ${name}, necesito ayuda con mi solicitud de visa.`
@@ -238,6 +269,9 @@ export default function DashboardScreen() {
 
   // Get current/latest application
   const currentApp = applications.length > 0 ? applications[0] : null;
+  
+  // Check if current application has physical visa (needs embassy) or e-visa
+  const isEVisa = currentApp?.embassy_location?.includes('E-Visa') || currentApp?.embassy_location?.includes('Electrónica');
 
   if (!user) {
     return (
