@@ -163,12 +163,13 @@ export default function AdminTestimonialsScreen() {
 
   const handleSubmit = async () => {
     if (!clientName || !description || !selectedImage || !admin?.access_token) {
-      Alert.alert('Error', 'Por favor completa todos los campos y selecciona una imagen');
+      showAlert('Error', 'Por favor completa todos los campos y selecciona una imagen');
       return;
     }
 
     setIsSubmitting(true);
     try {
+      console.log('Submitting testimonial...');
       const response = await fetch(`${API_URL}/api/admin/testimonials`, {
         method: 'POST',
         headers: {
@@ -178,49 +179,47 @@ export default function AdminTestimonialsScreen() {
         body: JSON.stringify({
           client_name: clientName,
           visa_type: visaType,
+          destination_country: 'Serbia',
           description,
           image_data: selectedImage,
         }),
       });
 
-      if (!response.ok) throw new Error('Error al crear testimonio');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Error al crear testimonio');
+      }
 
-      Alert.alert('Éxito', 'Testimonio agregado correctamente');
+      showAlert('Éxito', 'Testimonio agregado correctamente');
       setShowForm(false);
       setClientName('');
       setDescription('');
       setSelectedImage(null);
       fetchTestimonials();
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo agregar el testimonio');
+    } catch (error: any) {
+      console.error('Submit error:', error);
+      showAlert('Error', error.message || 'No se pudo agregar el testimonio');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = (id: string) => {
-    Alert.alert(
+    showConfirm(
       'Eliminar Testimonio',
       '¿Estás seguro de eliminar este testimonio?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            if (!admin?.access_token) return;
-            try {
-              await fetch(`${API_URL}/api/admin/testimonials/${id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${admin.access_token}` },
-              });
-              fetchTestimonials();
-            } catch (error) {
-              Alert.alert('Error', 'No se pudo eliminar');
-            }
-          },
-        },
-      ]
+      async () => {
+        if (!admin?.access_token) return;
+        try {
+          await fetch(`${API_URL}/api/admin/testimonials/${id}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${admin.access_token}` },
+          });
+          fetchTestimonials();
+        } catch (error) {
+          showAlert('Error', 'No se pudo eliminar');
+        }
+      }
     );
   };
 
@@ -233,7 +232,7 @@ export default function AdminTestimonialsScreen() {
       });
       fetchTestimonials();
     } catch (error) {
-      Alert.alert('Error', 'No se pudo cambiar el estado');
+      showAlert('Error', 'No se pudo cambiar el estado');
     }
   };
 
