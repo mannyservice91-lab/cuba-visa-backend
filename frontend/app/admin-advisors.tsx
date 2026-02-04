@@ -11,20 +11,34 @@ import {
   Platform,
   Modal,
   Linking,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient/build/LinearGradient';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 import { useAuth } from '../src/context/AuthContext';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+
+// Cross-platform alert
+const showAlert = (title: string, message: string, onOk?: () => void) => {
+  if (Platform.OS === 'web') {
+    window.alert(`${title}\n\n${message}`);
+    if (onOk) onOk();
+  } else {
+    Alert.alert(title, message, [{ text: 'OK', onPress: onOk }]);
+  }
+};
 
 interface Advisor {
   id: string;
   name: string;
   whatsapp: string;
   role: string;
+  photo_url: string | null;
   is_active: boolean;
   created_at: string;
 }
@@ -41,6 +55,7 @@ export default function AdminAdvisorsScreen() {
     name: '',
     whatsapp: '',
     role: 'Asesor de Visas',
+    photo_url: '',
   });
 
   const fetchAdvisors = useCallback(async () => {
