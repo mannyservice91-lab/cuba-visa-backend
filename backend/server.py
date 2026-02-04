@@ -13,6 +13,9 @@ from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 import base64
+import secrets
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -21,6 +24,10 @@ load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+
+# SendGrid configuration
+SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY', '')
+SENDGRID_FROM_EMAIL = os.environ.get('SENDGRID_FROM_EMAIL', 'no-reply@cubanvisa.com')
 
 # Create the main app
 app = FastAPI(title="Cuban-Serbia Visa API")
