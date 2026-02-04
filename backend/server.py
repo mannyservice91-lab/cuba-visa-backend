@@ -130,6 +130,9 @@ class User(BaseModel):
     profile_image: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = True
+    email_verified: bool = False
+    verification_token: Optional[str] = None
+    verification_token_expires: Optional[datetime] = None
 
 class UserUpdate(BaseModel):
     full_name: Optional[str] = None
