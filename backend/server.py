@@ -17,17 +17,24 @@ import secrets
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
+# MongoDB connection - handle both local and production environments
+mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+db_name = os.environ.get('DB_NAME', 'test_database')
+
+logger.info(f"Connecting to MongoDB: {mongo_url[:30]}...")
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[db_name]
 
 # SendGrid configuration
 SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY', '')
-SENDGRID_FROM_EMAIL = os.environ.get('SENDGRID_FROM_EMAIL', 'no-reply@cubanvisa.com')
+SENDGRID_FROM_EMAIL = os.environ.get('SENDGRID_FROM_EMAIL', 'gonzalezjosemanuel1991@gmail.com')
 
 # Create the main app
 app = FastAPI(title="Cuban-Serbia Visa API")
