@@ -139,9 +139,19 @@ export default function VerifyEmailScreen() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.content}
           >
-            {/* Header */}
-            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            {/* Header with Back Button */}
+            <TouchableOpacity 
+              style={styles.backButton} 
+              onPress={() => {
+                if (Platform.OS === 'web') {
+                  window.location.href = '/register';
+                } else {
+                  router.back();
+                }
+              }}
+            >
               <Ionicons name="arrow-back" size={24} color="#d4af37" />
+              <Text style={styles.backText}>Volver al Registro</Text>
             </TouchableOpacity>
 
             {/* Icon */}
