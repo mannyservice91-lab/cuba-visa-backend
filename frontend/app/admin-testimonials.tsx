@@ -270,7 +270,7 @@ export default function AdminTestimonialsScreen() {
                     <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
                       {selectedImage ? (
                         <Image
-                          source={{ uri: `data:image/jpeg;base64,${selectedImage}` }}
+                          source={{ uri: selectedImage }}
                           style={styles.previewImage}
                         />
                       ) : (
