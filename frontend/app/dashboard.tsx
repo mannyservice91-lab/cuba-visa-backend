@@ -524,6 +524,54 @@ export default function DashboardScreen() {
           </ScrollView>
         </SafeAreaView>
       </LinearGradient>
+
+      {/* Country Selection Modal */}
+      <Modal
+        visible={showCountryModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowCountryModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Selecciona tu País de Residencia</Text>
+              <TouchableOpacity onPress={() => setShowCountryModal(false)}>
+                <Ionicons name="close" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.countryList}>
+              {COUNTRIES_OF_RESIDENCE.map((country) => (
+                <TouchableOpacity
+                  key={country}
+                  style={[
+                    styles.countryOption,
+                    user?.country_of_residence === country && styles.countryOptionSelected,
+                  ]}
+                  onPress={() => handleUpdateCountry(country)}
+                  disabled={updatingCountry}
+                >
+                  <Text style={[
+                    styles.countryOptionText,
+                    user?.country_of_residence === country && styles.countryOptionTextSelected,
+                  ]}>
+                    {country}
+                  </Text>
+                  {user?.country_of_residence === country && (
+                    <Ionicons name="checkmark" size={20} color="#d4af37" />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            {updatingCountry && (
+              <View style={styles.modalLoading}>
+                <ActivityIndicator color="#d4af37" />
+                <Text style={styles.modalLoadingText}>Actualizando...</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
