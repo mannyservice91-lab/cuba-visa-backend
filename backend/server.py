@@ -902,6 +902,59 @@ async def upload_document(
     
     return {"message": "Documento subido exitosamente", "document_id": document.id}
 
+# Get document data for download (Admin)
+@api_router.get("/admin/applications/{application_id}/documents/{document_id}")
+async def admin_get_document(
+    application_id: str, 
+    document_id: str,
+    current_admin: dict = Depends(get_current_admin)
+):
+    application = await db.applications.find_one({"id": application_id})
+    if not application:
+        raise HTTPException(status_code=404, detail="Solicitud no encontrada")
+    
+    documents = application.get("documents", [])
+    for doc in documents:
+        if doc.get("id") == document_id:
+            return {
+                "id": doc["id"],
+                "name": doc["name"],
+                "type": doc["type"],
+                "data": doc.get("data", ""),
+                "uploaded_at": doc.get("uploaded_at")
+            }
+    
+    raise HTTPException(status_code=404, detail="Documento no encontrado")
+
+# Delete document (Admin)
+@api_router.delete("/admin/applications/{application_id}/documents/{document_id}")
+async def admin_delete_document(
+    application_id: str, 
+    document_id: str,
+    current_admin: dict = Depends(get_current_admin)
+):
+    application = await db.applications.find_one({"id": application_id})
+    if not application:
+        raise HTTPException(status_code=404, detail="Solicitud no encontrada")
+    
+    documents = application.get("documents", [])
+    new_documents = [d for d in documents if d.get("id") != document_id]
+    
+    if len(new_documents) == len(documents):
+        raise HTTPException(status_code=404, detail="Documento no encontrado")
+    
+    await db.applications.update_one(
+        {"id": application_id},
+        {
+            "$set": {
+                "documents": new_documents,
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    return {"message": "Documento eliminado exitosamente"}
+
 # Admin application management
 @api_router.get("/admin/applications")
 async def admin_get_all_applications(current_admin: dict = Depends(get_current_admin)):
