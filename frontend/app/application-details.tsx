@@ -92,9 +92,9 @@ export default function ApplicationDetailsScreen() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail);
       setApplication(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
-      Alert.alert('Error', 'No se pudo cargar la solicitud');
+      showAlert('Error', 'No se pudo cargar la solicitud');
     } finally {
       setIsLoading(false);
       setRefreshing(false);
@@ -114,21 +114,54 @@ export default function ApplicationDetailsScreen() {
     if (!application || !user) return;
 
     try {
+      console.log('Starting document picker...');
       const result = await DocumentPicker.getDocumentAsync({
         type: ['image/*', 'application/pdf'],
         copyToCacheDirectory: true,
       });
 
+      console.log('Document picker result:', result);
+
       if (result.canceled) return;
 
       const file = result.assets[0];
+      console.log('Selected file:', file.name, file.mimeType);
       setIsUploading(true);
 
-      // Read file as base64
-      const base64 = await FileSystem.readAsStringAsync(file.uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+      let base64Data: string;
+      
+      if (Platform.OS === 'web') {
+        // On web, convert file URI to base64
+        try {
+          if (file.uri.startsWith('data:')) {
+            base64Data = file.uri.split(',')[1];
+          } else {
+            const response = await fetch(file.uri);
+            const blob = await response.blob();
+            base64Data = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                const result = reader.result as string;
+                resolve(result.split(',')[1]);
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+          }
+        } catch (e) {
+          console.error('Error converting file:', e);
+          showAlert('Error', 'No se pudo procesar el archivo');
+          setIsUploading(false);
+          return;
+        }
+      } else {
+        // On native, use FileSystem
+        base64Data = await FileSystem.readAsStringAsync(file.uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+      }
 
+      console.log('Uploading document to server...');
       const response = await fetch(
         `${API_URL}/api/applications/${application.id}/documents?user_id=${user.id}`,
         {
@@ -139,18 +172,21 @@ export default function ApplicationDetailsScreen() {
           body: JSON.stringify({
             file_name: file.name,
             file_type: file.mimeType || 'application/octet-stream',
-            file_data: base64,
+            file_data: base64Data,
           }),
         }
       );
 
       const data = await response.json();
+      console.log('Upload response:', data);
+      
       if (!response.ok) throw new Error(data.detail);
 
-      Alert.alert('Éxito', 'Documento subido correctamente');
+      showAlert('Éxito', 'Documento subido correctamente');
       fetchApplication();
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Error al subir documento');
+      console.error('Upload error:', error);
+      showAlert('Error', error.message || 'Error al subir documento');
     } finally {
       setIsUploading(false);
     }
