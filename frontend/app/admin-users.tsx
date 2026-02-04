@@ -68,7 +68,11 @@ export default function AdminUsersScreen() {
       
       if (response.status === 401) {
         await adminLogout();
-        router.replace('/admin');
+        if (Platform.OS === 'web') {
+          window.location.href = '/admin';
+        } else {
+          router.replace('/admin');
+        }
         return;
       }
       
@@ -86,12 +90,19 @@ export default function AdminUsersScreen() {
   }, [admin, adminLogout, router]);
 
   useEffect(() => {
+    // Wait for auth to load
+    if (authLoading) return;
+    
     if (!isAdmin) {
-      router.replace('/admin');
+      if (Platform.OS === 'web') {
+        window.location.href = '/admin';
+      } else {
+        router.replace('/admin');
+      }
       return;
     }
     fetchUsers();
-  }, [isAdmin, fetchUsers, router]);
+  }, [isAdmin, authLoading, fetchUsers, router]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
