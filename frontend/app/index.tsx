@@ -299,27 +299,6 @@ export default function HomeScreen() {
             {/* Action Buttons - Contact */}
             <View style={styles.actionsSection}>
               <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={openWhatsApp}
-              >
-                <LinearGradient
-                  colors={['#25D366', '#128C7E']}
-                  style={styles.buttonGradient}
-                >
-                  <FontAwesome5 name="whatsapp" size={22} color="#fff" />
-                  <Text style={[styles.primaryButtonText, { color: '#fff' }]}>Contactar por WhatsApp</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.secondaryButton}
-                onPress={openPayPal}
-              >
-                <Ionicons name="person-add" size={22} color="#d4af37" />
-                <Text style={styles.secondaryButtonText}>Registrarse</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
                 style={styles.whatsappButton}
                 onPress={openWhatsApp}
               >
