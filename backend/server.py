@@ -454,7 +454,41 @@ async def send_verification_email(email: str, full_name: str, verification_code:
 
 @api_router.get("/")
 async def root():
-    return {"message": "Bienvenido a Cuban-Serbia Visa API", "version": "2.0"}
+    """Root endpoint with basic API info"""
+    return {
+        "message": "Bienvenido a Cuban-Serbia Visa API",
+        "version": "2.0",
+        "status": "running"
+    }
+
+@api_router.get("/health")
+async def health_check():
+    """
+    Health check endpoint for production monitoring.
+    Verifies database connectivity and returns system status.
+    """
+    try:
+        # Test database connection
+        await db.command('ping')
+        db_status = "connected"
+        db_name_actual = db.name
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+        db_name_actual = "unknown"
+    
+    return {
+        "status": "healthy" if db_status == "connected" else "unhealthy",
+        "database": {
+            "status": db_status,
+            "name": db_name_actual,
+            "url_prefix": MONGO_URL[:30] + "..." if len(MONGO_URL) > 30 else MONGO_URL
+        },
+        "services": {
+            "sendgrid": "configured" if SENDGRID_API_KEY else "not_configured",
+            "jwt": "configured"
+        },
+        "timestamp": datetime.utcnow().isoformat()
+    }
 
 @api_router.get("/visa-types")
 async def get_visa_types():
