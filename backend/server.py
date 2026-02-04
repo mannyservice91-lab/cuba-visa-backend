@@ -485,19 +485,29 @@ async def register_user(user_data: UserRegister):
     if existing_user:
         raise HTTPException(status_code=400, detail="El email ya está registrado")
     
+    # Generate 6-digit verification code
+    verification_code = ''.join([str(secrets.randbelow(10)) for _ in range(6)])
+    
     user = User(
         email=user_data.email,
         password_hash=get_password_hash(user_data.password),
         full_name=user_data.full_name,
         phone=user_data.phone,
         passport_number=user_data.passport_number,
-        country_of_residence=user_data.country_of_residence
+        country_of_residence=user_data.country_of_residence,
+        email_verified=False,
+        verification_token=verification_code,
+        verification_token_expires=datetime.utcnow() + timedelta(hours=24)
     )
     
     await db.users.insert_one(user.dict())
     
+    # Send verification email
+    await send_verification_email(user.email, user.full_name, verification_code)
+    
     return {
-        "message": "Usuario registrado exitosamente",
+        "message": "Usuario registrado. Por favor verifica tu email.",
+        "requires_verification": True,
         "user": {
             "id": user.id,
             "email": user.email,
@@ -505,9 +515,83 @@ async def register_user(user_data: UserRegister):
             "phone": user.phone,
             "passport_number": user.passport_number,
             "country_of_residence": user.country_of_residence,
+            "email_verified": False,
             "embassy_location": get_embassy_location(user.country_of_residence)
         }
     }
+
+class VerifyEmailRequest(BaseModel):
+    email: EmailStr
+    code: str
+
+@api_router.post("/auth/verify-email")
+async def verify_email(data: VerifyEmailRequest):
+    user = await db.users.find_one({"email": data.email})
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    if user.get("email_verified", False):
+        return {"message": "Email ya verificado", "verified": True}
+    
+    # Check verification token
+    stored_token = user.get("verification_token")
+    token_expires = user.get("verification_token_expires")
+    
+    if not stored_token or stored_token != data.code:
+        raise HTTPException(status_code=400, detail="Código de verificación incorrecto")
+    
+    if token_expires and datetime.utcnow() > token_expires:
+        raise HTTPException(status_code=400, detail="El código ha expirado. Solicita uno nuevo.")
+    
+    # Update user as verified
+    await db.users.update_one(
+        {"email": data.email},
+        {"$set": {"email_verified": True, "verification_token": None}}
+    )
+    
+    return {
+        "message": "Email verificado exitosamente",
+        "verified": True,
+        "user": {
+            "id": user["id"],
+            "email": user["email"],
+            "full_name": user["full_name"],
+            "phone": user["phone"],
+            "passport_number": user["passport_number"],
+            "country_of_residence": user.get("country_of_residence", "Cuba"),
+            "email_verified": True,
+            "embassy_location": get_embassy_location(user.get("country_of_residence", "Cuba"))
+        }
+    }
+
+@api_router.post("/auth/resend-verification")
+async def resend_verification(email_data: dict):
+    email = email_data.get("email")
+    if not email:
+        raise HTTPException(status_code=400, detail="Email requerido")
+    
+    user = await db.users.find_one({"email": email})
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    if user.get("email_verified", False):
+        return {"message": "Email ya está verificado"}
+    
+    # Generate new verification code
+    verification_code = ''.join([str(secrets.randbelow(10)) for _ in range(6)])
+    
+    await db.users.update_one(
+        {"email": email},
+        {"$set": {
+            "verification_token": verification_code,
+            "verification_token_expires": datetime.utcnow() + timedelta(hours=24)
+        }}
+    )
+    
+    # Send new verification email
+    await send_verification_email(email, user["full_name"], verification_code)
+    
+    return {"message": "Nuevo código de verificación enviado"}
 
 @api_router.post("/auth/login")
 async def login_user(credentials: UserLogin):
