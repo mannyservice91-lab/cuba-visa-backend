@@ -13,7 +13,10 @@
       "android": {
         "buildType": "apk"
       },
-      "node": "18.18.0"
+      "node": "18.18.0",
+      "env": {
+        "CI": "0"
+      }
     },
     "production": {
       "android": {
