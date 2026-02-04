@@ -224,9 +224,15 @@ export default function ApplicationDetailsScreen() {
   };
 
   const openWhatsApp = () => {
-    const message = `Hola, tengo una consulta sobre mi solicitud de visa #${application?.id?.slice(0, 8)}`;
-    const url = `https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}?text=${encodeURIComponent(message)}`;
+    setShowContactModal(true);
+  };
+
+  const contactPerson = (phone: string, name: string) => {
+    const message = `Hola ${name}, tengo una consulta sobre mi solicitud de visa #${application?.id?.slice(0, 8)}`;
+    const number = phone.replace(/[^0-9]/g, '');
+    const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
     Linking.openURL(url);
+    setShowContactModal(false);
   };
 
   const openPayPal = () => {
