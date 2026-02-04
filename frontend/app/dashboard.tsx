@@ -331,32 +331,50 @@ export default function DashboardScreen() {
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#d4af37" />
             }
           >
-            {/* User Info Card */}
+            {/* User Info Card - with editable country */}
             <View style={styles.userInfoCard}>
-              <View style={styles.userInfoRow}>
+              <TouchableOpacity 
+                style={styles.userInfoRow} 
+                onPress={() => setShowCountryModal(true)}
+              >
                 <Ionicons name="globe" size={16} color="#d4af37" />
                 <Text style={styles.userInfoLabel}>País de Residencia:</Text>
-                <Text style={styles.userInfoValue}>{user.country_of_residence || 'Cuba'}</Text>
-              </View>
+                <Text style={styles.userInfoValue}>
+                  {user.country_of_residence === 'Por definir' ? 'Seleccionar...' : (user.country_of_residence || 'Seleccionar...')}
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color="#667788" />
+              </TouchableOpacity>
               <View style={styles.userInfoRow}>
                 <MaterialCommunityIcons name="passport" size={16} color="#d4af37" />
                 <Text style={styles.userInfoLabel}>Pasaporte:</Text>
                 <Text style={styles.userInfoValue}>{user.passport_number}</Text>
               </View>
-              {user.embassy_location && (
-                <View style={styles.embassyBanner}>
-                  <Ionicons name="business" size={16} color="#4caf50" />
-                  <Text style={styles.embassyText}>
-                    Lugar de Recogida de Visa: {user.embassy_location}
-                  </Text>
-                </View>
-              )}
             </View>
 
             {/* Current Application Section */}
             {currentApp && (
               <View style={styles.currentAppSection}>
                 <Text style={styles.sectionLabel}>SOLICITUD ACTUAL: {currentApp.visa_type_name}</Text>
+                
+                {/* Embassy info - only show for physical visas, not e-visas */}
+                {currentApp.embassy_location && !isEVisa && (
+                  <View style={styles.embassyBanner}>
+                    <Ionicons name="business" size={16} color="#4caf50" />
+                    <Text style={styles.embassyText}>
+                      Lugar de Recogida de Visa: {currentApp.embassy_location}
+                    </Text>
+                  </View>
+                )}
+                
+                {/* E-Visa info */}
+                {isEVisa && (
+                  <View style={[styles.embassyBanner, { backgroundColor: 'rgba(33, 150, 243, 0.1)' }]}>
+                    <Ionicons name="mail" size={16} color="#2196f3" />
+                    <Text style={[styles.embassyText, { color: '#2196f3' }]}>
+                      E-Visa Electrónica - Recibirás tu visa por correo
+                    </Text>
+                  </View>
+                )}
                 
                 {/* Progress Bar */}
                 <View style={styles.progressContainer}>
