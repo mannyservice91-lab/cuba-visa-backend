@@ -540,6 +540,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  advisorPhoto: {
+    width: 45,
+    height: 45,
+    borderRadius: 22,
+  },
   advisorName: {
     fontSize: 16,
     fontWeight: 'bold',
