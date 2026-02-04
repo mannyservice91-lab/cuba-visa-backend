@@ -15,14 +15,18 @@
       },
       "node": "18.18.0",
       "env": {
-        "CI": "0"
+        "CI": "0",
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
       }
     },
     "production": {
       "android": {
         "buildType": "apk"
       },
-      "node": "18.18.0"
+      "node": "18.18.0",
+      "env": {
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+      }
     }
   },
   "submit": {
