@@ -26,15 +26,19 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleLogin = async () => {
+    setErrorMessage('');
+    
     if (!email || !password) {
-      Alert.alert('Error', 'Por favor complete todos los campos');
+      setErrorMessage('Por favor complete todos los campos');
       return;
     }
 
     setIsLoading(true);
     try {
+      console.log('Login with API:', API_URL);
       const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
@@ -44,15 +48,22 @@ export default function LoginScreen() {
       });
 
       const data = await response.json();
+      console.log('Login response:', response.status, data);
 
       if (!response.ok) {
-        throw new Error(data.detail || 'Error al iniciar sesión');
+        throw new Error(data.detail || 'Credenciales incorrectas');
       }
 
       await login(data.user);
-      router.replace('/dashboard');
+      
+      if (Platform.OS === 'web') {
+        window.location.href = '/dashboard';
+      } else {
+        router.replace('/dashboard');
+      }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Error al iniciar sesión');
+      console.error('Login error:', error);
+      setErrorMessage(error.message || 'Error al iniciar sesión');
     } finally {
       setIsLoading(false);
     }
