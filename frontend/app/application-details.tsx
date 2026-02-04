@@ -442,6 +442,72 @@ export default function ApplicationDetailsScreen() {
           </ScrollView>
         </SafeAreaView>
       </LinearGradient>
+
+      {/* Contact Modal */}
+      <Modal
+        visible={showContactModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowContactModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>¿Con quién deseas hablar?</Text>
+              <TouchableOpacity onPress={() => setShowContactModal(false)}>
+                <Ionicons name="close" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.contactList}>
+              {/* CEO Contact */}
+              <TouchableOpacity
+                style={styles.contactCard}
+                onPress={() => contactPerson(CEO_INFO.whatsapp, CEO_INFO.name)}
+              >
+                <Image
+                  source={{ uri: CEO_INFO.photo }}
+                  style={styles.contactPhoto}
+                />
+                <View style={styles.contactInfo}>
+                  <Text style={styles.contactName}>{CEO_INFO.name}</Text>
+                  <Text style={styles.contactRole}>{CEO_INFO.role}</Text>
+                </View>
+                <View style={styles.whatsappBadge}>
+                  <FontAwesome5 name="whatsapp" size={20} color="#25D366" />
+                </View>
+              </TouchableOpacity>
+
+              {/* Advisors */}
+              {advisors.map((advisor) => (
+                <TouchableOpacity
+                  key={advisor.id}
+                  style={styles.contactCard}
+                  onPress={() => contactPerson(advisor.whatsapp, advisor.name)}
+                >
+                  {advisor.photo_url ? (
+                    <Image
+                      source={{ uri: advisor.photo_url }}
+                      style={styles.contactPhoto}
+                    />
+                  ) : (
+                    <View style={[styles.contactPhoto, styles.contactPhotoPlaceholder]}>
+                      <Ionicons name="person" size={30} color="#d4af37" />
+                    </View>
+                  )}
+                  <View style={styles.contactInfo}>
+                    <Text style={styles.contactName}>{advisor.name}</Text>
+                    <Text style={styles.contactRole}>{advisor.role || 'Asesor'}</Text>
+                  </View>
+                  <View style={styles.whatsappBadge}>
+                    <FontAwesome5 name="whatsapp" size={20} color="#25D366" />
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
