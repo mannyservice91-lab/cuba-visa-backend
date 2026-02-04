@@ -155,6 +155,18 @@ export default function AdminUsersScreen() {
 
   if (!isAdmin) return null;
 
+  if (authLoading || isLoading) {
+    return (
+      <View style={styles.container}>
+        <LinearGradient colors={['#0a1628', '#132743', '#0a1628']} style={styles.gradient}>
+          <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
+            <ActivityIndicator size="large" color="#d4af37" />
+          </SafeAreaView>
+        </LinearGradient>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <LinearGradient colors={['#0a1628', '#132743', '#0a1628']} style={styles.gradient}>
