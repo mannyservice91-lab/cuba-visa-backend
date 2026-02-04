@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Linking,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient/build/LinearGradient';
@@ -21,6 +22,16 @@ import { useAuth } from '../src/context/AuthContext';
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 const PAYPAL_LINK = 'https://paypal.me/Gonzalezjm91';
 const WHATSAPP_NUMBER = '+381693444935';
+
+// Cross-platform alert helper
+const showAlert = (title: string, message: string, onOk?: () => void) => {
+  if (Platform.OS === 'web') {
+    window.alert(`${title}\n\n${message}`);
+    if (onOk) onOk();
+  } else {
+    Alert.alert(title, message, [{ text: 'OK', onPress: onOk }]);
+  }
+};
 
 interface Document {
   id: string;
