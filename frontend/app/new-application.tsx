@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,8 +9,9 @@ import {
   ActivityIndicator,
   TextInput,
   Linking,
+  Platform,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient/build/LinearGradient';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,42 +20,83 @@ import { useAuth } from '../src/context/AuthContext';
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 const PAYPAL_LINK = 'https://paypal.me/Gonzalezjm91';
 
-const VISA_TYPES = {
-  turismo: {
-    name: 'Visado de Turismo',
-    price: 1500,
-    deposit: 750,
-    icon: 'umbrella-beach',
-    description: 'Ideal para turistas que desean visitar Serbia',
-  },
-  trabajo: {
-    name: 'Visado por Contrato de Trabajo',
-    price: 2500,
-    deposit: 1250,
-    icon: 'briefcase',
-    description: 'Para quienes tienen una oferta laboral en Serbia',
-  },
+interface VisaType {
+  id: string;
+  name: string;
+  price: number;
+  currency: string;
+  processing_time: string;
+}
+
+interface Destination {
+  id: string;
+  country: string;
+  country_code: string;
+  enabled: boolean;
+  image_url: string;
+  visa_types: VisaType[];
+}
+
+const showAlert = (title: string, message: string, buttons?: any[]) => {
+  if (Platform.OS === 'web') {
+    window.alert(`${title}\n\n${message}`);
+    if (buttons && buttons.length > 0) {
+      buttons[buttons.length - 1]?.onPress?.();
+    }
+  } else {
+    Alert.alert(title, message, buttons);
+  }
 };
 
 export default function NewApplicationScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ destinationId?: string }>();
   const { user } = useAuth();
-  const [selectedType, setSelectedType] = useState<string | null>(null);
+  
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
+  const [selectedVisaType, setSelectedVisaType] = useState<VisaType | null>(null);
   const [notes, setNotes] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    loadDestinations();
+  }, []);
+
+  const loadDestinations = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/destinations`);
+      const data = await response.json();
+      const enabled = data.filter((d: Destination) => d.enabled);
+      setDestinations(enabled);
+      
+      // If destinationId was passed, pre-select it
+      if (params.destinationId) {
+        const dest = enabled.find((d: Destination) => d.id === params.destinationId);
+        if (dest) setSelectedDestination(dest);
+      } else if (enabled.length > 0) {
+        setSelectedDestination(enabled[0]);
+      }
+    } catch (error) {
+      console.error('Error loading destinations:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleCreateApplication = async () => {
-    if (!selectedType) {
-      Alert.alert('Error', 'Por favor selecciona un tipo de visa');
+    if (!selectedDestination || !selectedVisaType) {
+      showAlert('Error', 'Por favor selecciona un destino y tipo de visa');
       return;
     }
 
     if (!user) {
-      Alert.alert('Error', 'Debes iniciar sesión');
+      showAlert('Error', 'Debes iniciar sesión');
       return;
     }
 
-    setIsLoading(true);
+    setIsSubmitting(true);
     try {
       const response = await fetch(`${API_URL}/api/applications?user_id=${user.id}`, {
         method: 'POST',
@@ -62,7 +104,8 @@ export default function NewApplicationScreen() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          visa_type: selectedType,
+          destination_id: selectedDestination.id,
+          visa_type_id: selectedVisaType.id,
           notes,
         }),
       });
@@ -73,14 +116,10 @@ export default function NewApplicationScreen() {
         throw new Error(data.detail || 'Error al crear solicitud');
       }
 
-      Alert.alert(
+      showAlert(
         'Éxito',
         'Solicitud creada exitosamente. Recuerda realizar el depósito inicial del 50% para comenzar el proceso.',
         [
-          {
-            text: 'Pagar Ahora',
-            onPress: () => Linking.openURL(PAYPAL_LINK),
-          },
           {
             text: 'Ver Solicitud',
             onPress: () => router.replace({ pathname: '/application-details', params: { id: data.application.id } }),
@@ -88,9 +127,9 @@ export default function NewApplicationScreen() {
         ]
       );
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Error al crear solicitud');
+      showAlert('Error', error.message || 'Error al crear solicitud');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -99,10 +138,23 @@ export default function NewApplicationScreen() {
       <View style={styles.container}>
         <LinearGradient colors={['#0a1628', '#132743', '#0a1628']} style={styles.gradient}>
           <SafeAreaView style={styles.centerContent}>
+            <Ionicons name="lock-closed" size={50} color="#d4af37" />
             <Text style={styles.errorText}>Debes iniciar sesión</Text>
             <TouchableOpacity style={styles.linkButton} onPress={() => router.replace('/login')}>
               <Text style={styles.linkText}>Ir a Login</Text>
             </TouchableOpacity>
+          </SafeAreaView>
+        </LinearGradient>
+      </View>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <LinearGradient colors={['#0a1628', '#132743', '#0a1628']} style={styles.gradient}>
+          <SafeAreaView style={styles.centerContent}>
+            <ActivityIndicator size="large" color="#d4af37" />
           </SafeAreaView>
         </LinearGradient>
       </View>
@@ -127,50 +179,95 @@ export default function NewApplicationScreen() {
             <View style={styles.instructionsCard}>
               <Ionicons name="information-circle" size={24} color="#d4af37" />
               <Text style={styles.instructionsText}>
-                Selecciona el tipo de visa que necesitas. El depósito inicial es del 50% del precio total.
+                Selecciona el destino y tipo de visa. El depósito inicial es del 50% del precio total.
               </Text>
             </View>
 
-            {/* Visa Type Selection */}
-            <Text style={styles.sectionTitle}>Tipo de Visa</Text>
-
-            {Object.entries(VISA_TYPES).map(([key, visa]) => (
-              <TouchableOpacity
-                key={key}
-                style={[
-                  styles.visaCard,
-                  selectedType === key && styles.visaCardSelected,
-                ]}
-                onPress={() => setSelectedType(key)}
-              >
-                <LinearGradient
-                  colors={selectedType === key ? ['#2a3f5a', '#1a2f45'] : ['#1a2f4a', '#0d1f35']}
-                  style={styles.visaCardGradient}
+            {/* Destination Selection */}
+            <Text style={styles.sectionTitle}>1. Selecciona el Destino</Text>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              style={styles.destinationScroll}
+            >
+              {destinations.map((dest) => (
+                <TouchableOpacity
+                  key={dest.id}
+                  style={[
+                    styles.destinationChip,
+                    selectedDestination?.id === dest.id && styles.destinationChipSelected,
+                  ]}
+                  onPress={() => {
+                    setSelectedDestination(dest);
+                    setSelectedVisaType(null);
+                  }}
                 >
-                  <View style={styles.visaCardHeader}>
-                    <FontAwesome5 name={visa.icon} size={28} color="#d4af37" />
-                    {selectedType === key && (
-                      <Ionicons name="checkmark-circle" size={24} color="#4caf50" />
-                    )}
-                  </View>
-                  <Text style={styles.visaName}>{visa.name}</Text>
-                  <Text style={styles.visaDescription}>{visa.description}</Text>
-                  <View style={styles.priceRow}>
-                    <View>
-                      <Text style={styles.priceLabel}>Precio Total</Text>
-                      <Text style={styles.priceValue}>{visa.price} EUR</Text>
-                    </View>
-                    <View>
-                      <Text style={styles.priceLabel}>Depósito (50%)</Text>
-                      <Text style={styles.depositValue}>{visa.deposit} EUR</Text>
-                    </View>
-                  </View>
-                </LinearGradient>
-              </TouchableOpacity>
-            ))}
+                  <Text style={styles.destinationFlag}>
+                    {dest.country_code === 'RS' ? '🇷🇸' : 
+                     dest.country_code === 'AM' ? '🇦🇲' :
+                     dest.country_code === 'GE' ? '🇬🇪' : '🌍'}
+                  </Text>
+                  <Text style={[
+                    styles.destinationChipText,
+                    selectedDestination?.id === dest.id && styles.destinationChipTextSelected,
+                  ]}>
+                    {dest.country}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            {/* Visa Type Selection */}
+            {selectedDestination && (
+              <>
+                <Text style={styles.sectionTitle}>2. Tipo de Visa para {selectedDestination.country}</Text>
+
+                {selectedDestination.visa_types?.map((visa) => (
+                  <TouchableOpacity
+                    key={visa.id}
+                    style={[
+                      styles.visaCard,
+                      selectedVisaType?.id === visa.id && styles.visaCardSelected,
+                    ]}
+                    onPress={() => setSelectedVisaType(visa)}
+                  >
+                    <LinearGradient
+                      colors={selectedVisaType?.id === visa.id ? ['#2a3f5a', '#1a2f45'] : ['#1a2f4a', '#0d1f35']}
+                      style={styles.visaCardGradient}
+                    >
+                      <View style={styles.visaCardHeader}>
+                        <FontAwesome5 
+                          name={visa.name.toLowerCase().includes('turismo') ? 'umbrella-beach' : 'briefcase'} 
+                          size={28} 
+                          color="#d4af37" 
+                        />
+                        {selectedVisaType?.id === visa.id && (
+                          <Ionicons name="checkmark-circle" size={24} color="#4caf50" />
+                        )}
+                      </View>
+                      <Text style={styles.visaName}>{visa.name}</Text>
+                      <View style={styles.priceRow}>
+                        <View>
+                          <Text style={styles.priceLabel}>Precio Total</Text>
+                          <Text style={styles.priceValue}>{visa.price} {visa.currency}</Text>
+                        </View>
+                        <View>
+                          <Text style={styles.priceLabel}>Depósito (50%)</Text>
+                          <Text style={styles.depositValue}>{visa.price / 2} {visa.currency}</Text>
+                        </View>
+                      </View>
+                      <View style={styles.timeRow}>
+                        <Ionicons name="time-outline" size={16} color="#8899aa" />
+                        <Text style={styles.timeText}>{visa.processing_time}</Text>
+                      </View>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                ))}
+              </>
+            )}
 
             {/* Notes */}
-            <Text style={styles.sectionTitle}>Notas Adicionales (Opcional)</Text>
+            <Text style={styles.sectionTitle}>3. Notas Adicionales (Opcional)</Text>
             <View style={styles.notesContainer}>
               <TextInput
                 style={styles.notesInput}
@@ -191,7 +288,7 @@ export default function NewApplicationScreen() {
                 <Text style={styles.importantTitle}>Importante</Text>
                 <Text style={styles.importantText}>
                   • El pago del depósito se realiza vía PayPal (Amigos y Familia){"\n"}
-                  • Tiempo de procesamiento: 1-2 meses{"\n"}
+                  • Después de crear la solicitud podrás subir tus documentos{"\n"}
                   • No incluye pasaje, solo gestión y asesoría
                 </Text>
               </View>
@@ -199,15 +296,15 @@ export default function NewApplicationScreen() {
 
             {/* Submit Button */}
             <TouchableOpacity
-              style={[styles.submitButton, !selectedType && styles.submitButtonDisabled]}
+              style={[styles.submitButton, (!selectedDestination || !selectedVisaType) && styles.submitButtonDisabled]}
               onPress={handleCreateApplication}
-              disabled={isLoading || !selectedType}
+              disabled={isSubmitting || !selectedDestination || !selectedVisaType}
             >
               <LinearGradient
-                colors={selectedType ? ['#d4af37', '#b8962f'] : ['#555', '#444']}
+                colors={(selectedDestination && selectedVisaType) ? ['#d4af37', '#b8962f'] : ['#555', '#444']}
                 style={styles.submitGradient}
               >
-                {isLoading ? (
+                {isSubmitting ? (
                   <ActivityIndicator color="#0a1628" />
                 ) : (
                   <>
@@ -239,17 +336,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    gap: 15,
   },
   errorText: {
     fontSize: 18,
     color: '#fff',
-    marginBottom: 20,
+    marginTop: 15,
   },
   linkButton: {
     padding: 15,
+    backgroundColor: '#d4af37',
+    borderRadius: 10,
+    marginTop: 10,
   },
   linkText: {
-    color: '#d4af37',
+    color: '#0a1628',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -296,10 +397,41 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#ffffff',
     marginBottom: 15,
+    marginTop: 10,
+  },
+  destinationScroll: {
+    marginBottom: 20,
+  },
+  destinationChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 25,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    gap: 8,
+  },
+  destinationChipSelected: {
+    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+    borderColor: '#d4af37',
+  },
+  destinationFlag: {
+    fontSize: 20,
+  },
+  destinationChipText: {
+    fontSize: 14,
+    color: '#8899aa',
+    fontWeight: '500',
+  },
+  destinationChipTextSelected: {
+    color: '#d4af37',
   },
   visaCard: {
     borderRadius: 12,
@@ -324,11 +456,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#ffffff',
-    marginBottom: 8,
-  },
-  visaDescription: {
-    fontSize: 14,
-    color: '#8899aa',
     marginBottom: 15,
   },
   priceRow: {
@@ -352,6 +479,16 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#d4af37',
+  },
+  timeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    gap: 6,
+  },
+  timeText: {
+    fontSize: 13,
+    color: '#8899aa',
   },
   notesContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
