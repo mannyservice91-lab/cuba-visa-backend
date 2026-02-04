@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "cuban-serbia",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "extra": {
       "backendUrl": "https://visa-portal-21.preview.emergentagent.com"
     },
