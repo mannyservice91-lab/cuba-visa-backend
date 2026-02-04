@@ -21,7 +21,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const WHATSAPP_NUMBER = '+381693444935';
 const PAYPAL_LINK = 'https://paypal.me/Gonzalezjm91';
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
-const BACKGROUND_IMAGE = 'https://customer-assets.emergentagent.com/job_visado-laboral-cuba/artifacts/pu4pdl7e_ChatGPT%20Image%2026%20ene%202026%2C%2012_20_06%20a.m..png';
+// Background image from Unsplash - no external dependencies
+const BACKGROUND_IMAGE = 'https://images.unsplash.com/photo-1596438459194-f275f413d6ff?w=1920&q=80';
 
 interface VisaType {
   id: string;
