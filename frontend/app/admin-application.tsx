@@ -148,43 +148,113 @@ export default function AdminApplicationScreen() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail);
 
-      Alert.alert('Éxito', 'Solicitud actualizada correctamente');
+      showAlert('Éxito', 'Solicitud actualizada correctamente');
       setApplication(data);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Error al guardar');
+      showAlert('Error', error.message || 'Error al guardar');
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDelete = () => {
-    Alert.alert(
+    showConfirm(
       'Eliminar Solicitud',
       '¿Estás seguro de que quieres eliminar esta solicitud? Esta acción no se puede deshacer.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            if (!admin?.access_token) return;
-            try {
-              const response = await fetch(
-                `${API_URL}/api/admin/applications/${application?.id}`,
-                {
-                  method: 'DELETE',
-                  headers: { Authorization: `Bearer ${admin.access_token}` },
-                }
-              );
-              if (!response.ok) throw new Error('Error al eliminar');
-              Alert.alert('Éxito', 'Solicitud eliminada');
-              router.back();
-            } catch (error) {
-              Alert.alert('Error', 'No se pudo eliminar la solicitud');
+      async () => {
+        if (!admin?.access_token) return;
+        try {
+          const response = await fetch(
+            `${API_URL}/api/admin/applications/${application?.id}`,
+            {
+              method: 'DELETE',
+              headers: { Authorization: `Bearer ${admin.access_token}` },
             }
-          },
-        },
-      ]
+          );
+          if (!response.ok) throw new Error('Error al eliminar');
+          showAlert('Éxito', 'Solicitud eliminada');
+          router.back();
+        } catch (error) {
+          showAlert('Error', 'No se pudo eliminar la solicitud');
+        }
+      }
+    );
+  };
+
+  const handleDownloadDocument = async (docId: string, docName: string, docType: string) => {
+    if (!admin?.access_token || !application) return;
+    
+    try {
+      const response = await fetch(
+        `${API_URL}/api/admin/applications/${application.id}/documents/${docId}`,
+        {
+          headers: { Authorization: `Bearer ${admin.access_token}` },
+        }
+      );
+      
+      if (!response.ok) throw new Error('Error al obtener documento');
+      
+      const docData = await response.json();
+      
+      if (Platform.OS === 'web') {
+        // On web, create a download link
+        const base64Data = docData.data;
+        const mimeType = docType || 'application/octet-stream';
+        const dataUrl = base64Data.startsWith('data:') ? base64Data : `data:${mimeType};base64,${base64Data}`;
+        
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = docName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showAlert('Éxito', 'Documento descargado');
+      } else {
+        // On mobile, use FileSystem and Sharing
+        const base64Data = docData.data;
+        const fileUri = `${FileSystem.documentDirectory}${docName}`;
+        
+        await FileSystem.writeAsStringAsync(fileUri, base64Data, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(fileUri);
+        } else {
+          showAlert('Éxito', `Documento guardado en: ${fileUri}`);
+        }
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      showAlert('Error', 'No se pudo descargar el documento');
+    }
+  };
+
+  const handleDeleteDocument = (docId: string, docName: string) => {
+    showConfirm(
+      'Eliminar Documento',
+      `¿Estás seguro de eliminar "${docName}"?`,
+      async () => {
+        if (!admin?.access_token || !application) return;
+        
+        try {
+          const response = await fetch(
+            `${API_URL}/api/admin/applications/${application.id}/documents/${docId}`,
+            {
+              method: 'DELETE',
+              headers: { Authorization: `Bearer ${admin.access_token}` },
+            }
+          );
+          
+          if (!response.ok) throw new Error('Error al eliminar');
+          
+          showAlert('Éxito', 'Documento eliminado');
+          fetchApplication(); // Refresh the application data
+        } catch (error) {
+          showAlert('Error', 'No se pudo eliminar el documento');
+        }
+      }
     );
   };
 
