@@ -96,17 +96,64 @@ export default function AdminAdvisorsScreen() {
         name: advisor.name,
         whatsapp: advisor.whatsapp,
         role: advisor.role,
+        photo_url: advisor.photo_url || '',
       });
     } else {
       setEditingAdvisor(null);
-      setFormData({ name: '', whatsapp: '', role: 'Asesor de Visas' });
+      setFormData({ name: '', whatsapp: '', role: 'Asesor de Visas', photo_url: '' });
     }
     setShowModal(true);
   };
 
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.5,
+        base64: Platform.OS === 'web' ? true : false,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const asset = result.assets[0];
+        let base64Data: string;
+
+        if (Platform.OS === 'web') {
+          if (asset.base64) {
+            base64Data = asset.base64;
+          } else if (asset.uri.startsWith('data:')) {
+            base64Data = asset.uri.split(',')[1] || '';
+          } else {
+            const response = await fetch(asset.uri);
+            const blob = await response.blob();
+            base64Data = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                const result = reader.result as string;
+                resolve(result.split(',')[1]);
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+          }
+        } else {
+          base64Data = await FileSystem.readAsStringAsync(asset.uri, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+        }
+
+        setFormData({ ...formData, photo_url: `data:image/jpeg;base64,${base64Data}` });
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      showAlert('Error', 'No se pudo seleccionar la imagen');
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.name || !formData.whatsapp) {
-      Alert.alert('Error', 'Nombre y WhatsApp son requeridos');
+      showAlert('Error', 'Nombre y WhatsApp son requeridos');
       return;
     }
 
@@ -128,14 +175,14 @@ export default function AdminAdvisorsScreen() {
       });
 
       if (response.ok) {
-        Alert.alert('Éxito', editingAdvisor ? 'Asesor actualizado' : 'Asesor creado');
+        showAlert('Éxito', editingAdvisor ? 'Asesor actualizado' : 'Asesor creado');
         setShowModal(false);
         fetchAdvisors();
       } else {
         throw new Error('Error al guardar');
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo guardar el asesor');
+      showAlert('Error', 'No se pudo guardar el asesor');
     } finally {
       setIsSubmitting(false);
     }
