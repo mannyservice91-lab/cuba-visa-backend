@@ -666,6 +666,10 @@ async def create_application(user_id: str, application_data: ApplicationCreate):
         raise HTTPException(status_code=404, detail="Tipo de visa no encontrado")
     
     country_of_residence = user.get("country_of_residence", "Cuba")
+    destination_country = destination["country"]
+    
+    # Determinar ubicación de recogida de visa
+    visa_pickup = get_visa_pickup_location(destination_country, country_of_residence)
     
     application = VisaApplication(
         user_id=user_id,
@@ -675,11 +679,11 @@ async def create_application(user_id: str, application_data: ApplicationCreate):
         passport_number=user["passport_number"],
         country_of_residence=country_of_residence,
         destination_id=destination["id"],
-        destination_country=destination["country"],
+        destination_country=destination_country,
         visa_type_id=visa_type["id"],
         visa_type_name=visa_type["name"],
         price=visa_type["price"],
-        embassy_location=get_embassy_location(country_of_residence),
+        embassy_location=visa_pickup,
         notes=application_data.notes or ""
     )
     
