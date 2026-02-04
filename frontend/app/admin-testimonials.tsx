@@ -101,27 +101,63 @@ export default function AdminTestimonialsScreen() {
 
   const pickImage = async () => {
     try {
+      // For web, we need to handle image picking differently
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.5,
+        base64: Platform.OS === 'web' ? true : false, // Request base64 directly on web
       });
 
+      console.log('Image picker result:', result.canceled ? 'cancelled' : 'selected');
+
       if (!result.canceled && result.assets[0]) {
-        const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
+        const asset = result.assets[0];
+        
+        let base64Data: string;
+        
+        if (Platform.OS === 'web') {
+          // On web, if base64 is available use it, otherwise extract from uri
+          if (asset.base64) {
+            base64Data = asset.base64;
+          } else if (asset.uri.startsWith('data:')) {
+            // URI is already a data URI
+            base64Data = asset.uri.split(',')[1] || asset.uri;
+          } else {
+            // Fallback: fetch the blob and convert
+            try {
+              const response = await fetch(asset.uri);
+              const blob = await response.blob();
+              base64Data = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                  const result = reader.result as string;
+                  resolve(result.split(',')[1]);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              });
+            } catch (e) {
+              console.error('Error converting blob:', e);
+              showAlert('Error', 'No se pudo procesar la imagen');
+              return;
+            }
+          }
+        } else {
+          // On native, use FileSystem
+          base64Data = await FileSystem.readAsStringAsync(asset.uri, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+        }
+        
         // Save with proper data URI format
-        setSelectedImage(`data:image/jpeg;base64,${base64}`);
+        setSelectedImage(`data:image/jpeg;base64,${base64Data}`);
+        console.log('Image set successfully');
       }
     } catch (error) {
       console.error('Error picking image:', error);
-      if (Platform.OS === 'web') {
-        window.alert('Error al seleccionar imagen');
-      } else {
-        Alert.alert('Error', 'No se pudo seleccionar la imagen');
-      }
+      showAlert('Error', 'No se pudo seleccionar la imagen. Intente de nuevo.');
     }
   };
 
