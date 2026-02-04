@@ -281,9 +281,13 @@ export default function AdminAdvisorsScreen() {
                   <LinearGradient colors={['#1a2f4a', '#0d1f35']} style={styles.advisorGradient}>
                     <View style={styles.advisorHeader}>
                       <View style={styles.advisorInfo}>
-                        <View style={styles.avatarContainer}>
-                          <Ionicons name="person" size={24} color="#d4af37" />
-                        </View>
+                        {advisor.photo_url ? (
+                          <Image source={{ uri: advisor.photo_url }} style={styles.advisorPhoto} />
+                        ) : (
+                          <View style={styles.avatarContainer}>
+                            <Ionicons name="person" size={24} color="#d4af37" />
+                          </View>
+                        )}
                         <View>
                           <Text style={styles.advisorName}>{advisor.name}</Text>
                           <Text style={styles.advisorRole}>{advisor.role}</Text>
