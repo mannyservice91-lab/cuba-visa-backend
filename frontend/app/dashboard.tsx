@@ -720,4 +720,67 @@ const styles = StyleSheet.create({
   statusCompleted: { backgroundColor: 'rgba(212, 175, 55, 0.2)' },
   statusRejected: { backgroundColor: 'rgba(244, 67, 54, 0.2)' },
   historyStatusText: { fontSize: 11, fontWeight: '600', color: '#ffc107' },
+  
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#132743',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '70%',
+    paddingBottom: 30,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(212, 175, 55, 0.2)',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  countryList: {
+    padding: 10,
+  },
+  countryOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 15,
+    borderRadius: 10,
+    marginVertical: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  countryOptionSelected: {
+    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+    borderWidth: 1,
+    borderColor: '#d4af37',
+  },
+  countryOptionText: {
+    fontSize: 16,
+    color: '#fff',
+  },
+  countryOptionTextSelected: {
+    color: '#d4af37',
+    fontWeight: '600',
+  },
+  modalLoading: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 15,
+    gap: 10,
+  },
+  modalLoadingText: {
+    color: '#d4af37',
+    fontSize: 14,
+  },
 });
