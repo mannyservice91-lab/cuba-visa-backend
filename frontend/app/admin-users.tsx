@@ -54,7 +54,7 @@ interface User {
 
 export default function AdminUsersScreen() {
   const router = useRouter();
-  const { admin, adminLogout, isAdmin } = useAuth();
+  const { admin, adminLogout, isAdmin, isLoading: authLoading } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
