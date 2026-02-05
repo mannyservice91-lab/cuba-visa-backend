@@ -101,13 +101,22 @@ export default function AdminTestimonialsScreen() {
 
   const pickImage = async () => {
     try {
-      // For web, we need to handle image picking differently
+      // Request permissions first on native platforms
+      if (Platform.OS !== 'web') {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+          showAlert('Permisos requeridos', 'Necesitamos acceso a tu galería para seleccionar imágenes');
+          return;
+        }
+      }
+
+      // Launch image picker with base64 enabled for all platforms
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.5,
-        base64: Platform.OS === 'web' ? true : false, // Request base64 directly on web
+        base64: true, // Always request base64
       });
 
       console.log('Image picker result:', result.canceled ? 'cancelled' : 'selected');
@@ -115,45 +124,52 @@ export default function AdminTestimonialsScreen() {
       if (!result.canceled && result.assets[0]) {
         const asset = result.assets[0];
         
-        let base64Data: string;
+        let base64Data: string | null = null;
         
-        if (Platform.OS === 'web') {
-          // On web, if base64 is available use it, otherwise extract from uri
-          if (asset.base64) {
-            base64Data = asset.base64;
-          } else if (asset.uri.startsWith('data:')) {
-            // URI is already a data URI
-            base64Data = asset.uri.split(',')[1] || asset.uri;
+        // Try to get base64 from the result first
+        if (asset.base64) {
+          base64Data = asset.base64;
+        } else if (asset.uri) {
+          // If base64 not available, read from URI
+          if (Platform.OS === 'web') {
+            if (asset.uri.startsWith('data:')) {
+              base64Data = asset.uri.split(',')[1] || '';
+            } else {
+              try {
+                const response = await fetch(asset.uri);
+                const blob = await response.blob();
+                base64Data = await new Promise((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    const result = reader.result as string;
+                    resolve(result.split(',')[1]);
+                  };
+                  reader.onerror = reject;
+                  reader.readAsDataURL(blob);
+                });
+              } catch (e) {
+                console.error('Error converting blob:', e);
+              }
+            }
           } else {
-            // Fallback: fetch the blob and convert
+            // On native, use FileSystem
             try {
-              const response = await fetch(asset.uri);
-              const blob = await response.blob();
-              base64Data = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                  const result = reader.result as string;
-                  resolve(result.split(',')[1]);
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
+              base64Data = await FileSystem.readAsStringAsync(asset.uri, {
+                encoding: FileSystem.EncodingType.Base64,
               });
             } catch (e) {
-              console.error('Error converting blob:', e);
-              showAlert('Error', 'No se pudo procesar la imagen');
-              return;
+              console.error('Error reading file:', e);
             }
           }
-        } else {
-          // On native, use FileSystem
-          base64Data = await FileSystem.readAsStringAsync(asset.uri, {
-            encoding: FileSystem.EncodingType.Base64,
-          });
         }
         
-        // Save with proper data URI format
-        setSelectedImage(`data:image/jpeg;base64,${base64Data}`);
-        console.log('Image set successfully');
+        if (base64Data) {
+          // Save with proper data URI format
+          setSelectedImage(`data:image/jpeg;base64,${base64Data}`);
+          console.log('Image set successfully');
+        } else {
+          showAlert('Error', 'No se pudo procesar la imagen');
+        }
       }
     } catch (error) {
       console.error('Error picking image:', error);
