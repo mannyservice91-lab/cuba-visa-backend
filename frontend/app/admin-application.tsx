@@ -212,15 +212,26 @@ export default function AdminApplicationScreen() {
         showAlert('Éxito', 'Documento descargado');
       } else {
         // On mobile, use FileSystem and Sharing
-        const base64Data = docData.data;
-        const fileUri = `${FileSystem.documentDirectory}${docName}`;
+        let base64Data = docData.data;
+        
+        // Remove data URL prefix if present
+        if (base64Data.startsWith('data:')) {
+          base64Data = base64Data.split(',')[1] || base64Data;
+        }
+        
+        // Clean filename - remove special characters
+        const cleanFileName = docName.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const fileUri = `${FileSystem.cacheDirectory}${cleanFileName}`;
         
         await FileSystem.writeAsStringAsync(fileUri, base64Data, {
           encoding: FileSystem.EncodingType.Base64,
         });
         
         if (await Sharing.isAvailableAsync()) {
-          await Sharing.shareAsync(fileUri);
+          await Sharing.shareAsync(fileUri, {
+            mimeType: docType || 'application/octet-stream',
+            dialogTitle: `Compartir ${docName}`,
+          });
         } else {
           showAlert('Éxito', `Documento guardado en: ${fileUri}`);
         }
