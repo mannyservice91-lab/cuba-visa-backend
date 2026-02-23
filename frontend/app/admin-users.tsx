@@ -50,6 +50,7 @@ interface User {
   country_of_residence: string;
   created_at: string;
   is_active: boolean;
+  is_approved: boolean;
 }
 
 export default function AdminUsersScreen() {
