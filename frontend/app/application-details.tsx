@@ -30,7 +30,8 @@ const CEO_INFO = {
   name: 'Jose Manuel Gonzalez',
   role: 'CEO',
   whatsapp: '+381693444935',
-  photo: 'https://customer-assets.emergentagent.com/job_deaa944a-8794-4ce3-aef8-ec2d6c8949f6/artifacts/hdvxwttk_Foto%20Profesional%20Dise%C3%B1ador%20Gr%C3%A1fico%20M91%20con%20Ropa%20de%20Invierno.png',
+  // Foto del CEO - reemplazar con URL permanente (ej: Cloudinary, ImgBB, o tu propio servidor)
+  photo: 'https://ui-avatars.com/api/?name=Jose+Manuel&background=d4af37&color=0a1628&size=200&bold=true',
 };
 
 interface Advisor {
