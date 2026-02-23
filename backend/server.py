@@ -210,6 +210,7 @@ class User(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = True
     email_verified: bool = False
+    is_approved: bool = False  # Nuevo: requiere aprobación del admin
     verification_token: Optional[str] = None
     verification_token_expires: Optional[datetime] = None
 
