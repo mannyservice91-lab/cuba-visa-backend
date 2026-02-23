@@ -9,7 +9,7 @@
     "userInterfaceStyle": "dark",
     "newArchEnabled": false,
     "extra": {
-      "backendUrl": "https://cuba-serbia-visa.preview.emergentagent.com"
+      "backendUrl": "https://cuba-visa-backend.onrender.com"
     },
     "ios": {
       "supportsTablet": true,
