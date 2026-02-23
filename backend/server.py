@@ -619,9 +619,6 @@ async def register_user(user_data: UserRegister):
     if existing_user:
         raise HTTPException(status_code=400, detail="El email ya está registrado")
     
-    # Generate 6-digit verification code
-    verification_code = ''.join([str(secrets.randbelow(10)) for _ in range(6)])
-    
     user = User(
         email=user_data.email,
         password_hash=get_password_hash(user_data.password),
@@ -629,19 +626,15 @@ async def register_user(user_data: UserRegister):
         phone=user_data.phone,
         passport_number=user_data.passport_number,
         country_of_residence=user_data.country_of_residence,
-        email_verified=False,
-        verification_token=verification_code,
-        verification_token_expires=datetime.utcnow() + timedelta(hours=24)
+        email_verified=True,  # Ya no necesita verificación por email
+        is_approved=False  # Pendiente de aprobación por admin
     )
     
     await db.users.insert_one(user.dict())
     
-    # Send verification email
-    await send_verification_email(user.email, user.full_name, verification_code)
-    
     return {
-        "message": "Usuario registrado. Por favor verifica tu email.",
-        "requires_verification": True,
+        "message": "Registro exitoso. Tu cuenta está pendiente de aprobación por el administrador.",
+        "requires_approval": True,
         "user": {
             "id": user.id,
             "email": user.email,
@@ -649,7 +642,7 @@ async def register_user(user_data: UserRegister):
             "phone": user.phone,
             "passport_number": user.passport_number,
             "country_of_residence": user.country_of_residence,
-            "email_verified": False,
+            "is_approved": False,
             "embassy_location": get_embassy_location(user.country_of_residence)
         }
     }
