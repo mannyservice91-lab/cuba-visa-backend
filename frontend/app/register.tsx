@@ -10,13 +10,14 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient/build/LinearGradient';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../src/context/AuthContext';
-import { API_URL } from '../src/config/api';
+import { API_URL, CONFIG } from '../src/config/api';
 
 // Helper for cross-platform alerts
 const showAlert = (title: string, message: string, onOk?: () => void) => {
@@ -42,6 +43,21 @@ export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showPendingApproval, setShowPendingApproval] = useState(false);
+  const [registeredName, setRegisteredName] = useState('');
+
+  const openWhatsApp = () => {
+    const message = encodeURIComponent(
+      `Hola, acabo de registrarme en Cuban-Serbia Visa Center.\n\nNombre: ${registeredName}\nEmail: ${formData.email}\n\nSolicito la aprobación de mi cuenta para poder acceder a la aplicación.`
+    );
+    const whatsappUrl = `https://wa.me/${CONFIG.WHATSAPP_NUMBER.replace(/[^0-9]/g, '')}?text=${message}`;
+    
+    if (Platform.OS === 'web') {
+      window.open(whatsappUrl, '_blank');
+    } else {
+      Linking.openURL(whatsappUrl);
+    }
+  };
 
   const handleRegister = async () => {
     const { full_name, email, phone, passport_number, password, confirmPassword } = formData;
@@ -87,8 +103,12 @@ export default function RegisterScreen() {
         throw new Error(data.detail || 'Error al registrarse');
       }
 
-      // Check if email verification is required
-      if (data.requires_verification) {
+      // Check if approval is required (new flow)
+      if (data.requires_approval) {
+        setRegisteredName(full_name);
+        setShowPendingApproval(true);
+      } else if (data.requires_verification) {
+        // Legacy email verification flow
         showAlert('Verifica tu Email', 'Te hemos enviado un código de verificación a tu correo electrónico.', () => {
           if (Platform.OS === 'web') {
             window.location.href = `/verify-email?email=${encodeURIComponent(email)}`;
@@ -97,7 +117,7 @@ export default function RegisterScreen() {
           }
         });
       } else {
-        // Legacy flow - direct login
+        // Direct login (legacy)
         await login(data.user);
         showAlert('Éxito', 'Cuenta creada exitosamente', () => {
           if (Platform.OS === 'web') {
