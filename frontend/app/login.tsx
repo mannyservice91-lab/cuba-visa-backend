@@ -120,6 +120,77 @@ export default function LoginScreen() {
     }
   };
 
+  // Show pending approval screen
+  if (showPendingApproval) {
+    return (
+      <View style={styles.container}>
+        <LinearGradient colors={['#0a1628', '#132743', '#0a1628']} style={styles.gradient}>
+          <SafeAreaView style={styles.safeArea}>
+            <ScrollView contentContainerStyle={styles.pendingContent}>
+              {/* Warning Icon */}
+              <View style={styles.pendingIconContainer}>
+                <LinearGradient colors={['#1a2f4a', '#0d1f35']} style={styles.pendingIconGradient}>
+                  <Ionicons name="time" size={70} color="#ffc107" />
+                </LinearGradient>
+              </View>
+
+              {/* Title */}
+              <Text style={styles.pendingTitle}>Cuenta Pendiente</Text>
+              {pendingUserName ? (
+                <Text style={styles.pendingSubtitle}>Hola, {pendingUserName}</Text>
+              ) : null}
+
+              {/* Info Card */}
+              <View style={styles.pendingCard}>
+                <LinearGradient colors={['#1a2f4a', '#0d1f35']} style={styles.pendingCardGradient}>
+                  <Ionicons name="shield-checkmark" size={40} color="#d4af37" />
+                  <Text style={styles.pendingCardTitle}>Aprobación Requerida</Text>
+                  <Text style={styles.pendingCardText}>
+                    Tu cuenta está registrada pero aún no ha sido aprobada por un administrador.
+                  </Text>
+                  <Text style={styles.pendingCardText}>
+                    Por favor, contacta con nosotros por WhatsApp para solicitar la aprobación. 
+                    Responderemos lo antes posible.
+                  </Text>
+                </LinearGradient>
+              </View>
+
+              {/* WhatsApp Button */}
+              <TouchableOpacity
+                style={styles.whatsappButton}
+                onPress={openWhatsApp}
+                data-testid="whatsapp-approval-btn"
+              >
+                <LinearGradient colors={['#25D366', '#128C7E']} style={styles.whatsappGradient}>
+                  <Ionicons name="logo-whatsapp" size={24} color="#ffffff" />
+                  <Text style={styles.whatsappButtonText}>Contactar por WhatsApp</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              {/* Try Again Button */}
+              <TouchableOpacity
+                style={styles.tryAgainButton}
+                onPress={() => setShowPendingApproval(false)}
+              >
+                <Ionicons name="refresh" size={20} color="#d4af37" />
+                <Text style={styles.tryAgainText}>Intentar de Nuevo</Text>
+              </TouchableOpacity>
+
+              {/* Home Link */}
+              <TouchableOpacity 
+                style={styles.homeLink}
+                onPress={() => router.push('/')}
+              >
+                <Ionicons name="home" size={18} color="#667788" />
+                <Text style={styles.homeLinkText}>Volver al inicio</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </SafeAreaView>
+        </LinearGradient>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <LinearGradient
