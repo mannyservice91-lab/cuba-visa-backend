@@ -37,6 +37,21 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showPendingApproval, setShowPendingApproval] = useState(false);
+  const [pendingUserName, setPendingUserName] = useState('');
+
+  const openWhatsApp = () => {
+    const message = encodeURIComponent(
+      `Hola, ya me registré en Cuban-Serbia Visa Center pero mi cuenta está pendiente de aprobación.\n\nEmail: ${email}\n\nSolicito la aprobación de mi cuenta para poder acceder a la aplicación.`
+    );
+    const whatsappUrl = `https://wa.me/${CONFIG.WHATSAPP_NUMBER.replace(/[^0-9]/g, '')}?text=${message}`;
+    
+    if (Platform.OS === 'web') {
+      window.open(whatsappUrl, '_blank');
+    } else {
+      Linking.openURL(whatsappUrl);
+    }
+  };
 
   const handleLogin = async () => {
     setErrorMessage('');
