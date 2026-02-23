@@ -459,9 +459,9 @@ export default function HomeScreen() {
             {/* Footer */}
             <View style={styles.footer}>
               <View style={styles.footerLine} />
-              <Text style={styles.footerText}>Cuban-Serbia Visa Center © 2025</Text>
+              <Text style={styles.footerText}>{COMPANY_INFO.name} © {COMPANY_INFO.year}</Text>
               <Text style={styles.footerContact}>
-                <Ionicons name="call" size={12} color="#d4af37" /> +381 69 344 4935
+                <Ionicons name="call" size={12} color="#d4af37" /> {COMPANY_INFO.phone}
               </Text>
             </View>
             </View>
