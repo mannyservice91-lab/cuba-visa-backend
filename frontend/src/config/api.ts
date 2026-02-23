@@ -1,21 +1,27 @@
 import { Platform } from 'react-native';
 
-// Backend URL configuration
-// Works on both web and native (APK)
+// =============================================================
+// CONFIGURACION DE PRODUCCION - SERVIDOR RENDER
+// =============================================================
+// Backend desplegado en: https://cuba-visa-backend.onrender.com
+// Base de datos: MongoDB Atlas
+// =============================================================
+
+const PRODUCTION_BACKEND_URL = 'https://cuba-visa-backend.onrender.com';
+
 const getBackendUrl = (): string => {
-  // For web, use process.env
-  if (Platform.OS === 'web') {
-    return process.env.EXPO_PUBLIC_BACKEND_URL || '';
+  // Para web en desarrollo, usa variable de entorno si existe
+  if (Platform.OS === 'web' && process.env.EXPO_PUBLIC_BACKEND_URL) {
+    return process.env.EXPO_PUBLIC_BACKEND_URL;
   }
   
-  // For native (Android/iOS), use the production URL directly
-  // This is more reliable than using Constants.expoConfig
-  return 'https://cuba-serbia-visa.preview.emergentagent.com';
+  // Para APK/produccion y web sin env, usa el servidor de Render
+  return PRODUCTION_BACKEND_URL;
 };
 
 export const API_URL = getBackendUrl();
 
-// Export other configuration values
+// Configuracion general de la app
 export const CONFIG = {
   API_URL: getBackendUrl(),
   WHATSAPP_NUMBER: '+381693444935',
