@@ -98,6 +98,13 @@ export default function LoginScreen() {
         return;
       }
 
+      // Check if user is approved by admin
+      if (data.is_approved === false) {
+        setPendingUserName(data.user?.full_name || '');
+        setShowPendingApproval(true);
+        return;
+      }
+
       await login(data.user);
       
       if (Platform.OS === 'web') {
