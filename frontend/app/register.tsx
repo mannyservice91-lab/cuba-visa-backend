@@ -103,30 +103,9 @@ export default function RegisterScreen() {
         throw new Error(data.detail || 'Error al registrarse');
       }
 
-      // Check if approval is required (new flow)
-      if (data.requires_approval) {
-        setRegisteredName(full_name);
-        setShowPendingApproval(true);
-      } else if (data.requires_verification) {
-        // Legacy email verification flow
-        showAlert('Verifica tu Email', 'Te hemos enviado un código de verificación a tu correo electrónico.', () => {
-          if (Platform.OS === 'web') {
-            window.location.href = `/verify-email?email=${encodeURIComponent(email)}`;
-          } else {
-            router.push({ pathname: '/verify-email', params: { email } });
-          }
-        });
-      } else {
-        // Direct login (legacy)
-        await login(data.user);
-        showAlert('Éxito', 'Cuenta creada exitosamente', () => {
-          if (Platform.OS === 'web') {
-            window.location.href = '/dashboard';
-          } else {
-            router.replace('/dashboard');
-          }
-        });
-      }
+      // Show pending approval screen (único flujo ahora)
+      setRegisteredName(full_name);
+      setShowPendingApproval(true);
     } catch (error: any) {
       console.error('Register error:', error);
       setErrorMessage(error.message || 'Error al registrarse');
