@@ -1056,5 +1056,90 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#25D366',
   },
+  // Grid layout for desktop destinations
+  destinationsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 20,
+    paddingVertical: 10,
+  },
+  destinationOverlayDesktop: {
+    padding: 15,
+  },
+  // Download Section Styles
+  downloadSection: {
+    marginVertical: 25,
+  },
+  downloadCard: {
+    backgroundColor: 'rgba(10, 22, 40, 0.85)',
+    borderRadius: 16,
+    padding: 25,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.5)',
+  },
+  downloadHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    gap: 15,
+  },
+  downloadHeaderText: {
+    flex: 1,
+  },
+  downloadTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#d4af37',
+    marginBottom: 4,
+  },
+  downloadSubtitle: {
+    fontSize: 14,
+    color: '#8899aa',
+  },
+  downloadButtons: {
+    gap: 12,
+  },
+  downloadButtonsDesktop: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  downloadButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#3ddc84',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    gap: 12,
+    minWidth: 180,
+  },
+  downloadButtonPlay: {
+    backgroundColor: '#414141',
+  },
+  downloadButtonApple: {
+    backgroundColor: '#000000',
+  },
+  downloadButtonLabel: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.8)',
+    textTransform: 'uppercase',
+  },
+  downloadButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  comingSoonBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 10,
+  },
+  comingSoonText: {
+    fontSize: 13,
+    color: '#8899aa',
+    fontStyle: 'italic',
+  },
 });
 
