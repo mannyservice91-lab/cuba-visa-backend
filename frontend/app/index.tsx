@@ -297,6 +297,65 @@ export default function HomeScreen() {
                 </View>
               </View>
 
+              {/* App Download Section - Only shown on web */}
+              {isWeb && (
+                <View style={styles.downloadSection}>
+                  <View style={styles.downloadCard}>
+                    <View style={styles.downloadHeader}>
+                      <MaterialCommunityIcons name="cellphone-arrow-down" size={32} color="#d4af37" />
+                      <View style={styles.downloadHeaderText}>
+                        <Text style={[styles.downloadTitle, isDesktop && { fontSize: 22 }]}>Descarga Nuestra App</Text>
+                        <Text style={styles.downloadSubtitle}>Gestiona tu visa desde tu móvil</Text>
+                      </View>
+                    </View>
+                    <View style={[styles.downloadButtons, isDesktop && styles.downloadButtonsDesktop]}>
+                      {APP_DOWNLOAD_LINKS.android.enabled && (
+                        <TouchableOpacity
+                          style={styles.downloadButton}
+                          onPress={() => openDownloadLink(APP_DOWNLOAD_LINKS.android.url)}
+                        >
+                          <Ionicons name="logo-android" size={24} color="#fff" />
+                          <View>
+                            <Text style={styles.downloadButtonLabel}>Android</Text>
+                            <Text style={styles.downloadButtonText}>{APP_DOWNLOAD_LINKS.android.label}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      )}
+                      {APP_DOWNLOAD_LINKS.googlePlay.enabled && (
+                        <TouchableOpacity
+                          style={[styles.downloadButton, styles.downloadButtonPlay]}
+                          onPress={() => openDownloadLink(APP_DOWNLOAD_LINKS.googlePlay.url)}
+                        >
+                          <Ionicons name="logo-google-playstore" size={24} color="#fff" />
+                          <View>
+                            <Text style={styles.downloadButtonLabel}>GET IT ON</Text>
+                            <Text style={styles.downloadButtonText}>{APP_DOWNLOAD_LINKS.googlePlay.label}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      )}
+                      {APP_DOWNLOAD_LINKS.appStore.enabled && (
+                        <TouchableOpacity
+                          style={[styles.downloadButton, styles.downloadButtonApple]}
+                          onPress={() => openDownloadLink(APP_DOWNLOAD_LINKS.appStore.url)}
+                        >
+                          <Ionicons name="logo-apple" size={24} color="#fff" />
+                          <View>
+                            <Text style={styles.downloadButtonLabel}>Download on the</Text>
+                            <Text style={styles.downloadButtonText}>{APP_DOWNLOAD_LINKS.appStore.label}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      )}
+                      {!APP_DOWNLOAD_LINKS.googlePlay.enabled && !APP_DOWNLOAD_LINKS.appStore.enabled && (
+                        <View style={styles.comingSoonBadge}>
+                          <Ionicons name="time-outline" size={16} color="#8899aa" />
+                          <Text style={styles.comingSoonText}>Google Play y App Store próximamente</Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                </View>
+              )}
+
               {/* User Access Section */}
               <View style={styles.userAccessSection}>
                 <Text style={styles.accessTitle}>¿Ya tienes una solicitud?</Text>
