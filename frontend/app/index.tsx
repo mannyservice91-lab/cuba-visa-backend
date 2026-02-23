@@ -118,7 +118,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={{ uri: BACKGROUND_IMAGE }}
+        source={HERO_BACKGROUND}
         style={styles.backgroundImage}
         resizeMode="cover"
       >
@@ -136,7 +136,10 @@ export default function HomeScreen() {
               {/* Header */}
               <View style={styles.header}>
                 <View style={styles.logoContainer}>
-                  <MaterialCommunityIcons name="passport" size={isDesktop ? 50 : 40} color="#d4af37" />
+                  <Image 
+                    source={LOGO_IMAGE} 
+                    style={{ width: isDesktop ? 60 : 50, height: isDesktop ? 60 : 50, borderRadius: 12 }} 
+                  />
                   <View style={styles.logoTextContainer}>
                     <Text style={[styles.logoText, isDesktop && { fontSize: 28 }]}>CUBAN-SERBIA</Text>
                     <Text style={[styles.logoSubtext, isDesktop && { fontSize: 14 }]}>VISA CENTER</Text>
