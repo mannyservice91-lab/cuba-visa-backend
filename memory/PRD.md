@@ -14,7 +14,7 @@ Aplicación móvil para gestión de visas entre Cuba y Serbia con panel de admin
 ### URLs de Producción
 - **Backend**: `https://cuba-visa-backend.onrender.com`
 - **MongoDB Atlas**: Configurado en Render
-- **Preview (Desarrollo)**: `https://cuba-serbia-visa.preview.emergentagent.com`
+- **Preview (Desarrollo)**: `https://visa-portal-v2.preview.emergentagent.com`
 
 ## Funcionalidades Implementadas
 
