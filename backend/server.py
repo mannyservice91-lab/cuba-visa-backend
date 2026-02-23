@@ -1169,7 +1169,8 @@ async def admin_get_all_users(current_admin: dict = Depends(get_current_admin)):
         "passport_number": u["passport_number"],
         "country_of_residence": u.get("country_of_residence", "Cuba"),
         "created_at": u["created_at"],
-        "is_active": u.get("is_active", True)
+        "is_active": u.get("is_active", True),
+        "is_approved": u.get("is_approved", True)  # Default True for legacy users
     } for u in users]
 
 @api_router.delete("/admin/users/{user_id}")
@@ -1202,6 +1203,23 @@ async def admin_toggle_user(user_id: str, current_admin: dict = Depends(get_curr
         {"$set": {"is_active": new_status}}
     )
     return {"message": f"Usuario {'activado' if new_status else 'desactivado'}", "is_active": new_status}
+
+@api_router.put("/admin/users/{user_id}/approve")
+async def admin_approve_user(user_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Approve a user to allow them to submit visa applications"""
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    new_status = not user.get("is_approved", False)
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"is_approved": new_status}}
+    )
+    return {
+        "message": f"Usuario {'aprobado' if new_status else 'pendiente de aprobación'}", 
+        "is_approved": new_status
+    }
 
 # ============== TESTIMONIALS ROUTES ==============
 
