@@ -69,7 +69,9 @@ Aplicación móvil para gestión de visas entre Cuba y Serbia con panel de admin
 ## Tareas Pendientes
 
 ### P0 - Alta Prioridad
-- [ ] Crear sitio web público (Opción C: Landing + Web App)
+- [x] ~~Crear sitio web público~~ - COMPLETADO
+- [x] ~~Añadir sección de descarga de app en web~~ - COMPLETADO
+- [x] ~~Mejorar diseño responsivo para desktop~~ - COMPLETADO
 
 ### P1 - Media Prioridad
 - [ ] Implementar subida de videos para testimonios
@@ -78,10 +80,22 @@ Aplicación móvil para gestión de visas entre Cuba y Serbia con panel de admin
 ### P2 - Baja Prioridad
 - [ ] Mejorar notificaciones push
 - [ ] Sistema de chat integrado
+- [ ] CI/CD pipeline para builds automáticos del web app
 
 ## Changelog
 
-### Feb 23, 2026
+### Feb 23, 2026 (Sesión actual)
+- **Sección de Descarga de App**: Nueva sección en la web para descargar el APK
+  - Botón de descarga directa para Android
+  - Placeholders para Google Play y App Store (próximamente)
+  - Configuración centralizada en `/app/frontend/src/config/api.ts`
+- **Diseño Web Mejorado**:
+  - Grid layout para destinos en desktop (tarjetas más grandes)
+  - Scroll horizontal mantenido para móviles
+  - Mejor aprovechamiento del espacio en pantallas grandes
+- **Refactoring**: Configuración de empresa y enlaces centralizada en api.ts
+
+### Feb 23, 2026 (Sesión anterior)
 - Implementado sistema completo de aprobación de usuarios por admin
 - Eliminada verificación de email (no funcionaba)
 - Pantalla de "Pendiente de Aprobación" con botón WhatsApp en registro
