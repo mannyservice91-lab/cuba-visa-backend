@@ -154,6 +154,31 @@ export default function AdminUsersScreen() {
     }
   };
 
+  const handleApproveUser = async (userId: string, currentStatus: boolean) => {
+    if (!admin?.access_token) return;
+    try {
+      const response = await fetch(`${API_URL}/api/admin/users/${userId}/approve`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${admin.access_token}` },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        showAlert(
+          'Éxito', 
+          data.is_approved 
+            ? 'Usuario aprobado. Ahora puede acceder a la aplicación.'
+            : 'Aprobación revocada. El usuario no podrá acceder.'
+        );
+        fetchUsers();
+      } else {
+        showAlert('Error', 'No se pudo cambiar el estado de aprobación');
+      }
+    } catch (error) {
+      showAlert('Error', 'No se pudo cambiar el estado de aprobación');
+    }
+  };
+
   if (!isAdmin) return null;
 
   if (authLoading || isLoading) {
