@@ -451,6 +451,86 @@ async def send_verification_email(email: str, full_name: str, verification_code:
         logging.error(f"Error sending email: {e}")
         return False
 
+# Email de admin para notificaciones
+ADMIN_EMAIL = "josemgt91@gmail.com"
+
+async def send_admin_notification_email(user_name: str, user_email: str, user_phone: str, user_passport: str):
+    """Envía email al admin cuando un nuevo usuario se registra"""
+    if not SENDGRID_API_KEY:
+        logging.warning("SendGrid no configurado, no se puede enviar notificación al admin")
+        return False
+    
+    try:
+        current_time = datetime.utcnow().strftime("%d/%m/%Y a las %H:%M UTC")
+        
+        message = Mail(
+            from_email=SENDGRID_FROM_EMAIL,
+            to_emails=ADMIN_EMAIL,
+            subject=f'🆕 Nuevo Usuario Registrado - {user_name}',
+            html_content=f'''
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #0a1628, #132743); padding: 30px; border-radius: 10px; text-align: center;">
+                    <h1 style="color: #d4af37; margin: 0;">🔔 Nuevo Registro</h1>
+                    <p style="color: #ffffff; margin-top: 10px;">Cuban-Serbia Visa Center</p>
+                </div>
+                
+                <div style="padding: 30px; background: #f8f9fa; border-radius: 0 0 10px 10px;">
+                    <h2 style="color: #0a1628; margin-top: 0;">¡Tienes un nuevo usuario pendiente de aprobación!</h2>
+                    
+                    <div style="background: #ffffff; padding: 20px; border-radius: 8px; border-left: 4px solid #d4af37; margin: 20px 0;">
+                        <h3 style="color: #0a1628; margin: 0 0 15px 0;">Datos del Usuario:</h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 8px 0; color: #666; width: 140px;"><strong>Nombre:</strong></td>
+                                <td style="padding: 8px 0; color: #333;">{user_name}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #666;"><strong>Email:</strong></td>
+                                <td style="padding: 8px 0; color: #333;">{user_email}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #666;"><strong>Teléfono:</strong></td>
+                                <td style="padding: 8px 0; color: #333;">{user_phone}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #666;"><strong>Pasaporte:</strong></td>
+                                <td style="padding: 8px 0; color: #333;">{user_passport}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #666;"><strong>Registrado:</strong></td>
+                                <td style="padding: 8px 0; color: #333;">{current_time}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        <p style="color: #856404; margin: 0; font-size: 14px;">
+                            ⚠️ <strong>Acción requerida:</strong> Este usuario está esperando tu aprobación para poder acceder a la aplicación.
+                        </p>
+                    </div>
+                    
+                    <p style="color: #333; font-size: 14px;">
+                        Puedes aprobar este usuario desde el <strong>Panel de Administración</strong> en la sección "Gestión de Usuarios".
+                    </p>
+                    
+                    <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                    
+                    <p style="color: #999; font-size: 12px; text-align: center;">
+                        © 2025 Cuban-Serbia Visa Center. Notificación automática.
+                    </p>
+                </div>
+            </div>
+            '''
+        )
+        
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        logging.info(f"Notificación de nuevo registro enviada al admin, status: {response.status_code}")
+        return response.status_code == 202
+    except Exception as e:
+        logging.error(f"Error enviando notificación al admin: {e}")
+        return False
+
 # ============== ROUTES ==============
 
 @api_router.get("/")
