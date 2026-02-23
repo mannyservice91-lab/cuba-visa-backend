@@ -184,12 +184,59 @@ export default function HomeScreen() {
 
               {/* Destinations Section */}
               <View style={styles.destinationsSection}>
-                <Text style={styles.sectionTitle}>Destinos Disponibles</Text>
-                <Text style={styles.sectionSubtitle}>Seleccione un país para ver opciones de visa</Text>
+                <Text style={[styles.sectionTitle, isDesktop && { fontSize: 28 }]}>Destinos Disponibles</Text>
+                <Text style={[styles.sectionSubtitle, isDesktop && { fontSize: 16 }]}>Seleccione un país para ver opciones de visa</Text>
                 
                 {loadingDestinations ? (
                   <ActivityIndicator size="large" color="#d4af37" />
+                ) : isDesktop ? (
+                  // Grid layout for desktop
+                  <View style={styles.destinationsGrid}>
+                    {destinations.map((destination) => (
+                      <TouchableOpacity
+                        key={destination.id}
+                        style={[
+                          styles.destinationCard,
+                          { width: cardDimensions.width, height: cardDimensions.height },
+                          !destination.enabled && styles.destinationCardDisabled,
+                        ]}
+                        onPress={() => handleDestinationSelect(destination)}
+                        activeOpacity={0.7}
+                      >
+                        {destination.image_url ? (
+                          <Image
+                            source={{ uri: destination.image_url }}
+                            style={styles.destinationImage}
+                          />
+                        ) : (
+                          <View style={[styles.destinationImage, styles.destinationImagePlaceholder]}>
+                            <Text style={[styles.flagLarge, isDesktop && { fontSize: 60 }]}>
+                              {FLAG_EMOJIS[destination.country_code] || '🌍'}
+                            </Text>
+                          </View>
+                        )}
+                        <View style={[styles.destinationOverlay, isDesktop && styles.destinationOverlayDesktop]}>
+                          {!destination.enabled && (
+                            <View style={[styles.lockBadge, { top: -(cardDimensions.height - 30) }]}>
+                              <Ionicons name="lock-closed" size={14} color="#fff" />
+                              <Text style={styles.lockText}>Pronto</Text>
+                            </View>
+                          )}
+                          <Text style={[styles.destinationFlag, isDesktop && { fontSize: 28 }]}>
+                            {FLAG_EMOJIS[destination.country_code] || '🌍'}
+                          </Text>
+                          <Text style={[styles.destinationName, isDesktop && { fontSize: 18 }]}>{destination.country}</Text>
+                          {destination.enabled && destination.visa_types?.length > 0 && (
+                            <Text style={[styles.destinationPrice, isDesktop && { fontSize: 14 }]}>
+                              desde {Math.min(...destination.visa_types.map(v => v.price))} EUR
+                            </Text>
+                          )}
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
                 ) : (
+                  // Horizontal scroll for mobile
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
