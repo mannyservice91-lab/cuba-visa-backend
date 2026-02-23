@@ -241,16 +241,36 @@ export default function AdminUsersScreen() {
                         <Text style={styles.userName}>{user.full_name}</Text>
                         <Text style={styles.userEmail}>{user.email}</Text>
                       </View>
-                      <View style={[
-                        styles.statusBadge,
-                        { backgroundColor: user.is_active !== false ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)' }
-                      ]}>
-                        <Text style={[
-                          styles.statusText,
-                          { color: user.is_active !== false ? '#4caf50' : '#f44336' }
+                      <View style={styles.badgesContainer}>
+                        {/* Approval Badge */}
+                        <View style={[
+                          styles.statusBadge,
+                          { backgroundColor: user.is_approved !== false ? 'rgba(76, 175, 80, 0.2)' : 'rgba(255, 193, 7, 0.2)' }
                         ]}>
-                          {user.is_active !== false ? 'Activo' : 'Inactivo'}
-                        </Text>
+                          <Ionicons 
+                            name={user.is_approved !== false ? 'checkmark-circle' : 'time'} 
+                            size={12} 
+                            color={user.is_approved !== false ? '#4caf50' : '#ffc107'} 
+                          />
+                          <Text style={[
+                            styles.statusText,
+                            { color: user.is_approved !== false ? '#4caf50' : '#ffc107' }
+                          ]}>
+                            {user.is_approved !== false ? 'Aprobado' : 'Pendiente'}
+                          </Text>
+                        </View>
+                        {/* Active Badge */}
+                        <View style={[
+                          styles.statusBadge,
+                          { backgroundColor: user.is_active !== false ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)' }
+                        ]}>
+                          <Text style={[
+                            styles.statusText,
+                            { color: user.is_active !== false ? '#4caf50' : '#f44336' }
+                          ]}>
+                            {user.is_active !== false ? 'Activo' : 'Inactivo'}
+                          </Text>
+                        </View>
                       </View>
                     </View>
 
@@ -276,6 +296,27 @@ export default function AdminUsersScreen() {
                     </View>
 
                     <View style={styles.userActions}>
+                      {/* Approve Button - Most Important */}
+                      <TouchableOpacity
+                        style={[
+                          styles.actionButton, 
+                          user.is_approved !== false ? styles.revokeButton : styles.approveButton
+                        ]}
+                        onPress={() => handleApproveUser(user.id, user.is_approved !== false)}
+                        data-testid={`approve-user-${user.id}`}
+                      >
+                        <Ionicons 
+                          name={user.is_approved !== false ? 'close-circle' : 'checkmark-circle'} 
+                          size={18} 
+                          color={user.is_approved !== false ? '#f44336' : '#4caf50'} 
+                        />
+                        <Text style={[
+                          styles.actionButtonText,
+                          { color: user.is_approved !== false ? '#f44336' : '#4caf50' }
+                        ]}>
+                          {user.is_approved !== false ? 'Revocar' : 'Aprobar'}
+                        </Text>
+                      </TouchableOpacity>
                       <TouchableOpacity
                         style={[styles.actionButton, styles.toggleButton]}
                         onPress={() => handleToggleUser(user.id)}
