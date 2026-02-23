@@ -737,12 +737,13 @@ async def login_user(credentials: UserLogin):
         # Password was plain text, migrate it to bcrypt hash
         await migrate_user_password(user["id"], credentials.password)
     
-    # Check if email is verified
-    email_verified = user.get("email_verified", True)  # Default to True for legacy users
+    # Check if user is approved by admin
+    is_approved = user.get("is_approved", True)  # Default to True for legacy users
     
     return {
         "message": "Login exitoso",
-        "email_verified": email_verified,
+        "is_approved": is_approved,
+        "email_verified": True,  # Ya no usamos verificación por email
         "user": {
             "id": user["id"],
             "email": user["email"],
@@ -751,7 +752,8 @@ async def login_user(credentials: UserLogin):
             "passport_number": user["passport_number"],
             "country_of_residence": user.get("country_of_residence", "Cuba"),
             "profile_image": user.get("profile_image"),
-            "email_verified": email_verified,
+            "is_approved": is_approved,
+            "email_verified": True,
             "embassy_location": get_embassy_location(user.get("country_of_residence", "Cuba"))
         }
     }
