@@ -457,10 +457,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   statusText: {
     fontSize: 11,
     fontWeight: 'bold',
+  },
+  badgesContainer: {
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: 5,
   },
   userDetails: {
     paddingVertical: 10,
