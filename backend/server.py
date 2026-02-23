@@ -580,6 +580,26 @@ async def admin_register(admin_data: AdminCreate, current_admin: dict = Depends(
     await db.admins.insert_one(admin.dict())
     return {"message": "Administrador creado exitosamente", "admin_id": admin.id}
 
+@api_router.post("/admin/init-superadmin")
+async def init_superadmin(admin_data: AdminCreate):
+    """
+    Creates the first superadmin. Only works if no admins exist.
+    """
+    # Check if any admin exists
+    existing_admin = await db.admins.find_one({})
+    if existing_admin:
+        raise HTTPException(status_code=400, detail="Ya existe un administrador. Use el login normal.")
+    
+    # Create superadmin
+    admin = Admin(
+        email=admin_data.email,
+        password_hash=get_password_hash(admin_data.password),
+        full_name=admin_data.full_name,
+        is_superadmin=True
+    )
+    await db.admins.insert_one(admin.dict())
+    return {"message": "Superadmin creado exitosamente", "admin_id": admin.id}
+
 @api_router.get("/admin/me")
 async def get_current_admin_info(current_admin: dict = Depends(get_current_admin)):
     return {
