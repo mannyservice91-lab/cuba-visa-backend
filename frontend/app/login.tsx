@@ -82,22 +82,6 @@ export default function LoginScreen() {
         throw new Error(data.detail || 'Error al iniciar sesión');
       }
 
-      // Check if email verification is required
-      if (data.email_verified === false) {
-        showAlert(
-          'Verificación Requerida', 
-          'Tu email no ha sido verificado. Te enviaremos un nuevo código.',
-          () => {
-            if (Platform.OS === 'web') {
-              window.location.href = `/verify-email?email=${encodeURIComponent(email)}`;
-            } else {
-              router.push({ pathname: '/verify-email', params: { email } });
-            }
-          }
-        );
-        return;
-      }
-
       // Check if user is approved by admin
       if (data.is_approved === false) {
         setPendingUserName(data.user?.full_name || '');
