@@ -10,13 +10,14 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient/build/LinearGradient';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../src/context/AuthContext';
-import { API_URL } from '../src/config/api';
+import { API_URL, CONFIG } from '../src/config/api';
 
 // Cross-platform alert
 const showAlert = (title: string, message: string, onOk?: () => void) => {
