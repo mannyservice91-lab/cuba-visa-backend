@@ -508,6 +508,12 @@ const styles = StyleSheet.create({
   deleteButton: {
     backgroundColor: 'rgba(244, 67, 54, 0.15)',
   },
+  approveButton: {
+    backgroundColor: 'rgba(76, 175, 80, 0.15)',
+  },
+  revokeButton: {
+    backgroundColor: 'rgba(244, 67, 54, 0.15)',
+  },
   toggleText: {
     fontSize: 13,
     fontWeight: '600',
@@ -517,5 +523,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: '#f44336',
+  },
+  actionButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
 });
