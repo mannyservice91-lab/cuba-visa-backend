@@ -21,8 +21,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const WHATSAPP_NUMBER = '+381693444935';
 const PAYPAL_LINK = 'https://paypal.me/Gonzalezjm91';
 import { API_URL } from '../src/config/api';
-// Professional travel/visa themed background
-const BACKGROUND_IMAGE = 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80';
+
+// Logo y fondo de la marca
+const LOGO_IMAGE = require('../assets/images/logo.png');
+const HERO_BACKGROUND = require('../assets/images/hero-background.png');
 
 interface VisaType {
   id: string;
