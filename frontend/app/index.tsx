@@ -18,8 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient/build/LinearGradient';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { API_URL } from '../src/config/api';
-import { APP_DOWNLOAD_LINKS, COMPANY_INFO } from '../src/config/constants';
+import { API_URL, APP_DOWNLOAD_LINKS, COMPANY_INFO } from '../src/config/api';
 
 const WHATSAPP_NUMBER = COMPANY_INFO.whatsapp;
 const PAYPAL_LINK = COMPANY_INFO.paypal;
