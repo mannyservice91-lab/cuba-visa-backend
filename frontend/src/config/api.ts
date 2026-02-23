@@ -27,12 +27,30 @@ export const API_URL = getBackendUrl();
 // Modifica estos links cuando la app esté en las tiendas
 // =============================================================
 export const APP_DOWNLOAD_LINKS = {
-  // Link actual de la APK (Expo)
-  ANDROID_APK: 'https://expo.dev/accounts/josemgt91/projects/cuban-serbia-visa/builds/ec865404-dec3-4c7c-9568-dddaa229aaa6',
-  
-  // Links para cuando esté en las tiendas (cambiar cuando estén listos)
-  GOOGLE_PLAY: '', // Ej: 'https://play.google.com/store/apps/details?id=com.tuapp'
-  APP_STORE: '',   // Ej: 'https://apps.apple.com/app/tuapp/id123456789'
+  android: {
+    url: 'https://expo.dev/accounts/josemgt91/projects/cuban-serbia-visa/builds/ec865404-dec3-4c7c-9568-dddaa229aaa6',
+    label: 'Descargar APK',
+    enabled: true,
+  },
+  googlePlay: {
+    url: '', // Añadir enlace cuando esté publicado
+    label: 'Google Play',
+    enabled: false,
+  },
+  appStore: {
+    url: '', // Añadir enlace cuando esté publicado
+    label: 'App Store',
+    enabled: false,
+  },
+};
+
+// Información de la empresa
+export const COMPANY_INFO = {
+  name: 'Cuban-Serbia Visa Center',
+  year: 2025,
+  phone: '+381 69 344 4935',
+  whatsapp: '+381693444935',
+  paypal: 'https://paypal.me/Gonzalezjm91',
 };
 
 // Configuracion general de la app
