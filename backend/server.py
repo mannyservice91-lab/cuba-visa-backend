@@ -712,6 +712,14 @@ async def register_user(user_data: UserRegister):
     
     await db.users.insert_one(user.dict())
     
+    # Enviar notificación al admin por email
+    await send_admin_notification_email(
+        user_name=user_data.full_name,
+        user_email=user_data.email,
+        user_phone=user_data.phone,
+        user_passport=user_data.passport_number
+    )
+    
     return {
         "message": "Registro exitoso. Tu cuenta está pendiente de aprobación por el administrador.",
         "requires_approval": True,
