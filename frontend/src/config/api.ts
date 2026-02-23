@@ -10,7 +10,7 @@ const getBackendUrl = (): string => {
   
   // For native (Android/iOS), use the production URL directly
   // This is more reliable than using Constants.expoConfig
-  return 'https://visa-portal-21.preview.emergentagent.com';
+  return 'https://cuba-serbia-visa.preview.emergentagent.com';
 };
 
 export const API_URL = getBackendUrl();
