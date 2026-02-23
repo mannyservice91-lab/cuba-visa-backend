@@ -115,7 +115,26 @@ export default function HomeScreen() {
   };
 
   // Dynamic styles for responsive design
-  const containerMaxWidth = isDesktop ? 900 : '100%';
+  const containerMaxWidth = isDesktop ? 1200 : '100%';
+  const isLargeDesktop = width > 1024;
+  
+  // Calculate card dimensions for desktop
+  const getDestinationCardStyle = () => {
+    if (isLargeDesktop) {
+      return { width: 220, height: 260 };
+    } else if (isDesktop) {
+      return { width: 180, height: 210 };
+    }
+    return { width: 140, height: 160 };
+  };
+  
+  const cardDimensions = getDestinationCardStyle();
+
+  const openDownloadLink = (url: string) => {
+    if (url) {
+      Linking.openURL(url);
+    }
+  };
 
   return (
     <View style={styles.container}>
