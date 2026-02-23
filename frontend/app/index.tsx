@@ -18,9 +18,11 @@ import { LinearGradient } from 'expo-linear-gradient/build/LinearGradient';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const WHATSAPP_NUMBER = '+381693444935';
-const PAYPAL_LINK = 'https://paypal.me/Gonzalezjm91';
 import { API_URL } from '../src/config/api';
+import { APP_DOWNLOAD_LINKS, COMPANY_INFO } from '../src/config/constants';
+
+const WHATSAPP_NUMBER = COMPANY_INFO.whatsapp;
+const PAYPAL_LINK = COMPANY_INFO.paypal;
 
 // Logo y fondo de la marca
 const LOGO_IMAGE = require('../assets/images/logo.png');
