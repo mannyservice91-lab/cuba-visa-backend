@@ -336,6 +336,86 @@ class AdvisorUpdate(BaseModel):
     photo_url: Optional[str] = None
     is_active: Optional[bool] = None
 
+# ============== REMESERO/SERVICE PROVIDER MODELS ==============
+
+class ServiceProvider(BaseModel):
+    """Modelo para proveedores de servicios (remeseros, negocios, etc.)"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    email: EmailStr
+    password_hash: str
+    business_name: str  # Nombre del negocio/servicio
+    owner_name: str  # Nombre del dueño
+    phone: str
+    whatsapp_number: str
+    whatsapp_group_link: str = ""  # Link al grupo de WhatsApp
+    service_type: str = "remesas"  # remesas, tienda, restaurante, etc.
+    description: str = ""
+    logo_url: str = ""
+    is_active: bool = False  # Admin debe activar
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    last_login: Optional[datetime] = None
+
+class ServiceProviderRegister(BaseModel):
+    email: EmailStr
+    password: str
+    business_name: str
+    owner_name: str
+    phone: str
+    whatsapp_number: str
+    whatsapp_group_link: str = ""
+    service_type: str = "remesas"
+    description: str = ""
+
+class ServiceProviderLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class ServiceProviderUpdate(BaseModel):
+    business_name: Optional[str] = None
+    owner_name: Optional[str] = None
+    phone: Optional[str] = None
+    whatsapp_number: Optional[str] = None
+    whatsapp_group_link: Optional[str] = None
+    description: Optional[str] = None
+    logo_url: Optional[str] = None
+
+class ServiceProviderToken(BaseModel):
+    access_token: str
+    token_type: str
+    provider_id: str
+    email: str
+    business_name: str
+    service_type: str
+
+class ServiceOffer(BaseModel):
+    """Modelo para ofertas de servicios (tasas de cambio, promociones, etc.)"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    provider_id: str
+    provider_name: str  # Denormalized for display
+    title: str
+    description: str
+    image_data: str = ""  # Base64 image
+    exchange_rate: str = ""  # Ej: "1 USD = 350 CUP"
+    expires_at: Optional[datetime] = None
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ServiceOfferCreate(BaseModel):
+    title: str
+    description: str
+    image_data: str = ""
+    exchange_rate: str = ""
+    expires_at: Optional[datetime] = None
+
+class ServiceOfferUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    image_data: Optional[str] = None
+    exchange_rate: Optional[str] = None
+    expires_at: Optional[datetime] = None
+    is_active: Optional[bool] = None
+
 # ============== HELPER FUNCTIONS ==============
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
