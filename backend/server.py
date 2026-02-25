@@ -1028,6 +1028,7 @@ async def create_destination(dest_data: DestinationCreate, current_admin: dict =
         enabled=dest_data.enabled,
         image_url=dest_data.image_url,
         requirements=dest_data.requirements,
+        description=dest_data.description,
         message=dest_data.message
     )
     await db.destinations.insert_one(destination.dict())
