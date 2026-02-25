@@ -129,10 +129,14 @@ export default function AdminPromotionsScreen() {
     try {
       const token = await AsyncStorage.getItem('adminToken');
       await fetch(
-        `${API_URL}/api/admin/promotions/${promoId}?is_active=${!currentStatus}`,
+        `${API_URL}/api/admin/promotions/${promoId}`,
         {
           method: 'PUT',
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { 
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` 
+          },
+          body: JSON.stringify({ is_active: !currentStatus }),
         }
       );
       loadPromotions();
