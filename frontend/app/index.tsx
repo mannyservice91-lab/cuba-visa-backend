@@ -1387,82 +1387,100 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#d4af37',
   },
-  // Providers Section Styles
+  // Providers Section Styles - Like Destinations
   providersSection: {
     marginVertical: 25,
   },
-  providersGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    marginTop: 15,
+  providersScroll: {
+    paddingVertical: 10,
   },
   providersGridDesktop: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
     gap: 20,
+    paddingVertical: 10,
   },
-  providerCard: {
-    width: '47%',
-    backgroundColor: 'rgba(10, 22, 40, 0.9)',
+  providerDestCard: {
+    width: 160,
+    height: 200,
     borderRadius: 16,
-    padding: 16,
-    alignItems: 'center',
+    overflow: 'hidden',
+    marginRight: 16,
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.3)',
   },
-  providerCardDesktop: {
-    width: 220,
-    padding: 20,
+  providerDestImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
-  providerIconBg: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  providerDestImagePlaceholder: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
   },
-  providerEmoji: {
-    fontSize: 30,
+  providerDestEmoji: {
+    fontSize: 50,
   },
-  providerCardName: {
-    fontSize: 15,
+  providerDestOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(10, 22, 40, 0.9)',
+    padding: 12,
+  },
+  providerTypeBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    marginBottom: 6,
+  },
+  providerTypeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#fff',
+    textTransform: 'uppercase',
+  },
+  providerDestName: {
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#ffffff',
-    textAlign: 'center',
-    marginBottom: 4,
   },
-  providerOwner: {
-    fontSize: 12,
+  providerDestOwner: {
+    fontSize: 11,
     color: '#8899aa',
-    marginBottom: 12,
+    marginTop: 2,
   },
-  providerActions: {
+  providerLink: {
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
     gap: 8,
-    marginTop: 4,
   },
-  providerCallBtn: {
+  providerLinkText: {
+    fontSize: 13,
+    color: '#667788',
+  },
+  emptyServicesSection: {
+    alignItems: 'center',
+    marginVertical: 15,
+  },
+  becomeProviderBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    gap: 6,
-  },
-  providerCallText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  providerGroupBtn: {
-    alignItems: 'center',
-    justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#d4af37',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 8,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    gap: 10,
+  },
+  becomeProviderText: {
+    fontSize: 14,
+    color: '#d4af37',
   },
 });
 
