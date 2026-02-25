@@ -221,13 +221,16 @@ class TestProviderOffersCRUD:
         
         assert response.status_code == 200, f"Create offer failed: {response.text}"
         data = response.json()
-        assert "id" in data
-        assert data["title"] == payload["title"]
-        assert data["exchange_rate"] == payload["exchange_rate"]
-        print(f"Offer created: {data['id']}")
+        # API returns {"message": "...", "offer": {...}}
+        assert "offer" in data
+        offer = data["offer"]
+        assert "id" in offer
+        assert offer["title"] == payload["title"]
+        assert offer["exchange_rate"] == payload["exchange_rate"]
+        print(f"Offer created: {offer['id']}")
         
         # Store for update/delete tests
-        self.__class__.test_offer_id = data["id"]
+        self.__class__.test_offer_id = offer["id"]
     
     def test_update_provider_offer(self):
         """PUT /api/provider/offers/{id} - update offer"""
@@ -247,7 +250,8 @@ class TestProviderOffersCRUD:
         if create_resp.status_code != 200:
             pytest.skip("Could not create offer for update test")
         
-        offer_id = create_resp.json()["id"]
+        # API returns {"message": "...", "offer": {...}}
+        offer_id = create_resp.json()["offer"]["id"]
         
         # Now update it
         update_payload = {
@@ -293,7 +297,8 @@ class TestProviderOffersCRUD:
         if create_resp.status_code != 200:
             pytest.skip("Could not create offer for delete test")
         
-        offer_id = create_resp.json()["id"]
+        # API returns {"message": "...", "offer": {...}}
+        offer_id = create_resp.json()["offer"]["id"]
         
         # Delete it
         response = requests.delete(
