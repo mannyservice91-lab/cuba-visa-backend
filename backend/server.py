@@ -2093,23 +2093,18 @@ async def admin_get_promotions(current_admin: dict = Depends(get_current_admin))
 
 @api_router.post("/admin/promotions")
 async def admin_create_promotion(
-    title: str,
-    description: str,
-    image_data: str = "",
-    link_url: str = "",
-    link_text: str = "",
-    is_active: bool = True,
+    data: dict,
     current_admin: dict = Depends(get_current_admin)
 ):
     """Create an admin promotion/offer"""
     promo = {
         "id": str(uuid.uuid4()),
-        "title": title,
-        "description": description,
-        "image_data": image_data,
-        "link_url": link_url,
-        "link_text": link_text,
-        "is_active": is_active,
+        "title": data.get("title", ""),
+        "description": data.get("description", ""),
+        "image_data": data.get("image_data", ""),
+        "link_url": data.get("link_url", ""),
+        "link_text": data.get("link_text", ""),
+        "is_active": data.get("is_active", True),
         "created_at": datetime.utcnow(),
         "created_by": current_admin["id"]
     }
