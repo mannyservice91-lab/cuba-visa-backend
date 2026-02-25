@@ -49,11 +49,27 @@ export default function AdminDestinationsScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
   const [showVisaModal, setShowVisaModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [visaForm, setVisaForm] = useState({
     name: '',
     price: '',
     processing_time: '1-2 meses',
     requirements: '',
+  });
+  const [editForm, setEditForm] = useState({
+    country: '',
+    country_code: '',
+    description: '',
+    image_url: '',
+    message: '',
+  });
+  const [createForm, setCreateForm] = useState({
+    country: '',
+    country_code: '',
+    description: '',
+    image_url: '',
+    message: 'Muy pronto disponible',
   });
 
   const fetchDestinations = useCallback(async () => {
