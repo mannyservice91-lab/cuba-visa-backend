@@ -38,6 +38,7 @@ interface Destination {
   image_url: string;
   visa_types: VisaType[];
   requirements: string;
+  description: string;
   message: string;
 }
 
