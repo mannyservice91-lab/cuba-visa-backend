@@ -323,7 +323,9 @@ export default function AdminDestinationsScreen() {
               <Ionicons name="arrow-back" size={24} color="#d4af37" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Gestión de Destinos</Text>
-            <View style={{ width: 40 }} />
+            <TouchableOpacity onPress={() => setShowCreateModal(true)}>
+              <Ionicons name="add-circle" size={28} color="#d4af37" />
+            </TouchableOpacity>
           </View>
 
           <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
@@ -344,10 +346,14 @@ export default function AdminDestinationsScreen() {
                         <Text style={styles.countryCode}>{destination.country_code}</Text>
                       </View>
                     </View>
-                    <View style={styles.toggleContainer}>
-                      <Text style={styles.toggleLabel}>
-                        {destination.enabled ? 'Activo' : 'Inactivo'}
-                      </Text>
+                    <View style={styles.headerActions}>
+                      <TouchableOpacity onPress={() => openEditModal(destination)} style={styles.editIcon}>
+                        <Ionicons name="create-outline" size={20} color="#d4af37" />
+                      </TouchableOpacity>
+                      <View style={styles.toggleContainer}>
+                        <Text style={styles.toggleLabel}>
+                          {destination.enabled ? 'Activo' : 'Inactivo'}
+                        </Text>
                       <Switch
                         value={destination.enabled}
                         onValueChange={() => toggleDestination(destination)}
