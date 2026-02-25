@@ -1362,5 +1362,82 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#d4af37',
   },
+  // Providers Section Styles
+  providersSection: {
+    marginVertical: 25,
+  },
+  providersGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 15,
+  },
+  providersGridDesktop: {
+    gap: 20,
+  },
+  providerCard: {
+    width: '47%',
+    backgroundColor: 'rgba(10, 22, 40, 0.9)',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+  },
+  providerCardDesktop: {
+    width: 220,
+    padding: 20,
+  },
+  providerIconBg: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  providerEmoji: {
+    fontSize: 30,
+  },
+  providerCardName: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  providerOwner: {
+    fontSize: 12,
+    color: '#8899aa',
+    marginBottom: 12,
+  },
+  providerActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 4,
+  },
+  providerCallBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    gap: 6,
+  },
+  providerCallText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  providerGroupBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#d4af37',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+  },
 });
 
