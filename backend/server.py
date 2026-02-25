@@ -2114,12 +2114,7 @@ async def admin_create_promotion(
 @api_router.put("/admin/promotions/{promo_id}")
 async def admin_update_promotion(
     promo_id: str,
-    title: str = None,
-    description: str = None,
-    image_data: str = None,
-    link_url: str = None,
-    link_text: str = None,
-    is_active: bool = None,
+    data: dict,
     current_admin: dict = Depends(get_current_admin)
 ):
     """Update an admin promotion"""
@@ -2128,12 +2123,12 @@ async def admin_update_promotion(
         raise HTTPException(status_code=404, detail="Promoción no encontrada")
     
     update_dict = {}
-    if title is not None: update_dict["title"] = title
-    if description is not None: update_dict["description"] = description
-    if image_data is not None: update_dict["image_data"] = image_data
-    if link_url is not None: update_dict["link_url"] = link_url
-    if link_text is not None: update_dict["link_text"] = link_text
-    if is_active is not None: update_dict["is_active"] = is_active
+    if "title" in data: update_dict["title"] = data["title"]
+    if "description" in data: update_dict["description"] = data["description"]
+    if "image_data" in data: update_dict["image_data"] = data["image_data"]
+    if "link_url" in data: update_dict["link_url"] = data["link_url"]
+    if "link_text" in data: update_dict["link_text"] = data["link_text"]
+    if "is_active" in data: update_dict["is_active"] = data["is_active"]
     
     if update_dict:
         await db.admin_promotions.update_one({"id": promo_id}, {"$set": update_dict})
