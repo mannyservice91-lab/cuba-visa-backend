@@ -30,6 +30,7 @@ export default function RootLayout() {
           <Stack.Screen name="admin-advisors" />
           <Stack.Screen name="admin-users" />
           <Stack.Screen name="admin-providers" />
+          <Stack.Screen name="admin-promotions" />
           <Stack.Screen name="provider" />
           <Stack.Screen name="provider-offers" />
           <Stack.Screen name="verify-email" />
