@@ -2083,56 +2083,6 @@ async def admin_get_provider_offers(provider_id: str, current_admin: dict = Depe
 
 # ============== ADMIN: DESTINATIONS MANAGEMENT ==============
 
-@api_router.post("/admin/destinations")
-async def admin_create_destination(
-    destination: DestinationCreate,
-    current_admin: dict = Depends(get_current_admin)
-):
-    """Create a new destination"""
-    new_dest = Destination(
-        country=destination.country,
-        country_code=destination.country_code,
-        enabled=destination.enabled,
-        image_url=destination.image_url,
-        requirements=destination.requirements,
-        description=destination.description,
-        message=destination.message
-    )
-    await db.destinations.insert_one(new_dest.dict())
-    return {"message": "Destino creado exitosamente", "destination": new_dest.dict()}
-
-@api_router.put("/admin/destinations/{destination_id}")
-async def admin_update_destination(
-    destination_id: str,
-    update_data: DestinationUpdate,
-    current_admin: dict = Depends(get_current_admin)
-):
-    """Update an existing destination"""
-    dest = await db.destinations.find_one({"id": destination_id})
-    if not dest:
-        raise HTTPException(status_code=404, detail="Destino no encontrado")
-    
-    update_dict = {k: v for k, v in update_data.dict().items() if v is not None}
-    if update_dict:
-        await db.destinations.update_one(
-            {"id": destination_id},
-            {"$set": update_dict}
-        )
-    
-    updated = await db.destinations.find_one({"id": destination_id})
-    return {k: v for k, v in updated.items() if k != "_id"}
-
-@api_router.delete("/admin/destinations/{destination_id}")
-async def admin_delete_destination(
-    destination_id: str,
-    current_admin: dict = Depends(get_current_admin)
-):
-    """Delete a destination"""
-    result = await db.destinations.delete_one({"id": destination_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Destino no encontrado")
-    return {"message": "Destino eliminado exitosamente"}
-
 # ============== ADMIN: OWN OFFERS/PROMOTIONS ==============
 
 @api_router.get("/admin/promotions")
