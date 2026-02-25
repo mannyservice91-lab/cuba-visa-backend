@@ -1,186 +1,256 @@
-<analysis>**original_problem_statement**: The user initially wanted to make their React Native application fully independent of the Emergent development environment. After successfully migrating the backend to Render and the database to MongoDB Atlas, the user requested an admin approval system for new user registrations. Following that, a fully functional web version of the application was created and deployed. The most recent request is to enhance the new website by adding APK download links and improving the responsive design for desktop viewing.
+<analysis>**original_problem_statement**: The user wants to transform their visa application platform into a multi-service marketplace. The initial request was to build an independent web and mobile application, which was completed. The scope has now expanded significantly to include a system for third-party service providers (like remittance and travel agencies) who can register, manage their own offers, and operate on a subscription basis. The main administrator needs tools to manage these providers, their subscriptions, destinations, and also to post their own promotional offers.
 
 **PRODUCT REQUIREMENTS**:
-- A multi-destination visa application platform with a mobile app and a public-facing website.
-- The entire infrastructure (backend, database, web) must be independent of Emergent, hosted on Render and MongoDB Atlas.
-- New users must be manually approved by an admin before they can log in.
-- The admin should receive an email notification when a new user registers.
-- The website should provide download links for the mobile app (APK/App Store).
-- The website's design should be optimized for desktop users, not just a mirror of the mobile layout.
+- A platform where the main admin can rent space to other businesses (service providers).
+- **Service Providers**:
+    - Can register and have their own login.
+    - Have a dedicated dashboard to manage their profile (logo, description, contact info) and publish/manage their service offerings (e.g., flight deals, remittance rates).
+    - Their offers should be displayed on the main homepage.
+- **Subscription System for Providers**:
+    - New providers are pending approval until activated by the admin.
+    - Upon activation, they get a 7-day free trial.
+    - After the trial, they must choose a paid plan (e.g., 50€/month, 250€/6 months, 450€/year).
+    - The provider's service becomes inactive if they don't pay after the trial.
+    - Payment is verified and activated manually by the main admin.
+- **Main Admin Panel**:
+    - Manage users (approve new registrations).
+    - Manage service providers (approve new providers, manage their subscription status).
+    - Manage destinations (add/edit/delete destinations, including a description for each).
+    - Manage the admin's own promotions/offers to be displayed on the homepage.
+- **Frontend**:
+    - The homepage should display different categories of service providers in a visually appealing way (similar to how destinations were displayed, with large cards, images/logos).
+    - Clicking on a provider should lead to a page detailing their services and offers.
 
 **User's preferred language**: Spanish (español). The next agent MUST respond in Spanish.
 
 **what currently exists?**
--   A full-stack application with a React Native/Expo frontend and a FastAPI backend.
--   **Backend**: Deployed on Render, fully functional and connected to MongoDB Atlas. It includes logic for user approval and sends email notifications to the admin upon new user registration.
--   **Database**: Live on a MongoDB Atlas cluster, containing all production data.
--   **Mobile App**: The React Native source code is configured to point to the production Render backend. The user knows how to build the APK/AAB locally.
--   **Web App**: A static web version of the app is deployed and live on Render as a Static Site. It was built from the Expo project.
+- A full-stack application with a FastAPI backend and a React Native/Expo frontend (with a web version).
+- The infrastructure is independent, running on Render and MongoDB Atlas.
+- A complete, multi-tenant Service Provider system has been implemented. Providers can register, log in to their own dashboard (), and manage their offers.
+- The homepage () dynamically displays active providers grouped by service type (e.g., Remesas, Pasajes) in a card-based layout.
+- The admin can manage providers (approve/deactivate) from the admin panel ().
+- The backend () has been significantly expanded with Pydantic models and API endpoints for providers and their offers.
 
 **Last working item**:
--   Last item agent was working: The user requested enhancements for the newly deployed website.
-    1.  Add a section with download buttons for the mobile app (APK and a placeholder for the App Store). The user provided the latest APK build link: .
-    2.  Improve the web design, specifically making the destinations section appear larger and more adapted for web, as it currently looks too small like the mobile version.
--   Status: NOT STARTED
+-   Last item agent was working: Implementing the **subscription system** and adding new **admin management pages** for destinations and promotions. The agent had started by modifying the backend and creating the necessary frontend files.
+    -   **Backend**: Added subscription-related fields (, , ) to the  model in  and created new admin endpoints to manage payments and subscriptions.
+    -   **Frontend**: Created a new  to handle subscription management, created placeholder pages for , and added buttons to the  for Gestión de Destinos and Mis Promociones.
+-   Status: **IN PROGRESS**
 -   Agent Testing Done: N
--   Which testing method agent to use? Frontend testing agent. The agent should verify the UI changes with the screenshot tool, focusing on desktop and mobile views.
+-   Which testing method agent to use? Both. Use  to test the new backend subscription endpoints, and then use the  to perform a full E2E test of the admin and provider flows.
 -   User Testing Done: N
 
 **All Pending/In progress Issue list**:
-There are no outstanding bugs or issues.
+-   **Issue 1**: The Mis Promociones button was not visible on the  in the last screenshot. It might be a scrolling issue or a layout problem.
+    -   **Priority**: P0
+    -   **Attempted fixes**: The agent added the code for the button but did not get to debug why it wasn't visible.
+    -   **Next debug checklist**:
+        -   Verify the code in  is correct.
+        -   Use the  with  to capture the entire dashboard.
+        -   Check for layout or styling conflicts that might be hiding the button.
+    -   **Why fix this issue**: It blocks the admin from accessing the new promotions management feature.
+    -   **Status**: IN PROGRESS
+    -   **Is recurring issue?**: N
+    -   **Should Test frontend/backend/both after fix?**: Frontend
 
 **In progress Task List**:
-This section is empty as the last item is a new task, not an in-progress one.
+-   **Task 1**: Complete Subscription System Implementation
+    -   **Priority**: P0
+    -   **Where to resume**:
+        1.  **Backend**: Implement a mechanism to automatically deactivate providers whose 7-day trial has expired. This could be a scheduled job or a check during provider login. The endpoint  is created but needs to be fully tested.
+        2.  **Frontend (Provider)**: Update the  to display the current subscription status, trial end date, and instructions for payment. Show alerts when the trial is ending or has expired.
+        3.  **Frontend (Admin)**: The new  page has been created but needs to be thoroughly tested to ensure the admin can view subscription status and approve payments.
+    -   **What will be achieved with this?**: A fully functional subscription and payment verification flow for service providers.
+    -   **Status**: IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?**: Both
+
+-   **Task 2**: Implement Admin Promotions Feature
+    -   **Priority**: P1
+    -   **Where to resume**:
+        1.  **Backend**: Create new models and CRUD endpoints in  for admin-created promotions.
+        2.  **Frontend**: Implement the UI in  to allow the admin to create/edit/delete their own offers.
+        3.  **Frontend**: Add a new section to the homepage () to display these admin promotions.
+    -   **What will be achieved with this?**: The admin will be able to advertise their own services directly on the platform.
+    -   **Status**: NOT STARTED (Files were created, but logic is missing).
+    -   **Should Test frontend/backend/both after fix?**: Both
+
+-   **Task 3**: Implement Manage Destinations Feature
+    -   **Priority**: P1
+    -   **Where to resume**:
+        1.  **Backend**: The  model was updated to include a , but full CRUD endpoints (, ,  for ) need to be created in .
+        2.  **Frontend**: Refactor the  page into a full management UI where the admin can add, edit (including the new description field), and delete destinations.
+    -   **What will be achieved with this?**: The admin can independently manage the list of travel destinations shown in the app.
+    -   **Status**: NOT STARTED (File exists, but logic is missing).
+    -   **Should Test frontend/backend/both after fix?**: Both
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks**:
-    -   **(P0) Enhance the Website**:
-        -   Implement a new, easily configurable section on the homepage () to host app download links. It should include a button for the provided APK link and a placeholder for a future App Store link.
-        -   Refactor the styles for the destinations grid in  to make the cards larger and use more screen space on desktop, while maintaining responsiveness for mobile.
+    -   **(P1)** Allow providers to upload their own logo/image via their dashboard (). This requires implementing file upload logic on both the backend and frontend.
 -   **Future Tasks**:
-    -   **(P1)** Implement video uploads for testimonials in .
-    -   **(P2)** Connect the application status progress bar in  to the backend.
+    -   **(P2)** Implement video uploads for testimonials ().
+    -   **(P3)** Connect the application status progress bar in  to the backend.
 
 **Completed work in this session**
--   **Admin Approval Feature (DONE)**: Fully implemented the system where new users require admin approval.
-    -   Modified backend () to handle  status on registration and login.
-    -   Modified frontend (, ) to show a Pending Approval screen with a WhatsApp contact button.
-    -   Modified admin panel () to display user status and allow admins to approve/revoke access.
--   **Email Notification Feature (DONE)**: Implemented a backend function in  that uses SendGrid to automatically email the admin () when a new user registers.
--   **Full Independence Achieved (DONE)**: Performed a full-code audit and removed all remaining hardcoded Emergent URLs and dependencies from , , , and .
--   **Web App Deployment (DONE)**: Successfully guided the user to deploy a public-facing static web version of the app on Render. This involved a complex debugging process to solve multiple build failures on Render, culminating in a manual deployment workflow.
--   **Web App Branding (DONE)**: Updated the web app's homepage () to use the user's provided logo and background image.
+-   **Multi-Provider Marketplace (DONE)**:
+    -   Replaced the static APK Download section with a dynamic Nuestros Servicios section on the homepage ().
+    -   Implemented a system for different provider types (Remesas, Pasajes), each with custom icons and colors.
+    -   Created a dedicated provider dashboard () for profile and offer management.
+    -   Created a public-facing page () to display all offers from a single provider.
+    -   Heavily modified the backend () to support multi-tenancy for providers and their offers.
+-   **UI/UX Enhancements (DONE)**:
+    -   Redesigned the provider cards on the homepage to be large, visual, and similar to the Destinations cards.
+    -   Ensured the new sections are responsive for both mobile and desktop views.
+-   **Testing (DONE)**: The testing agent was used successfully to validate the provider system implementation before the latest user requests were made.
 
 **Earlier issues found/mentioned but not fixed**
--   None. All issues raised during the session were resolved.
+-   None.
 
 **Known issue recurrence from previous fork**
 -   None.
 
 **Code Architecture**
-mannyservice91-lab/cuba-visa-backend/backend/frontendconflict_230226_2011mannyservice91-lab/cuba-visa-webdist
+
 
 **Key Technical Concepts**
--   **Backend**: FastAPI, Motor, Pydantic, SendGrid.
--   **Frontend**: React Native, Expo (including Expo Web).
+-   **Backend**: FastAPI, Motor, Pydantic (used for ,  models).
+-   **Frontend**: React Native, Expo (including Expo Web), Expo Router.
 -   **Database**: MongoDB Atlas.
--   **Deployment**:
-    -   **Backend**: Git push to GitHub triggers Render deploy. **Root Directory** is .
-    -   **Web**: User must build locally (env: load .env
-env: export EXPO_TUNNEL_SUBDOMAIN EXPO_PACKAGER_HOSTNAME EXPO_PUBLIC_BACKEND_URL EXPO_USE_FAST_RESOLVER METRO_CACHE_ROOT
-Fast resolver is enabled.
-Starting Metro Bundler
-Static rendering is enabled. Learn more: https://docs.expo.dev/router/reference/static-rendering/
-λ Bundled 1458ms node_modules/expo-router/node/render.js (676 modules)
-Web Bundled 1835ms node_modules/expo-router/entry.js (782 modules)
-Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (782/782)
-
-› web bundles (1):
-_expo/static/js/web/entry-2a04f69a3c22037f51240d50bc9c3f9a.js (1.65 MB)
-
-› Static routes (17):
-/admin (30 kB)
-/ (index) (33 kB)
-/login (30 kB)
-/register (32.4 kB)
-/_sitemap (44.2 kB)
-/dashboard (27.9 kB)
-/+not-found (28.4 kB)
-/admin-users (27.2 kB)
-/verify-email (31.2 kB)
-/admin-advisors (28 kB)
-/admin-dashboard (27.2 kB)
-/new-application (27.9 kB)
-/destination/[id] (28 kB)
-/admin-application (27.2 kB)
-/admin-destinations (28 kB)
-/admin-testimonials (27.2 kB)
-/application-details (28 kB)
-
-Exported: dist), then manually upload the contents of the generated  folder to a separate GitHub repo (), which Render then serves as a static site. **This is a critical manual step.**
+-   **Deployment**: Render (Backend Web Service, Frontend Static Site).
 
 **key DB schema**
--   **users**: , ,  (key field for this feature).
+-   **users**: , , ,  (e.g., 'user', 'admin', 'provider').
+-   **service_providers**: , , , , , ,  (e.g., 'trial', 'active', 'expired'), , .
+-   **service_offers**: , , , , , , .
+-   **destinations**: , , .
 
 **changes in tech stack**
--   No new technologies, but a new deployment pattern was established for the web app (manual upload of build artifacts).
+-   None.
 
 **All files of reference**
--   : Main homepage to be modified for download links and improved design.
--   : Contains all backend logic, including the new email notification feature.
--   : Contains the Pending Approval UI.
--   : Contains the UI for admins to approve users.
--   : Cleaned version without private dependencies.
+-    (Heavily modified for subscriptions)
+-    (New buttons added)
+-    (New page for subscription management)
+-    (Needs update to show subscription status)
+-    (Needs implementation)
+-    (Needs implementation)
 
 **Areas that need refactoring**:
--   The web deployment process is manual and brittle. A proper CI/CD pipeline where GitHub Actions builds the Expo web app and pushes the  folder to the  repo would be a major improvement.
--   The app download links should be stored in a configuration file (e.g., ) rather than being hardcoded directly into the  component.
+-   **Subscription Deactivation**: An automated process (e.g., a scheduled job on the backend) is needed to handle expired trials and subscriptions, rather than relying on manual checks.
+-   **Manual Web Deployment**: The process for updating the live website is still manual (env: load .env
+env: export EXPO_TUNNEL_SUBDOMAIN EXPO_PACKAGER_HOSTNAME EXPO_PUBLIC_BACKEND_URL EXPO_USE_FAST_RESOLVER METRO_CACHE_ROOT
+Fast resolver is enabled.
+Starting Metro Bundler
+iOS node_modules/expo-router/entry.js ▓▓░░░░░░░░░░░░░░ 17.9% ( 23/137)
+Android node_modules/expo-router/entry.js ▓▓▓░░░░░░░░░░░░░ 22.7% (15/40)
+iOS node_modules/expo-router/entry.js ▓▓░░░░░░░░░░░░░░ 17.9% (124/326)
+Android node_modules/expo-router/entry.js ▓▓▓░░░░░░░░░░░░░ 22.7% ( 64/250)
+iOS node_modules/expo-router/entry.js ▓▓▓░░░░░░░░░░░░░ 22.4% (206/435)
+Android node_modules/expo-router/entry.js ▓▓▓░░░░░░░░░░░░░ 22.7% (153/340)
+iOS node_modules/expo-router/entry.js ▓▓▓▓▓▓░░░░░░░░░░ 39.0% (455/729)
+Android node_modules/expo-router/entry.js ▓▓▓▓▓▓░░░░░░░░░░ 38.4% (413/685)
+iOS node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 63.1% (694/874)
+Android node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.5% (652/838)
+iOS node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 88.3% (869/925)
+Android node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 72.5% (762/895)
+iOS node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1062/1062)
+Android node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1061/1061)
+iOS Bundling failed 24034ms node_modules/expo-router/entry.js (1062 modules) then upload to a separate Git repo). This remains a candidate for a CI/CD pipeline improvement.
 
 **key api endpoints**
--   : Creates a user with  and triggers an admin notification email.
--   : Endpoint for admins to approve/disapprove a user.
+-   **Public**:
+    -   : Get active providers (now filters by active subscription).
+    -   : Get offers for a specific provider.
+-   **Admin**:
+    -   : **New endpoint to activate a paid subscription.**
+    -   : Get all providers with their subscription details.
+-   **Provider (Auth required)**:
+    -   : Get provider's own profile (should include subscription status).
+    -   CRUD endpoints for .
 
 **Critical Info for New Agent**
--   **Web Deployment is MANUAL**: To update the website, you must guide the user to run env: load .env
+-   The immediate focus is to complete the **subscription system**. This involves both backend logic (automated deactivation) and frontend updates (showing status to admins and providers).
+-   After the subscription system is stable, proceed with the two other requested admin features: managing destinations and creating admin-owned promotions.
+-   Remember that the web deployment is a **manual process**. You will need to guide the user through it once the features are complete and tested.
+
+**documents and test reports created in this job**
+-    (updated multiple times)
+-   
+
+**Last 10 User Messages and any pending HUMAN messages**
+1.  **User**: I want the provider cards on the homepage to look like the destination cards, with a photo/logo and details, and clicking it takes you to their offers. (COMPLETED)
+2.  **User**: I, as admin, don't see a section in my panel to post my own offers or promote a business. (PENDING - Last working item)
+3.  **User**: I also don't see how I can add more destinations in the future. (PENDING - Last working item)
+4.  **User**: I want each provider to have a payment plan. 7 days free, then plans like 50€/month, 250€/6 months, or 450€/year. (PENDING - Last working item)
+5.  **User**: As admin, I approve the payment. The provider registers, I approve them, they get 7 free days. If they don't pay after 7 days, they get deactivated until I manually activate them after checking the payment. (PENDING - Last working item)
+6.  **User**: I want to remove the Download our APK section and put a section for passage providers there, like Travel with Hector, with his number, and clicking it shows his offers. (COMPLETED)
+7.  **User**: I want to add a section for remittances, where providers can post offers with exchange rates, and users can access their WhatsApp. This should be a separate section in the admin panel. (COMPLETED)
+8.  **User**: I want my app to be a rental system, where I can rent space to different services and add offers/publicity for businesses from the admin panel. (PARTIALLY COMPLETED - Foundation is built)
+9.  **User**: I want to be able to add a brief reference/description to all destinations. (PENDING - Part of Manage Destinations task)
+10. **User**: How do I publish the changes? env: load .env
 env: export EXPO_TUNNEL_SUBDOMAIN EXPO_PACKAGER_HOSTNAME EXPO_PUBLIC_BACKEND_URL EXPO_USE_FAST_RESOLVER METRO_CACHE_ROOT
 Fast resolver is enabled.
 Starting Metro Bundler
 Static rendering is enabled. Learn more: https://docs.expo.dev/router/reference/static-rendering/
-λ Bundled 893ms node_modules/expo-router/node/render.js (771 modules)
-Web Bundled 1291ms node_modules/expo-router/entry.js (782 modules)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓░░░░░░░░░░░ 34.9% ( 30/153)
+λ node_modules/expo-router/node/render.js ▓░░░░░░░░░░░░░░░  9.3% ( 54/234)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓░░░░░░░░░░░ 34.9% ( 85/232)
+λ node_modules/expo-router/node/render.js ▓▓░░░░░░░░░░░░░░ 15.0% (119/307)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓░░░░░░░░░░░ 34.9% (124/260)
+λ node_modules/expo-router/node/render.js ▓▓░░░░░░░░░░░░░░ 18.6% (138/320)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓░░░░░░░░░░░ 34.9% (160/324)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓░░░░░░░░░░ 40.3% (287/452)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 44.5% (322/490)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓░░░░░░░░ 54.9% (398/537)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 46.0% (343/506)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64.0% (468/585)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 69.5% (531/641)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 73.5% (576/674)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 96.8% (746/769)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 94.3% (749/775)
+λ Bundled 28418ms node_modules/expo-router/node/render.js (804 modules)
+Web Bundled 28649ms node_modules/expo-router/entry.js (786 modules)
 
 › web bundles (1):
-_expo/static/js/web/entry-2a04f69a3c22037f51240d50bc9c3f9a.js (1.65 MB)
+_expo/static/js/web/entry-495bae69eb2befe5f1a0513eebff975f.js (1.72 MB)
 
-› Static routes (17):
-/admin (30 kB)
-/ (index) (33 kB)
-/login (30 kB)
-/register (32.4 kB)
-/_sitemap (44.2 kB)
-/dashboard (27.9 kB)
-/+not-found (28.4 kB)
-/admin-users (27.2 kB)
-/verify-email (31.2 kB)
-/admin-advisors (28 kB)
-/admin-dashboard (27.2 kB)
-/new-application (27.9 kB)
-/destination/[id] (28 kB)
-/admin-application (27.2 kB)
-/admin-destinations (28 kB)
-/admin-testimonials (27.2 kB)
-/application-details (28 kB)
+› Static routes (21):
+/admin (31.7 kB)
+/ (index) (35.1 kB)
+/login (31.7 kB)
+/provider (29.4 kB)
+/register (34.1 kB)
+/_sitemap (50.4 kB)
+/dashboard (29.6 kB)
+/+not-found (30.1 kB)
+/admin-users (28.9 kB)
+/verify-email (33 kB)
+/admin-advisors (29.7 kB)
+/admin-dashboard (28.9 kB)
+/admin-providers (33 kB)
+/new-application (29.6 kB)
+/provider-offers (29.5 kB)
+/admin-promotions (30.2 kB)
+/destination/[id] (29.7 kB)
+/admin-application (28.9 kB)
+/admin-destinations (29.7 kB)
+/admin-testimonials (28.9 kB)
+/application-details (29.7 kB)
 
-Exported: dist locally, then upload the *contents* of the  folder to the  GitHub repository. The Render Static site is configured to simply serve files from this repo without any build step.
--   **Two Separate Repos**: The source code is in , but the live website is served from . Do not confuse them.
--   **Backend Deployment Config**: The backend service on Render is deployed from the  branch of the  repo, with the **Root Directory** set to . This is crucial.
--   The immediate task is to enhance the web app's UI/UX as requested by the user.
-
-**documents and test reports created in this job**
--   The user created a  folder on their local machine.
--   The user created a new GitHub repository  and uploaded the  contents.
-
-**Last 10 User Messages and any pending HUMAN messages**
-1.  **User**: Asks how to add a direct download link for the APK to the web.
-2.  **User**: Also asks to make the design look more like a website, as the destinations section looks too small.
-3.  **User**: Provides the direct link to the latest APK build on .
-4.  **User**: Asks about modifying the link later for Google Play / App Store.
-5.  **Agent**: Confirms understanding and agrees to add download buttons and improve the web design for larger screens.
-6.  **User**: Asks for an explanation of how to add the download link and change it later. (PENDING - This was implied in the agent's plan but not explicitly addressed before the session ended).
+Exported: dist. (COMPLETED - Agent explained the manual process)
 
 **Project Health Check:**
--   **Broken**: None.
+-   **Broken**: None. The core functionality is stable.
 -   **Mocked**: None.
 
 **3rd Party Integrations**
--   **Render**: Hosts the live backend (Web Service) and frontend (Static Site).
+-   **Render**: Hosts the live backend and web frontend.
 -   **MongoDB Atlas**: Hosts the live database.
--   **GitHub**: Source control for both backend/frontend source and the pre-built web app.
--   **SendGrid**: For sending admin notification emails.
--   **Expo Application Services (EAS)**: For building the mobile app (APK/AAB).
+-   **GitHub**: Source control.
+-   **SendGrid**: For admin email notifications on new user registration.
+-   **Expo Application Services (EAS)**: For building the mobile app.
 
 **Testing status**
--   Testing agent used after significant changes: NO
+-   Testing agent used after significant changes: YES, it was used to validate the initial service provider feature, which passed. It has not been run since the subscription feature work began.
 -   Troubleshoot agent used after agent stuck in loop: NO
 -   Test files created: None.
 -   Known regressions: None.
@@ -191,4 +261,4 @@ Exported: dist locally, then upload the *contents* of the  folder to the  GitHub
     -   Password: 
 
 **What agent forgot to execute**
--   The agent did not start the implementation of the user's latest request: adding download links and improving the web design on . This is the immediate next task.</analysis>
+-   The agent started the implementation of three major features at once (subscriptions, admin promotions, destination management) but did not complete any of them. The next agent needs to systematically finish and test each one, starting with the highest priority (subscriptions).</analysis>

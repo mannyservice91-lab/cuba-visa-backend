@@ -8,7 +8,7 @@ import os
 import uuid
 
 # Get BASE_URL from environment
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://visa-portal-v2.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://service-marketplace-100.preview.emergentagent.com')
 
 # Test credentials
 ADMIN_EMAIL = "josemgt91@gmail.com"
