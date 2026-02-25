@@ -180,29 +180,34 @@ export default function ProviderOffersScreen() {
           ) : (
             offers.map((offer) => (
               <View key={offer.id} style={styles.offerCard}>
-                <Text style={styles.offerTitle}>{offer.title}</Text>
-                <Text style={styles.offerDescription}>{offer.description}</Text>
-                
-                {offer.exchange_rate && (
-                  <View style={styles.exchangeRateBox}>
-                    <Ionicons name="trending-up" size={18} color="#4caf50" />
-                    <Text style={styles.exchangeRateText}>{offer.exchange_rate}</Text>
-                  </View>
+                {offer.image_data && (
+                  <Image source={{ uri: offer.image_data }} style={styles.offerImage} />
                 )}
-                
-                {offer.expires_at && (
-                  <View style={styles.expiryRow}>
-                    <Ionicons name="time-outline" size={14} color="#ff9800" />
-                    <Text style={styles.expiryText}>
-                      Válido hasta: {new Date(offer.expires_at).toLocaleDateString()}
-                    </Text>
-                  </View>
-                )}
+                <View style={styles.offerContent}>
+                  <Text style={styles.offerTitle}>{offer.title}</Text>
+                  <Text style={styles.offerDescription}>{offer.description}</Text>
+                  
+                  {offer.exchange_rate && (
+                    <View style={styles.exchangeRateBox}>
+                      <Ionicons name="pricetag" size={18} color="#4caf50" />
+                      <Text style={styles.exchangeRateText}>{offer.exchange_rate}</Text>
+                    </View>
+                  )}
+                  
+                  {offer.expires_at && (
+                    <View style={styles.expiryRow}>
+                      <Ionicons name="time-outline" size={14} color="#ff9800" />
+                      <Text style={styles.expiryText}>
+                        Válido hasta: {new Date(offer.expires_at).toLocaleDateString()}
+                      </Text>
+                    </View>
+                  )}
 
-                <TouchableOpacity style={styles.offerContactBtn} onPress={openWhatsApp}>
-                  <FontAwesome5 name="whatsapp" size={14} color="#fff" />
-                  <Text style={styles.offerContactText}>Consultar esta oferta</Text>
-                </TouchableOpacity>
+                  <TouchableOpacity style={styles.offerContactBtn} onPress={openWhatsApp}>
+                    <FontAwesome5 name="whatsapp" size={14} color="#fff" />
+                    <Text style={styles.offerContactText}>Consultar esta oferta</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ))
           )}
