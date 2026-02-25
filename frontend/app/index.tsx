@@ -84,8 +84,10 @@ export default function HomeScreen() {
   const isDesktop = width > 768;
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [serviceOffers, setServiceOffers] = useState<ServiceOffer[]>([]);
   const [loadingDestinations, setLoadingDestinations] = useState(true);
   const [loadingTestimonials, setLoadingTestimonials] = useState(false);
+  const [loadingOffers, setLoadingOffers] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
