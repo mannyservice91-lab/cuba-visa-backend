@@ -369,56 +369,81 @@ export default function HomeScreen() {
                 </View>
               </View>
 
-              {/* Service Providers Section - Cards by Type */}
+              {/* Service Providers Section - Like Destinations */}
               {serviceProviders.length > 0 && (
                 <View style={styles.providersSection}>
-                  <Text style={[styles.sectionTitle, isDesktop && { fontSize: 26 }]}>Nuestros Servicios</Text>
-                  <Text style={styles.sectionSubtitle}>Proveedores asociados para tu viaje</Text>
+                  <Text style={[styles.sectionTitle, isDesktop && { fontSize: 28 }]}>Nuestros Servicios</Text>
+                  <Text style={[styles.sectionSubtitle, isDesktop && { fontSize: 16 }]}>Proveedores asociados para tu viaje</Text>
                   
-                  <View style={[styles.providersGrid, isDesktop && styles.providersGridDesktop]}>
-                    {serviceProviders.map((provider) => {
-                      const typeConfig = SERVICE_TYPE_ICONS[provider.service_type] || SERVICE_TYPE_ICONS.servicios;
-                      return (
-                        <TouchableOpacity
-                          key={provider.id}
-                          style={[styles.providerCard, isDesktop && styles.providerCardDesktop]}
-                          onPress={() => router.push(`/provider-offers?id=${provider.id}`)}
-                          activeOpacity={0.8}
-                        >
-                          <View style={[styles.providerIconBg, { backgroundColor: `${typeConfig.color}20` }]}>
-                            <Text style={styles.providerEmoji}>{typeConfig.emoji}</Text>
-                          </View>
-                          <Text style={styles.providerCardName}>{provider.business_name}</Text>
-                          {provider.owner_name && (
-                            <Text style={styles.providerOwner}>con {provider.owner_name}</Text>
-                          )}
-                          <View style={styles.providerActions}>
-                            <TouchableOpacity
-                              style={[styles.providerCallBtn, { backgroundColor: typeConfig.color }]}
-                              onPress={(e) => {
-                                e.stopPropagation();
-                                openProviderWhatsApp(provider.whatsapp_number, provider.business_name);
-                              }}
-                            >
-                              <FontAwesome5 name="whatsapp" size={14} color="#fff" />
-                              <Text style={styles.providerCallText}>Contactar</Text>
-                            </TouchableOpacity>
-                            {provider.whatsapp_group_link && (
-                              <TouchableOpacity
-                                style={styles.providerGroupBtn}
-                                onPress={(e) => {
-                                  e.stopPropagation();
-                                  Linking.openURL(provider.whatsapp_group_link);
-                                }}
-                              >
-                                <Ionicons name="people" size={16} color="#d4af37" />
-                              </TouchableOpacity>
+                  {isDesktop ? (
+                    // Grid layout for desktop
+                    <View style={styles.providersGridDesktop}>
+                      {serviceProviders.map((provider) => {
+                        const typeConfig = SERVICE_TYPE_ICONS[provider.service_type] || SERVICE_TYPE_ICONS.servicios;
+                        return (
+                          <TouchableOpacity
+                            key={provider.id}
+                            style={[styles.providerDestCard, { width: cardDimensions.width, height: cardDimensions.height }]}
+                            onPress={() => router.push(`/provider-offers?id=${provider.id}`)}
+                            activeOpacity={0.8}
+                          >
+                            {provider.logo_url ? (
+                              <Image source={{ uri: provider.logo_url }} style={styles.providerDestImage} />
+                            ) : (
+                              <View style={[styles.providerDestImage, styles.providerDestImagePlaceholder, { backgroundColor: `${typeConfig.color}30` }]}>
+                                <Text style={styles.providerDestEmoji}>{typeConfig.emoji}</Text>
+                              </View>
                             )}
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
+                            <View style={styles.providerDestOverlay}>
+                              <View style={[styles.providerTypeBadge, { backgroundColor: typeConfig.color }]}>
+                                <Text style={styles.providerTypeText}>{typeConfig.label}</Text>
+                              </View>
+                              <Text style={[styles.providerDestName, isDesktop && { fontSize: 16 }]}>{provider.business_name}</Text>
+                              {provider.owner_name && (
+                                <Text style={styles.providerDestOwner}>con {provider.owner_name}</Text>
+                              )}
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  ) : (
+                    // Horizontal scroll for mobile
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.providersScroll}
+                    >
+                      {serviceProviders.map((provider) => {
+                        const typeConfig = SERVICE_TYPE_ICONS[provider.service_type] || SERVICE_TYPE_ICONS.servicios;
+                        return (
+                          <TouchableOpacity
+                            key={provider.id}
+                            style={styles.providerDestCard}
+                            onPress={() => router.push(`/provider-offers?id=${provider.id}`)}
+                            activeOpacity={0.8}
+                          >
+                            {provider.logo_url ? (
+                              <Image source={{ uri: provider.logo_url }} style={styles.providerDestImage} />
+                            ) : (
+                              <View style={[styles.providerDestImage, styles.providerDestImagePlaceholder, { backgroundColor: `${typeConfig.color}30` }]}>
+                                <Text style={styles.providerDestEmoji}>{typeConfig.emoji}</Text>
+                              </View>
+                            )}
+                            <View style={styles.providerDestOverlay}>
+                              <View style={[styles.providerTypeBadge, { backgroundColor: typeConfig.color }]}>
+                                <Text style={styles.providerTypeText}>{typeConfig.label}</Text>
+                              </View>
+                              <Text style={styles.providerDestName}>{provider.business_name}</Text>
+                              {provider.owner_name && (
+                                <Text style={styles.providerDestOwner}>con {provider.owner_name}</Text>
+                              )}
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </ScrollView>
+                  )}
 
                   {/* Link para ser proveedor */}
                   <TouchableOpacity
