@@ -20,8 +20,6 @@ export default function RootLayout() {
           <Stack.Screen name="login" />
           <Stack.Screen name="register" />
           <Stack.Screen name="dashboard" />
-          <Stack.Screen name="destinations" />
-          <Stack.Screen name="destination-details" />
           <Stack.Screen name="new-application" />
           <Stack.Screen name="application-details" />
           <Stack.Screen name="admin" />
@@ -29,6 +27,12 @@ export default function RootLayout() {
           <Stack.Screen name="admin-application" />
           <Stack.Screen name="admin-testimonials" />
           <Stack.Screen name="admin-destinations" />
+          <Stack.Screen name="admin-advisors" />
+          <Stack.Screen name="admin-users" />
+          <Stack.Screen name="admin-providers" />
+          <Stack.Screen name="provider" />
+          <Stack.Screen name="verify-email" />
+          <Stack.Screen name="destination/[id]" />
         </Stack>
       </AuthProvider>
     </SafeAreaProvider>
