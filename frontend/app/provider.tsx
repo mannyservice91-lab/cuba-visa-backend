@@ -834,26 +834,27 @@ export default function ProviderScreen() {
         </View>
 
         {/* Subscription Status Card */}
+        {profile && (
         <View style={[styles.subscriptionCard, 
-          profile?.subscription_status === 'expired' && styles.subscriptionExpired,
-          profile?.subscription_status === 'active' && styles.subscriptionActive,
-          (profile?.subscription_status === 'trial' || profile?.subscription_status === 'trial_pending') && styles.subscriptionTrial
+          profile.subscription_status === 'expired' && styles.subscriptionExpired,
+          profile.subscription_status === 'active' && styles.subscriptionActive,
+          (profile.subscription_status === 'trial' || profile.subscription_status === 'trial_pending') && styles.subscriptionTrial
         ]}>
           <View style={styles.subscriptionHeader}>
             <Ionicons 
-              name={profile?.subscription_status === 'expired' ? 'warning' : profile?.subscription_status === 'active' ? 'checkmark-circle' : 'time'} 
+              name={profile.subscription_status === 'expired' ? 'warning' : profile.subscription_status === 'active' ? 'checkmark-circle' : 'time'} 
               size={24} 
-              color={profile?.subscription_status === 'expired' ? '#f44336' : profile?.subscription_status === 'active' ? '#4caf50' : '#ff9800'} 
+              color={profile.subscription_status === 'expired' ? '#f44336' : profile.subscription_status === 'active' ? '#4caf50' : '#ff9800'} 
             />
             <View style={styles.subscriptionInfo}>
               <Text style={styles.subscriptionTitle}>
-                {profile?.subscription_status === 'expired' ? 'Suscripción Expirada' :
-                 profile?.subscription_status === 'active' ? 'Suscripción Activa' :
-                 profile?.subscription_status === 'trial' ? 'Período de Prueba' :
-                 profile?.subscription_status === 'awaiting_payment' ? 'Pendiente de Pago' :
+                {profile.subscription_status === 'expired' ? 'Suscripción Expirada' :
+                 profile.subscription_status === 'active' ? 'Suscripción Activa' :
+                 profile.subscription_status === 'trial' ? 'Período de Prueba' :
+                 profile.subscription_status === 'awaiting_payment' ? 'Pendiente de Pago' :
                  'En Espera de Activación'}
               </Text>
-              {profile?.days_remaining !== undefined && profile.days_remaining > 0 && (
+              {profile.days_remaining !== undefined && profile.days_remaining > 0 && (
                 <Text style={styles.subscriptionDays}>
                   {profile.days_remaining} día{profile.days_remaining !== 1 ? 's' : ''} restante{profile.days_remaining !== 1 ? 's' : ''}
                 </Text>
@@ -861,7 +862,7 @@ export default function ProviderScreen() {
             </View>
           </View>
           
-          {profile?.subscription_status === 'expired' && (
+          {profile.subscription_status === 'expired' && (
             <View style={styles.subscriptionAlert}>
               <Text style={styles.subscriptionAlertText}>
                 Su cuenta está desactivada. Contacte al administrador para renovar su suscripción.
@@ -875,7 +876,7 @@ export default function ProviderScreen() {
             </View>
           )}
           
-          {(profile?.subscription_status === 'trial' || profile?.subscription_status === 'trial_pending') && profile?.days_remaining !== undefined && profile.days_remaining <= 3 && (
+          {(profile.subscription_status === 'trial' || profile.subscription_status === 'trial_pending') && profile.days_remaining !== undefined && profile.days_remaining <= 3 && (
             <View style={styles.subscriptionAlert}>
               <Text style={styles.subscriptionAlertText}>
                 {profile.days_remaining === 0 
@@ -886,7 +887,7 @@ export default function ProviderScreen() {
             </View>
           )}
           
-          {profile?.subscription_status === 'awaiting_payment' && (
+          {profile.subscription_status === 'awaiting_payment' && (
             <View style={styles.subscriptionAlert}>
               <Text style={styles.subscriptionAlertText}>
                 Su cuenta será activada cuando el administrador apruebe su solicitud.
@@ -894,6 +895,7 @@ export default function ProviderScreen() {
             </View>
           )}
         </View>
+        )}
 
         {/* Offers Section */}
         <View style={styles.offersHeader}>
