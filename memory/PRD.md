@@ -109,17 +109,19 @@ Aplicación móvil para gestión de visas entre Cuba y Serbia con panel de admin
 ## Changelog
 
 ### Feb 25, 2026 (Sesión actual)
-- **Sistema de Proveedores de Servicios (Remesas)**:
-  - Backend: Modelos ServiceProvider y ServiceOffer
-  - Endpoints para registro/login de proveedores
-  - CRUD de ofertas para proveedores
-  - Admin puede ver/activar/desactivar proveedores
-  - API pública para ofertas activas
-- **Frontend**:
-  - Portal de proveedores (`/provider`) con login, registro y dashboard
-  - Admin de proveedores (`/admin-providers`)
-  - Sección "Servicios Disponibles" en homepage
-  - Botones de WhatsApp en ofertas
+- **Nueva Sección "Nuestros Servicios"**:
+  - Reemplazó la sección de descarga de APK
+  - Muestra tarjetas de proveedores activos con emoji según tipo de servicio
+  - Tipos soportados: remesas (💵), pasajes (✈️), tienda (🛒), restaurante (🍽️), servicios (🔧)
+  - Al tocar un proveedor, se navega a su página de ofertas
+- **Página de Ofertas de Proveedor** (`/provider-offers`):
+  - Muestra información del proveedor (nombre, propietario, descripción)
+  - Botones de WhatsApp directo y grupo
+  - Lista de ofertas activas con precios y fechas de vencimiento
+- **Nuevos Endpoints**:
+  - `GET /api/service-providers` - Lista proveedores activos públicamente
+  - `GET /api/service-providers/{id}/offers` - Ofertas públicas de un proveedor
+- **Backend**: Modelos ServiceProvider y ServiceOffer con registro, login, CRUD de ofertas
 - **Testing**: 15 tests backend (100%), frontend UI (100%)
 
 ### Feb 23, 2026
