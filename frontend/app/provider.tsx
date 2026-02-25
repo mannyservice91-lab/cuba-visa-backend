@@ -833,6 +833,68 @@ export default function ProviderScreen() {
           </View>
         </View>
 
+        {/* Subscription Status Card */}
+        <View style={[styles.subscriptionCard, 
+          profile?.subscription_status === 'expired' && styles.subscriptionExpired,
+          profile?.subscription_status === 'active' && styles.subscriptionActive,
+          (profile?.subscription_status === 'trial' || profile?.subscription_status === 'trial_pending') && styles.subscriptionTrial
+        ]}>
+          <View style={styles.subscriptionHeader}>
+            <Ionicons 
+              name={profile?.subscription_status === 'expired' ? 'warning' : profile?.subscription_status === 'active' ? 'checkmark-circle' : 'time'} 
+              size={24} 
+              color={profile?.subscription_status === 'expired' ? '#f44336' : profile?.subscription_status === 'active' ? '#4caf50' : '#ff9800'} 
+            />
+            <View style={styles.subscriptionInfo}>
+              <Text style={styles.subscriptionTitle}>
+                {profile?.subscription_status === 'expired' ? 'Suscripción Expirada' :
+                 profile?.subscription_status === 'active' ? 'Suscripción Activa' :
+                 profile?.subscription_status === 'trial' ? 'Período de Prueba' :
+                 profile?.subscription_status === 'awaiting_payment' ? 'Pendiente de Pago' :
+                 'En Espera de Activación'}
+              </Text>
+              {profile?.days_remaining !== undefined && profile.days_remaining > 0 && (
+                <Text style={styles.subscriptionDays}>
+                  {profile.days_remaining} día{profile.days_remaining !== 1 ? 's' : ''} restante{profile.days_remaining !== 1 ? 's' : ''}
+                </Text>
+              )}
+            </View>
+          </View>
+          
+          {profile?.subscription_status === 'expired' && (
+            <View style={styles.subscriptionAlert}>
+              <Text style={styles.subscriptionAlertText}>
+                Su cuenta está desactivada. Contacte al administrador para renovar su suscripción.
+              </Text>
+              <View style={styles.subscriptionPlans}>
+                <Text style={styles.plansLabel}>Planes disponibles:</Text>
+                <Text style={styles.planOption}>- Mensual: 50€</Text>
+                <Text style={styles.planOption}>- Semestral: 250€</Text>
+                <Text style={styles.planOption}>- Anual: 450€</Text>
+              </View>
+            </View>
+          )}
+          
+          {(profile?.subscription_status === 'trial' || profile?.subscription_status === 'trial_pending') && profile?.days_remaining !== undefined && profile.days_remaining <= 3 && (
+            <View style={styles.subscriptionAlert}>
+              <Text style={styles.subscriptionAlertText}>
+                {profile.days_remaining === 0 
+                  ? 'Su período de prueba termina hoy.' 
+                  : `Su período de prueba termina en ${profile.days_remaining} día${profile.days_remaining !== 1 ? 's' : ''}.`}
+                {'\n'}Contacte al administrador para elegir un plan de pago.
+              </Text>
+            </View>
+          )}
+          
+          {profile?.subscription_status === 'awaiting_payment' && (
+            <View style={styles.subscriptionAlert}>
+              <Text style={styles.subscriptionAlertText}>
+                Su cuenta será activada cuando el administrador apruebe su solicitud.
+              </Text>
+            </View>
+          )}
+        </View>
+
         {/* Offers Section */}
         <View style={styles.offersHeader}>
           <Text style={styles.sectionTitle}>Mis Ofertas ({offers.length})</Text>
