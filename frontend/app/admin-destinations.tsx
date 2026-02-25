@@ -484,6 +484,146 @@ export default function AdminDestinationsScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Edit Destination Modal */}
+      <Modal
+        visible={showEditModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowEditModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Editar Destino</Text>
+            <Text style={styles.modalSubtitle}>{selectedDestination?.country}</Text>
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Nombre del país"
+              placeholderTextColor="#667788"
+              value={editForm.country}
+              onChangeText={(v) => setEditForm({ ...editForm, country: v })}
+            />
+
+            <TextInput
+              style={[styles.modalInput, { height: 80 }]}
+              placeholder="Descripción del país (breve referencia)"
+              placeholderTextColor="#667788"
+              multiline
+              value={editForm.description}
+              onChangeText={(v) => setEditForm({ ...editForm, description: v })}
+            />
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="URL de imagen"
+              placeholderTextColor="#667788"
+              value={editForm.image_url}
+              onChangeText={(v) => setEditForm({ ...editForm, image_url: v })}
+            />
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Mensaje (para destinos inactivos)"
+              placeholderTextColor="#667788"
+              value={editForm.message}
+              onChangeText={(v) => setEditForm({ ...editForm, message: v })}
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShowEditModal(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.saveButton} onPress={updateDestination}>
+                <Text style={styles.saveButtonText}>Guardar</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity 
+              style={styles.deleteDestBtn}
+              onPress={() => {
+                setShowEditModal(false);
+                deleteDestination(selectedDestination!.id, selectedDestination!.country);
+              }}
+            >
+              <Ionicons name="trash-outline" size={18} color="#f44336" />
+              <Text style={styles.deleteDestText}>Eliminar Destino</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Create Destination Modal */}
+      <Modal
+        visible={showCreateModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowCreateModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Nuevo Destino</Text>
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Nombre del país *"
+              placeholderTextColor="#667788"
+              value={createForm.country}
+              onChangeText={(v) => setCreateForm({ ...createForm, country: v })}
+            />
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Código de país (ej: RS, GE) *"
+              placeholderTextColor="#667788"
+              autoCapitalize="characters"
+              maxLength={2}
+              value={createForm.country_code}
+              onChangeText={(v) => setCreateForm({ ...createForm, country_code: v })}
+            />
+
+            <TextInput
+              style={[styles.modalInput, { height: 80 }]}
+              placeholder="Descripción del país (breve referencia)"
+              placeholderTextColor="#667788"
+              multiline
+              value={createForm.description}
+              onChangeText={(v) => setCreateForm({ ...createForm, description: v })}
+            />
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="URL de imagen"
+              placeholderTextColor="#667788"
+              value={createForm.image_url}
+              onChangeText={(v) => setCreateForm({ ...createForm, image_url: v })}
+            />
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Mensaje (para destinos inactivos)"
+              placeholderTextColor="#667788"
+              value={createForm.message}
+              onChangeText={(v) => setCreateForm({ ...createForm, message: v })}
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShowCreateModal(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.saveButton} onPress={createDestination}>
+                <Text style={styles.saveButtonText}>Crear</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
