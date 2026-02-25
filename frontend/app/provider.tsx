@@ -1319,6 +1319,70 @@ const styles = StyleSheet.create({
     marginTop: 10,
     lineHeight: 20,
   },
+  // Subscription Card Styles
+  subscriptionCard: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+  },
+  subscriptionExpired: {
+    backgroundColor: 'rgba(244, 67, 54, 0.1)',
+    borderColor: 'rgba(244, 67, 54, 0.3)',
+  },
+  subscriptionActive: {
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    borderColor: 'rgba(76, 175, 80, 0.3)',
+  },
+  subscriptionTrial: {
+    backgroundColor: 'rgba(255, 152, 0, 0.1)',
+    borderColor: 'rgba(255, 152, 0, 0.3)',
+  },
+  subscriptionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  subscriptionInfo: {
+    flex: 1,
+  },
+  subscriptionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  subscriptionDays: {
+    fontSize: 13,
+    color: '#d4af37',
+    marginTop: 2,
+  },
+  subscriptionAlert: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.1)',
+  },
+  subscriptionAlertText: {
+    fontSize: 13,
+    color: '#aaaaaa',
+    lineHeight: 18,
+  },
+  subscriptionPlans: {
+    marginTop: 10,
+  },
+  plansLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#d4af37',
+    marginBottom: 4,
+  },
+  planOption: {
+    fontSize: 13,
+    color: '#cccccc',
+    marginLeft: 10,
+  },
   offersHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
