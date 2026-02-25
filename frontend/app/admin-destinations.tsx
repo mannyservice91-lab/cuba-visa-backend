@@ -189,6 +189,118 @@ export default function AdminDestinationsScreen() {
     }
   };
 
+  const openEditModal = (destination: Destination) => {
+    setSelectedDestination(destination);
+    setEditForm({
+      country: destination.country,
+      country_code: destination.country_code,
+      description: destination.description || '',
+      image_url: destination.image_url || '',
+      message: destination.message || '',
+    });
+    setShowEditModal(true);
+  };
+
+  const updateDestination = async () => {
+    if (!admin?.access_token || !selectedDestination) return;
+    try {
+      const response = await fetch(`${API_URL}/api/admin/destinations/${selectedDestination.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${admin.access_token}`,
+        },
+        body: JSON.stringify(editForm),
+      });
+      if (response.ok) {
+        setShowEditModal(false);
+        fetchDestinations();
+        if (Platform.OS === 'web') {
+          alert('Destino actualizado correctamente');
+        } else {
+          Alert.alert('Éxito', 'Destino actualizado correctamente');
+        }
+      }
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo actualizar el destino');
+    }
+  };
+
+  const createDestination = async () => {
+    if (!admin?.access_token) return;
+    if (!createForm.country || !createForm.country_code) {
+      Alert.alert('Error', 'País y código de país son obligatorios');
+      return;
+    }
+    try {
+      const response = await fetch(`${API_URL}/api/admin/destinations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${admin.access_token}`,
+        },
+        body: JSON.stringify({
+          country: createForm.country,
+          country_code: createForm.country_code.toUpperCase(),
+          description: createForm.description,
+          image_url: createForm.image_url,
+          message: createForm.message,
+          enabled: false,
+        }),
+      });
+      if (response.ok) {
+        setShowCreateModal(false);
+        setCreateForm({
+          country: '',
+          country_code: '',
+          description: '',
+          image_url: '',
+          message: 'Muy pronto disponible',
+        });
+        fetchDestinations();
+        if (Platform.OS === 'web') {
+          alert('Destino creado correctamente');
+        } else {
+          Alert.alert('Éxito', 'Destino creado correctamente');
+        }
+      } else {
+        const data = await response.json();
+        Alert.alert('Error', data.detail || 'No se pudo crear el destino');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo crear el destino');
+    }
+  };
+
+  const deleteDestination = async (destinationId: string, countryName: string) => {
+    if (!admin?.access_token) return;
+    
+    const doDelete = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/admin/destinations/${destinationId}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${admin.access_token}` },
+        });
+        if (response.ok) {
+          fetchDestinations();
+        }
+      } catch (error) {
+        Alert.alert('Error', 'No se pudo eliminar');
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm(`¿Eliminar "${countryName}" y todos sus tipos de visa?`)) {
+        doDelete();
+      }
+    } else {
+      Alert.alert('Confirmar', `¿Eliminar "${countryName}" y todos sus tipos de visa?`, [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Eliminar', style: 'destructive', onPress: doDelete },
+      ]);
+    }
+  };
+
   if (authLoading || isLoading) {
     return (
       <View style={styles.container}>
