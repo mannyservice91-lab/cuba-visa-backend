@@ -112,6 +112,18 @@ export default function HomeScreen() {
         setTestimonials([]);
       }
       setLoadingTestimonials(false);
+
+      // Load service offers
+      setLoadingOffers(true);
+      try {
+        const offersResponse = await fetch(`${API_URL}/api/service-offers`);
+        const offersData = await offersResponse.json();
+        setServiceOffers(offersData || []);
+      } catch (error) {
+        console.error('Error fetching service offers:', error);
+        setServiceOffers([]);
+      }
+      setLoadingOffers(false);
     };
     loadData();
   }, []);
@@ -121,6 +133,12 @@ export default function HomeScreen() {
       ? `Hola, estoy interesado en los servicios de visa para ${destination}.`
       : 'Hola, estoy interesado en los servicios de visa.';
     const url = `https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}?text=${encodeURIComponent(message)}`;
+    Linking.openURL(url);
+  };
+
+  const openProviderWhatsApp = (whatsappNumber: string, businessName: string) => {
+    const message = `Hola, vi su oferta en la app Cuban-Serbia Visa Center (${businessName}).`;
+    const url = `https://wa.me/${whatsappNumber.replace('+', '')}?text=${encodeURIComponent(message)}`;
     Linking.openURL(url);
   };
 
