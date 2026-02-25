@@ -236,6 +236,7 @@ class Destination(BaseModel):
     image_url: str = ""
     visa_types: List[VisaType] = []
     requirements: str = ""
+    description: str = ""  # Breve referencia del país
     message: str = "Muy pronto disponible"
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -245,6 +246,7 @@ class DestinationCreate(BaseModel):
     enabled: bool = False
     image_url: str = ""
     requirements: str = ""
+    description: str = ""  # Breve referencia del país
     message: str = "Muy pronto disponible"
 
 class DestinationUpdate(BaseModel):
@@ -252,6 +254,7 @@ class DestinationUpdate(BaseModel):
     enabled: Optional[bool] = None
     image_url: Optional[str] = None
     requirements: Optional[str] = None
+    description: Optional[str] = None  # Breve referencia del país
     message: Optional[str] = None
 
 class VisaApplication(BaseModel):
