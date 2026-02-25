@@ -72,9 +72,28 @@ interface ServiceOffer {
   };
 }
 
+interface ServiceProviderInfo {
+  id: string;
+  business_name: string;
+  owner_name: string;
+  whatsapp_number: string;
+  whatsapp_group_link: string;
+  service_type: string;
+  description: string;
+  logo_url: string;
+}
+
 const FLAG_EMOJIS: Record<string, string> = {
   RS: '🇷🇸', AM: '🇦🇲', GE: '🇬🇪', IN: '🇮🇳', AE: '🇦🇪', EG: '🇪🇬',
   CU: '🇨🇺', RU: '🇷🇺', ES: '🇪🇸', US: '🇺🇸', DE: '🇩🇪', FR: '🇫🇷',
+};
+
+const SERVICE_TYPE_ICONS: Record<string, { icon: string; color: string; emoji: string }> = {
+  remesas: { icon: 'cash-outline', color: '#4caf50', emoji: '💵' },
+  pasajes: { icon: 'airplane-outline', color: '#2196f3', emoji: '✈️' },
+  tienda: { icon: 'storefront-outline', color: '#ff9800', emoji: '🛒' },
+  restaurante: { icon: 'restaurant-outline', color: '#e91e63', emoji: '🍽️' },
+  servicios: { icon: 'construct-outline', color: '#9c27b0', emoji: '🔧' },
 };
 
 export default function HomeScreen() {
@@ -85,6 +104,8 @@ export default function HomeScreen() {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [serviceOffers, setServiceOffers] = useState<ServiceOffer[]>([]);
+  const [serviceProviders, setServiceProviders] = useState<ServiceProviderInfo[]>([]);
+  const [selectedProvider, setSelectedProvider] = useState<ServiceProviderInfo | null>(null);
   const [loadingDestinations, setLoadingDestinations] = useState(true);
   const [loadingTestimonials, setLoadingTestimonials] = useState(false);
   const [loadingOffers, setLoadingOffers] = useState(false);
