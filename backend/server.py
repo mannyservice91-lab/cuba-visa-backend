@@ -341,6 +341,14 @@ class AdvisorUpdate(BaseModel):
 
 # ============== REMESERO/SERVICE PROVIDER MODELS ==============
 
+# Planes de suscripción
+SUBSCRIPTION_PLANS = {
+    "trial": {"name": "Prueba Gratis", "days": 7, "price": 0},
+    "monthly": {"name": "Mensual", "days": 30, "price": 50},
+    "semester": {"name": "Semestral", "days": 180, "price": 250},
+    "annual": {"name": "Anual", "days": 365, "price": 450},
+}
+
 class ServiceProvider(BaseModel):
     """Modelo para proveedores de servicios (remeseros, negocios, etc.)"""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -351,12 +359,20 @@ class ServiceProvider(BaseModel):
     phone: str
     whatsapp_number: str
     whatsapp_group_link: str = ""  # Link al grupo de WhatsApp
-    service_type: str = "remesas"  # remesas, tienda, restaurante, etc.
+    service_type: str = "remesas"  # remesas, pasajes, tienda, restaurante, etc.
     description: str = ""
     logo_url: str = ""
     is_active: bool = False  # Admin debe activar
+    # Campos de suscripción
+    subscription_plan: str = ""  # trial, monthly, semester, annual
+    subscription_start: Optional[datetime] = None
+    subscription_end: Optional[datetime] = None
+    payment_verified: bool = False  # Admin verifica el pago
+    payment_notes: str = ""  # Notas del pago
+    # Timestamps
     created_at: datetime = Field(default_factory=datetime.utcnow)
     last_login: Optional[datetime] = None
+    approved_at: Optional[datetime] = None  # Cuando admin aprobó
 
 class ServiceProviderRegister(BaseModel):
     email: EmailStr
