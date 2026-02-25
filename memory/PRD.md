@@ -1,140 +1,127 @@
 # Cuban-Serbia Visa Center - Product Requirements Document
 
-## Problema Original
-Aplicación móvil para gestión de visas entre Cuba y Serbia con panel de administración completo. 
-**Visión futura**: Plataforma de servicios donde se puede rentar espacio a diferentes negocios (remesas, tiendas, etc.)
+## Overview
+Plataforma de marketplace de servicios de visa que permite al administrador principal alquilar espacio a proveedores de servicios (remeseros, agencias de viajes) con sistema de suscripción.
 
-## Arquitectura Actual
+## User Personas
+1. **Administrador Principal**: Gestiona la plataforma, aprueba proveedores, activa suscripciones, crea destinos y promociones propias
+2. **Proveedor de Servicios**: Empresas que pagan por publicar sus ofertas (remesas, pasajes)
+3. **Usuario Final**: Visitantes que consultan servicios de visa y ofertas de proveedores
 
-```
-[APK/Web App] --> [Render Backend (FastAPI)] --> [MongoDB Atlas]
-                         |
-                    [SendGrid para emails]
-```
+## Core Requirements
 
-### URLs de Producción
-- **Backend**: `https://cuba-visa-backend.onrender.com`
-- **MongoDB Atlas**: Configurado en Render
-- **Preview (Desarrollo)**: `https://service-marketplace-100.preview.emergentagent.com`
+### Sistema de Proveedores
+- Registro y login de proveedores
+- Dashboard privado para gestionar perfil y ofertas
+- Tipos de servicio: remesas, pasajes
+- Estados de suscripción: trial (7 días), active, expired, awaiting_payment
 
-## Funcionalidades Implementadas
+### Sistema de Suscripciones
+- 7 días de prueba gratis al aprobar nuevo proveedor
+- Planes de pago: 50€/mes, 250€/6 meses, 450€/año
+- Aprobación manual de pagos por el admin
+- Desactivación automática si no hay pago después del trial
 
-### Sistema de Autenticación
-- [x] Login de usuarios con JWT
-- [x] Registro de usuarios con validación
-- [x] **Sistema de Aprobación de Admin** (NUEVO - Feb 2026)
-  - Usuarios registrados quedan en estado "pendiente"
-  - Pantalla de "Pendiente de Aprobación" con botón WhatsApp
-  - Login bloqueado hasta aprobación por admin
-  - Panel admin para aprobar/revocar usuarios
-- [x] Login de administrador separado
-- [x] Eliminada la verificación por email (no funcionaba)
+### Panel de Admin
+- Gestión de usuarios (aprobar/rechazar)
+- Gestión de proveedores (aprobar, activar suscripciones)
+- Gestión de destinos (crear/editar/eliminar con descripción)
+- Mis Promociones (ofertas propias del admin en homepage)
+- Gestión de asesores (WhatsApp de contacto)
+- Testimonios de clientes
 
-### Panel de Administración
-- [x] Dashboard con estadísticas
-- [x] Gestión de destinos y tipos de visa
-- [x] Gestión de usuarios (aprobar, revocar, desactivar, eliminar)
-- [x] Gestión de testimonios (fotos de visas)
-- [x] Gestión de asesores
-- [x] Gestión de solicitudes
-- [x] **Gestión de Proveedores de Servicios** (NUEVO - Feb 2026)
+### Homepage
+- Sección de destinos disponibles
+- Sección de proveedores activos por tipo de servicio
+- Promociones del administrador
+- Testimonios
 
-### Sistema de Proveedores de Servicios (Remesas) - NUEVO
-- [x] Portal de proveedores independiente (`/provider`)
-  - Registro de proveedores (requiere aprobación)
-  - Login de proveedores
-  - Dashboard para gestionar ofertas
-- [x] Gestión de ofertas
-  - Título, descripción, tasa de cambio
-  - Fecha de vencimiento
-  - Activar/desactivar ofertas
-- [x] Admin puede activar/desactivar proveedores
-- [x] Sección en homepage mostrando ofertas activas
-  - Contacto WhatsApp del proveedor
-  - Link al grupo de WhatsApp
+## Tech Stack
+- **Backend**: FastAPI + MongoDB (Motor) + Pydantic
+- **Frontend**: React Native / Expo (Web + Mobile)
+- **Database**: MongoDB Atlas (Producción)
+- **Deployment**: Render (Backend y Static Site)
+- **Auth**: JWT con tokens de acceso
 
-### Aplicación de Usuario
-- [x] Ver destinos disponibles
-- [x] Crear solicitudes de visa
-- [x] Subir documentos
-- [x] Ver estado de solicitud
-- [x] Pagos via PayPal (link externo)
-- [x] Contacto via WhatsApp
-- [x] Ver ofertas de servicios (remesas)
+## What's Been Implemented
 
-## Base de Datos (MongoDB Atlas)
+### 2026-02-25
+- **Sistema de Suscripciones COMPLETO**:
+  - Endpoint `/api/provider/me` devuelve estado de suscripción (subscription_status, days_remaining)
+  - Endpoint `/api/admin/service-providers/{id}/approve-payment` para aprobar pagos
+  - Dashboard del proveedor muestra tarjeta de estado de suscripción con alertas
+  - Estados: trial, active, expired, awaiting_payment, trial_pending
+  
+- **Gestión de Destinos COMPLETO**:
+  - CRUD completo (POST, PUT, DELETE) en `/api/admin/destinations`
+  - Campo `description` añadido a destinos
+  - UI con modal para crear nuevos destinos
+  - UI con modal para editar destinos (incluye descripción)
+  - Icono de editar y botón + en header
+  
+- **Mis Promociones COMPLETO**:
+  - CRUD completo en `/api/admin/promotions` con JSON body
+  - Endpoint público `/api/promotions` para mostrar en homepage
+  - UI funcional para crear/editar/eliminar promociones
+  - Soporte para imagen base64
 
-### Colecciones
-- **users**: id, email, hashed_password, full_name, phone, passport_number, is_approved, is_active, is_verified
-- **admins**: id, email, hashed_password, role
-- **destinations**: id, country, image_url, visa_types, description
-- **applications**: id, user_id, destination, status, documents
-- **testimonials**: id, image_url, title, description
-- **advisors**: id, name, phone, whatsapp
-- **service_providers**: id, email, business_name, owner_name, whatsapp_number, service_type, is_active
-- **service_offers**: id, provider_id, title, description, exchange_rate, expires_at, is_active
+### Anteriormente Completado
+- Marketplace multi-proveedor funcional
+- Login/registro de proveedores
+- Dashboard de proveedor con gestión de ofertas
+- Homepage con cards de proveedores por tipo de servicio
+- Panel admin con todas las secciones de navegación
+- Sistema de testimonios
+- Sistema de asesores
 
-## Credenciales de Prueba
+## Testing Status
+- **Backend**: 100% de tests pasando (30 tests)
+- **Frontend**: 95% funcional (warning de shadow* deprecado)
+
+## API Endpoints
+
+### Públicos
+- GET /api/destinations
+- GET /api/service-providers
+- GET /api/service-offers
+- GET /api/promotions
+- GET /api/testimonials
+
+### Admin (requiere Bearer token)
+- POST/GET /api/admin/destinations
+- PUT/DELETE /api/admin/destinations/{id}
+- POST/GET /api/admin/promotions
+- PUT/DELETE /api/admin/promotions/{id}
+- GET /api/admin/service-providers
+- PUT /api/admin/service-providers/{id}/approve-payment
+- PUT /api/admin/service-providers/{id}/toggle
+
+### Provider (requiere Bearer token)
+- GET /api/provider/me (incluye subscription_status, days_remaining)
+- POST/GET /api/provider/offers
+- PUT/DELETE /api/provider/offers/{id}
+
+## Prioritized Backlog
+
+### P0 - Critical (Completado)
+- [x] Sistema de suscripciones completo
+- [x] Gestión de destinos con descripción
+- [x] Mis Promociones del admin
+
+### P1 - High Priority (Pendiente)
+- [ ] Desactivación automática de proveedores con trial expirado (scheduled job)
+- [ ] Subida de logo/imagen por parte de proveedores
+- [ ] Mostrar promociones del admin en homepage
+
+### P2 - Medium Priority (Futuro)
+- [ ] Videos de testimonios
+- [ ] Barra de progreso de aplicación conectada al backend
+- [ ] CI/CD para despliegue automático web
+
+### P3 - Low Priority (Futuro)
+- [ ] Migrar shadow* styles a boxShadow (deprecation warnings)
+- [ ] Notificaciones push para proveedores
+
+## Credentials
 - **Admin**: josemgt91@gmail.com / Jmg910217*
-- **Proveedor Test**: remesero@test.com / test123456
-- **WhatsApp**: +381693444935
-
-## Archivos Clave
-- `/app/backend/server.py` - API FastAPI completa
-- `/app/frontend/app/index.tsx` - Homepage con ofertas de servicios
-- `/app/frontend/app/provider.tsx` - Portal de proveedores
-- `/app/frontend/app/admin-providers.tsx` - Admin de proveedores
-- `/app/frontend/app/admin-users.tsx` - Panel de gestión de usuarios
-- `/app/frontend/src/config/api.ts` - Configuración de API y enlaces
-
-## Tareas Pendientes
-
-### P0 - Alta Prioridad
-- [x] ~~Crear sitio web público~~ - COMPLETADO
-- [x] ~~Añadir sección de descarga de app en web~~ - COMPLETADO
-- [x] ~~Mejorar diseño responsivo para desktop~~ - COMPLETADO
-- [x] ~~Sistema de proveedores de servicios (remesas)~~ - COMPLETADO
-
-### P1 - Media Prioridad
-- [ ] Implementar subida de videos para testimonios
-- [ ] Conectar barra de progreso de solicitud al backend
-- [ ] Añadir descripción a destinos (ya está en backend)
-
-### P2 - Baja Prioridad
-- [ ] Mejorar notificaciones push
-- [ ] Sistema de chat integrado
-- [ ] CI/CD pipeline para builds automáticos del web app
-- [ ] Soporte para múltiples tipos de servicios (tiendas, restaurantes)
-
-## Changelog
-
-### Feb 25, 2026 (Sesión actual)
-- **Sección "Nuestros Servicios" Rediseñada**:
-  - Tarjetas de proveedores estilo destinos (con foto/emoji grande)
-  - Scroll horizontal en móvil, grid en desktop
-  - Badge de tipo de servicio (Remesas, Pasajes, Tienda, etc.)
-  - Al tocar, lleva a la página de ofertas del proveedor
-- **Página de Ofertas del Proveedor** (`/provider-offers`):
-  - Muestra información completa del proveedor
-  - Botones de WhatsApp directo y grupo
-  - Lista de ofertas con imágenes y precios
-- **Panel del Proveedor Mejorado** (`/provider`):
-  - Subida de logo del negocio
-  - Selección de tipo de servicio en registro
-  - Edición de perfil completa
-  - Subida de imágenes en ofertas
-  - Gestión de ofertas (crear, activar/desactivar, eliminar)
-- **Nuevos Endpoints**:
-  - `GET /api/service-providers` - Lista proveedores activos públicamente
-  - `GET /api/service-providers/{id}/offers` - Ofertas públicas de un proveedor
-- **Testing**: Verificado visualmente con capturas de pantalla
-
-### Feb 23, 2026
-- **Sección de Descarga de App**: Nueva sección en la web para descargar el APK
-- **Diseño Web Mejorado**: Grid layout para destinos en desktop
-- **Refactoring**: Configuración centralizada en api.ts
-
-### Sesiones Anteriores
-- Implementado sistema de aprobación de usuarios
-- Migración completa a Render y MongoDB Atlas
-- Configuración de EAS Build para APK/AAB
+- **Test Provider**: remesero@test.com / test123456
