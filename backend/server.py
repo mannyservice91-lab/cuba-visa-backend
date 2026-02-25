@@ -1730,7 +1730,32 @@ async def login_service_provider(credentials: ServiceProviderLogin):
 # Provider: Get own profile
 @api_router.get("/provider/me")
 async def get_provider_profile(current_provider: dict = Depends(get_current_provider)):
-    """Get current provider's profile"""
+    """Get current provider's profile with subscription info"""
+    # Calculate subscription status
+    now = datetime.utcnow()
+    sub_end = current_provider.get("subscription_end")
+    sub_plan = current_provider.get("subscription_plan", "")
+    
+    days_remaining = 0
+    if sub_end:
+        if isinstance(sub_end, str):
+            sub_end = datetime.fromisoformat(sub_end.replace('Z', '+00:00')).replace(tzinfo=None)
+        days_remaining = max(0, (sub_end - now).days)
+    
+    if sub_end and sub_end > now:
+        if current_provider.get("payment_verified"):
+            sub_status = "active"
+        elif sub_plan == "trial":
+            sub_status = "trial"
+        else:
+            sub_status = "trial"
+    elif sub_end and sub_end <= now:
+        sub_status = "expired"
+    elif sub_plan == "trial":
+        sub_status = "trial_pending"
+    else:
+        sub_status = "awaiting_payment"
+    
     return {
         "id": current_provider["id"],
         "email": current_provider["email"],
@@ -1743,6 +1768,11 @@ async def get_provider_profile(current_provider: dict = Depends(get_current_prov
         "description": current_provider.get("description", ""),
         "logo_url": current_provider.get("logo_url", ""),
         "is_active": current_provider.get("is_active", False),
+        "subscription_plan": sub_plan,
+        "subscription_status": sub_status,
+        "subscription_end": current_provider.get("subscription_end"),
+        "days_remaining": days_remaining,
+        "payment_verified": current_provider.get("payment_verified", False),
         "created_at": current_provider["created_at"]
     }
 
