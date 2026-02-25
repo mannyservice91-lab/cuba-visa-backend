@@ -1048,6 +1048,8 @@ async def update_destination(destination_id: str, update_data: DestinationUpdate
         update_dict["image_url"] = update_data.image_url
     if update_data.requirements is not None:
         update_dict["requirements"] = update_data.requirements
+    if update_data.description is not None:
+        update_dict["description"] = update_data.description
     if update_data.message is not None:
         update_dict["message"] = update_data.message
     
