@@ -391,10 +391,18 @@ const styles = StyleSheet.create({
   offerCard: {
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: 12,
-    padding: 16,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.2)',
+    overflow: 'hidden',
+  },
+  offerImage: {
+    width: '100%',
+    height: 180,
+    resizeMode: 'cover',
+  },
+  offerContent: {
+    padding: 16,
   },
   offerTitle: {
     fontSize: 17,
