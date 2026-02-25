@@ -320,6 +320,21 @@ export default function AdminDashboardScreen() {
                     <Ionicons name="chevron-forward" size={20} color="#d4af37" />
                   </LinearGradient>
                 </TouchableOpacity>
+
+                {/* Service Providers Management Button */}
+                <TouchableOpacity
+                  style={styles.testimonialsButton}
+                  onPress={() => router.push('/admin-providers')}
+                >
+                  <LinearGradient colors={['#1a2f4a', '#0d1f35']} style={styles.testimonialsBtnGradient}>
+                    <Ionicons name="storefront" size={24} color="#4caf50" />
+                    <View style={styles.testimonialsBtnText}>
+                      <Text style={styles.testimonialsBtnTitle}>Proveedores de Servicios</Text>
+                      <Text style={styles.testimonialsBtnSubtitle}>Remeseros y negocios asociados</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="#d4af37" />
+                  </LinearGradient>
+                </TouchableOpacity>
               </View>
             )}
 
