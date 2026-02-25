@@ -88,12 +88,12 @@ const FLAG_EMOJIS: Record<string, string> = {
   CU: '🇨🇺', RU: '🇷🇺', ES: '🇪🇸', US: '🇺🇸', DE: '🇩🇪', FR: '🇫🇷',
 };
 
-const SERVICE_TYPE_ICONS: Record<string, { icon: string; color: string; emoji: string }> = {
-  remesas: { icon: 'cash-outline', color: '#4caf50', emoji: '💵' },
-  pasajes: { icon: 'airplane-outline', color: '#2196f3', emoji: '✈️' },
-  tienda: { icon: 'storefront-outline', color: '#ff9800', emoji: '🛒' },
-  restaurante: { icon: 'restaurant-outline', color: '#e91e63', emoji: '🍽️' },
-  servicios: { icon: 'construct-outline', color: '#9c27b0', emoji: '🔧' },
+const SERVICE_TYPE_ICONS: Record<string, { icon: string; color: string; emoji: string; label: string }> = {
+  remesas: { icon: 'cash-outline', color: '#4caf50', emoji: '💵', label: 'Remesas' },
+  pasajes: { icon: 'airplane-outline', color: '#2196f3', emoji: '✈️', label: 'Pasajes' },
+  tienda: { icon: 'storefront-outline', color: '#ff9800', emoji: '🛒', label: 'Tienda' },
+  restaurante: { icon: 'restaurant-outline', color: '#e91e63', emoji: '🍽️', label: 'Restaurante' },
+  servicios: { icon: 'construct-outline', color: '#9c27b0', emoji: '🔧', label: 'Servicios' },
 };
 
 export default function HomeScreen() {
