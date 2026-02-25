@@ -32,6 +32,11 @@ interface ProviderProfile {
   service_type: string;
   description: string;
   logo_url: string;
+  subscription_plan: string;
+  subscription_status: string;
+  subscription_end: string | null;
+  days_remaining: number;
+  payment_verified: boolean;
 }
 
 interface Offer {
