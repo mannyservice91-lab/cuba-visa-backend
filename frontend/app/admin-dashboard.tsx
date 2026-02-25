@@ -330,7 +330,22 @@ export default function AdminDashboardScreen() {
                     <Ionicons name="storefront" size={24} color="#4caf50" />
                     <View style={styles.testimonialsBtnText}>
                       <Text style={styles.testimonialsBtnTitle}>Proveedores de Servicios</Text>
-                      <Text style={styles.testimonialsBtnSubtitle}>Remeseros y negocios asociados</Text>
+                      <Text style={styles.testimonialsBtnSubtitle}>Remeseros, pasajes y suscripciones</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="#d4af37" />
+                  </LinearGradient>
+                </TouchableOpacity>
+
+                {/* Admin Promotions Button */}
+                <TouchableOpacity
+                  style={styles.testimonialsButton}
+                  onPress={() => router.push('/admin-promotions')}
+                >
+                  <LinearGradient colors={['#1a2f4a', '#0d1f35']} style={styles.testimonialsBtnGradient}>
+                    <Ionicons name="megaphone" size={24} color="#ff9800" />
+                    <View style={styles.testimonialsBtnText}>
+                      <Text style={styles.testimonialsBtnTitle}>Mis Promociones</Text>
+                      <Text style={styles.testimonialsBtnSubtitle}>Crear ofertas y publicidad</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={20} color="#d4af37" />
                   </LinearGradient>
