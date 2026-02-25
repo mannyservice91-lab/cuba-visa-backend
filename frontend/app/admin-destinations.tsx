@@ -361,7 +361,15 @@ export default function AdminDestinationsScreen() {
                         thumbColor={destination.enabled ? '#4caf50' : '#666'}
                       />
                     </View>
+                    </View>
                   </View>
+
+                  {/* Description */}
+                  {destination.description && (
+                    <View style={styles.descriptionContainer}>
+                      <Text style={styles.descriptionText}>{destination.description}</Text>
+                    </View>
+                  )}
 
                   {/* Visa Types */}
                   <View style={styles.visaTypesSection}>
