@@ -860,4 +860,37 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  editIcon: {
+    padding: 5,
+  },
+  descriptionContainer: {
+    marginBottom: 15,
+    paddingHorizontal: 4,
+  },
+  descriptionText: {
+    fontSize: 14,
+    color: '#aabbcc',
+    lineHeight: 20,
+    fontStyle: 'italic',
+  },
+  deleteDestBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 15,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(244, 67, 54, 0.2)',
+  },
+  deleteDestText: {
+    color: '#f44336',
+    fontSize: 14,
+    fontWeight: '600',
+  },
 });
