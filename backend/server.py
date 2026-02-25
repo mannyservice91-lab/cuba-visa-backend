@@ -1828,23 +1828,165 @@ async def delete_provider_offer(
 
 @api_router.get("/admin/service-providers")
 async def admin_get_all_providers(current_admin: dict = Depends(get_current_admin)):
-    """Get all service providers for admin management"""
+    """Get all service providers for admin management with subscription info"""
     providers = await db.service_providers.find().sort("created_at", -1).to_list(100)
-    return [{
-        "id": p["id"],
-        "email": p["email"],
-        "business_name": p["business_name"],
-        "owner_name": p["owner_name"],
-        "phone": p["phone"],
-        "whatsapp_number": p["whatsapp_number"],
-        "whatsapp_group_link": p.get("whatsapp_group_link", ""),
-        "service_type": p.get("service_type", "remesas"),
-        "description": p.get("description", ""),
-        "logo_url": p.get("logo_url", ""),
-        "is_active": p.get("is_active", False),
-        "created_at": p["created_at"],
-        "last_login": p.get("last_login")
-    } for p in providers]
+    now = datetime.utcnow()
+    
+    result = []
+    for p in providers:
+        # Calculate subscription status
+        sub_end = p.get("subscription_end")
+        sub_status = "pending"  # No aprobado aún
+        days_remaining = 0
+        
+        if p.get("is_active"):
+            if sub_end:
+                if sub_end > now:
+                    sub_status = "active"
+                    days_remaining = (sub_end - now).days
+                else:
+                    sub_status = "expired"
+            elif p.get("subscription_plan") == "trial":
+                sub_status = "trial_pending"
+            else:
+                sub_status = "awaiting_payment"
+        
+        result.append({
+            "id": p["id"],
+            "email": p["email"],
+            "business_name": p["business_name"],
+            "owner_name": p["owner_name"],
+            "phone": p["phone"],
+            "whatsapp_number": p["whatsapp_number"],
+            "whatsapp_group_link": p.get("whatsapp_group_link", ""),
+            "service_type": p.get("service_type", "remesas"),
+            "description": p.get("description", ""),
+            "logo_url": p.get("logo_url", ""),
+            "is_active": p.get("is_active", False),
+            "subscription_plan": p.get("subscription_plan", ""),
+            "subscription_start": p.get("subscription_start"),
+            "subscription_end": p.get("subscription_end"),
+            "subscription_status": sub_status,
+            "days_remaining": days_remaining,
+            "payment_verified": p.get("payment_verified", False),
+            "payment_notes": p.get("payment_notes", ""),
+            "created_at": p["created_at"],
+            "approved_at": p.get("approved_at"),
+            "last_login": p.get("last_login")
+        })
+    
+    return result
+
+@api_router.put("/admin/service-providers/{provider_id}/approve")
+async def admin_approve_provider(provider_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Approve provider and start 7-day trial"""
+    provider = await db.service_providers.find_one({"id": provider_id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Proveedor no encontrado")
+    
+    now = datetime.utcnow()
+    trial_end = now + timedelta(days=7)
+    
+    await db.service_providers.update_one(
+        {"id": provider_id},
+        {"$set": {
+            "is_active": True,
+            "subscription_plan": "trial",
+            "subscription_start": now,
+            "subscription_end": trial_end,
+            "approved_at": now
+        }}
+    )
+    
+    return {
+        "message": "Proveedor aprobado con 7 días de prueba gratis",
+        "subscription_end": trial_end.isoformat()
+    }
+
+@api_router.put("/admin/service-providers/{provider_id}/set-subscription")
+async def admin_set_subscription(
+    provider_id: str, 
+    plan: str,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Set subscription plan and verify payment"""
+    provider = await db.service_providers.find_one({"id": provider_id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Proveedor no encontrado")
+    
+    if plan not in SUBSCRIPTION_PLANS:
+        raise HTTPException(status_code=400, detail="Plan no válido")
+    
+    plan_info = SUBSCRIPTION_PLANS[plan]
+    now = datetime.utcnow()
+    end_date = now + timedelta(days=plan_info["days"])
+    
+    await db.service_providers.update_one(
+        {"id": provider_id},
+        {"$set": {
+            "is_active": True,
+            "subscription_plan": plan,
+            "subscription_start": now,
+            "subscription_end": end_date,
+            "payment_verified": plan != "trial"
+        }}
+    )
+    
+    return {
+        "message": f"Suscripción '{plan_info['name']}' activada hasta {end_date.strftime('%d/%m/%Y')}",
+        "subscription_end": end_date.isoformat(),
+        "price": plan_info["price"]
+    }
+
+@api_router.put("/admin/service-providers/{provider_id}/verify-payment")
+async def admin_verify_payment(
+    provider_id: str,
+    plan: str,
+    notes: str = "",
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Verify payment and activate subscription"""
+    provider = await db.service_providers.find_one({"id": provider_id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Proveedor no encontrado")
+    
+    if plan not in SUBSCRIPTION_PLANS:
+        raise HTTPException(status_code=400, detail="Plan no válido")
+    
+    plan_info = SUBSCRIPTION_PLANS[plan]
+    now = datetime.utcnow()
+    end_date = now + timedelta(days=plan_info["days"])
+    
+    await db.service_providers.update_one(
+        {"id": provider_id},
+        {"$set": {
+            "is_active": True,
+            "subscription_plan": plan,
+            "subscription_start": now,
+            "subscription_end": end_date,
+            "payment_verified": True,
+            "payment_notes": notes
+        }}
+    )
+    
+    return {
+        "message": f"Pago verificado. Suscripción '{plan_info['name']}' activa hasta {end_date.strftime('%d/%m/%Y')}",
+        "subscription_end": end_date.isoformat()
+    }
+
+@api_router.put("/admin/service-providers/{provider_id}/deactivate")
+async def admin_deactivate_provider(provider_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Deactivate provider (subscription expired or manual)"""
+    provider = await db.service_providers.find_one({"id": provider_id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Proveedor no encontrado")
+    
+    await db.service_providers.update_one(
+        {"id": provider_id},
+        {"$set": {"is_active": False}}
+    )
+    
+    return {"message": "Proveedor desactivado"}
 
 @api_router.put("/admin/service-providers/{provider_id}/toggle")
 async def admin_toggle_provider(provider_id: str, current_admin: dict = Depends(get_current_admin)):
@@ -1854,9 +1996,21 @@ async def admin_toggle_provider(provider_id: str, current_admin: dict = Depends(
         raise HTTPException(status_code=404, detail="Proveedor no encontrado")
     
     new_status = not provider.get("is_active", False)
+    update_data = {"is_active": new_status}
+    
+    # If activating and no subscription, start trial
+    if new_status and not provider.get("subscription_plan"):
+        now = datetime.utcnow()
+        update_data.update({
+            "subscription_plan": "trial",
+            "subscription_start": now,
+            "subscription_end": now + timedelta(days=7),
+            "approved_at": now
+        })
+    
     await db.service_providers.update_one(
         {"id": provider_id},
-        {"$set": {"is_active": new_status}}
+        {"$set": update_data}
     )
     
     return {
@@ -1884,6 +2038,136 @@ async def admin_get_provider_offers(provider_id: str, current_admin: dict = Depe
     """Get all offers for a specific provider"""
     offers = await db.service_offers.find({"provider_id": provider_id}).sort("created_at", -1).to_list(100)
     return [{k: v for k, v in offer.items() if k != "_id"} for offer in offers]
+
+# ============== ADMIN: DESTINATIONS MANAGEMENT ==============
+
+@api_router.post("/admin/destinations")
+async def admin_create_destination(
+    destination: DestinationCreate,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Create a new destination"""
+    new_dest = Destination(
+        country=destination.country,
+        country_code=destination.country_code,
+        enabled=destination.enabled,
+        image_url=destination.image_url,
+        requirements=destination.requirements,
+        description=destination.description,
+        message=destination.message
+    )
+    await db.destinations.insert_one(new_dest.dict())
+    return {"message": "Destino creado exitosamente", "destination": new_dest.dict()}
+
+@api_router.put("/admin/destinations/{destination_id}")
+async def admin_update_destination(
+    destination_id: str,
+    update_data: DestinationUpdate,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Update an existing destination"""
+    dest = await db.destinations.find_one({"id": destination_id})
+    if not dest:
+        raise HTTPException(status_code=404, detail="Destino no encontrado")
+    
+    update_dict = {k: v for k, v in update_data.dict().items() if v is not None}
+    if update_dict:
+        await db.destinations.update_one(
+            {"id": destination_id},
+            {"$set": update_dict}
+        )
+    
+    updated = await db.destinations.find_one({"id": destination_id})
+    return {k: v for k, v in updated.items() if k != "_id"}
+
+@api_router.delete("/admin/destinations/{destination_id}")
+async def admin_delete_destination(
+    destination_id: str,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Delete a destination"""
+    result = await db.destinations.delete_one({"id": destination_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Destino no encontrado")
+    return {"message": "Destino eliminado exitosamente"}
+
+# ============== ADMIN: OWN OFFERS/PROMOTIONS ==============
+
+@api_router.get("/admin/promotions")
+async def admin_get_promotions(current_admin: dict = Depends(get_current_admin)):
+    """Get all admin promotions"""
+    promos = await db.admin_promotions.find().sort("created_at", -1).to_list(100)
+    return [{k: v for k, v in p.items() if k != "_id"} for p in promos]
+
+@api_router.post("/admin/promotions")
+async def admin_create_promotion(
+    title: str,
+    description: str,
+    image_data: str = "",
+    link_url: str = "",
+    link_text: str = "",
+    is_active: bool = True,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Create an admin promotion/offer"""
+    promo = {
+        "id": str(uuid.uuid4()),
+        "title": title,
+        "description": description,
+        "image_data": image_data,
+        "link_url": link_url,
+        "link_text": link_text,
+        "is_active": is_active,
+        "created_at": datetime.utcnow(),
+        "created_by": current_admin["id"]
+    }
+    await db.admin_promotions.insert_one(promo)
+    return {"message": "Promoción creada exitosamente", "promotion": {k: v for k, v in promo.items() if k != "_id"}}
+
+@api_router.put("/admin/promotions/{promo_id}")
+async def admin_update_promotion(
+    promo_id: str,
+    title: str = None,
+    description: str = None,
+    image_data: str = None,
+    link_url: str = None,
+    link_text: str = None,
+    is_active: bool = None,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Update an admin promotion"""
+    promo = await db.admin_promotions.find_one({"id": promo_id})
+    if not promo:
+        raise HTTPException(status_code=404, detail="Promoción no encontrada")
+    
+    update_dict = {}
+    if title is not None: update_dict["title"] = title
+    if description is not None: update_dict["description"] = description
+    if image_data is not None: update_dict["image_data"] = image_data
+    if link_url is not None: update_dict["link_url"] = link_url
+    if link_text is not None: update_dict["link_text"] = link_text
+    if is_active is not None: update_dict["is_active"] = is_active
+    
+    if update_dict:
+        await db.admin_promotions.update_one({"id": promo_id}, {"$set": update_dict})
+    
+    updated = await db.admin_promotions.find_one({"id": promo_id})
+    return {k: v for k, v in updated.items() if k != "_id"}
+
+@api_router.delete("/admin/promotions/{promo_id}")
+async def admin_delete_promotion(promo_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Delete an admin promotion"""
+    result = await db.admin_promotions.delete_one({"id": promo_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Promoción no encontrada")
+    return {"message": "Promoción eliminada exitosamente"}
+
+# Public: Get active admin promotions
+@api_router.get("/promotions")
+async def get_active_promotions():
+    """Get all active admin promotions for display"""
+    promos = await db.admin_promotions.find({"is_active": True}).sort("created_at", -1).to_list(20)
+    return [{k: v for k, v in p.items() if k != "_id"} for p in promos]
 
 # ============== ADMIN LIST ==============
 
