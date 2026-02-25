@@ -145,9 +145,23 @@ export default function HomeScreen() {
         setServiceOffers([]);
       }
       setLoadingOffers(false);
+
+      // Load service providers
+      try {
+        const providersResponse = await fetch(`${API_URL}/api/service-providers`);
+        const providersData = await providersResponse.json();
+        setServiceProviders(providersData || []);
+      } catch (error) {
+        console.error('Error fetching service providers:', error);
+        setServiceProviders([]);
+      }
     };
     loadData();
   }, []);
+
+  const loadProviderOffers = async (provider: ServiceProviderInfo) => {
+    setSelectedProvider(provider);
+  };
 
   const openWhatsApp = (destination?: string) => {
     const message = destination 
