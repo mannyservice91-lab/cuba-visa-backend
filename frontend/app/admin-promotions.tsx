@@ -95,12 +95,22 @@ export default function AdminPromotionsScreen() {
     try {
       const token = await AsyncStorage.getItem('adminToken');
       const url = editingId 
-        ? `${API_URL}/api/admin/promotions/${editingId}?title=${encodeURIComponent(title)}&description=${encodeURIComponent(description)}&image_data=${encodeURIComponent(imageData)}&link_url=${encodeURIComponent(linkUrl)}&link_text=${encodeURIComponent(linkText)}`
-        : `${API_URL}/api/admin/promotions?title=${encodeURIComponent(title)}&description=${encodeURIComponent(description)}&image_data=${encodeURIComponent(imageData)}&link_url=${encodeURIComponent(linkUrl)}&link_text=${encodeURIComponent(linkText)}`;
+        ? `${API_URL}/api/admin/promotions/${editingId}`
+        : `${API_URL}/api/admin/promotions`;
       
       const response = await fetch(url, {
         method: editingId ? 'PUT' : 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({
+          title,
+          description,
+          image_data: imageData,
+          link_url: linkUrl,
+          link_text: linkText,
+        }),
       });
 
       if (response.ok) {
