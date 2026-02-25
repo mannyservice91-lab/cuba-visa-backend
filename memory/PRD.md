@@ -1,7 +1,8 @@
 # Cuban-Serbia Visa Center - Product Requirements Document
 
 ## Problema Original
-Aplicación móvil para gestión de visas entre Cuba y Serbia con panel de administración completo.
+Aplicación móvil para gestión de visas entre Cuba y Serbia con panel de administración completo. 
+**Visión futura**: Plataforma de servicios donde se puede rentar espacio a diferentes negocios (remesas, tiendas, etc.)
 
 ## Arquitectura Actual
 
@@ -36,6 +37,21 @@ Aplicación móvil para gestión de visas entre Cuba y Serbia con panel de admin
 - [x] Gestión de testimonios (fotos de visas)
 - [x] Gestión de asesores
 - [x] Gestión de solicitudes
+- [x] **Gestión de Proveedores de Servicios** (NUEVO - Feb 2026)
+
+### Sistema de Proveedores de Servicios (Remesas) - NUEVO
+- [x] Portal de proveedores independiente (`/provider`)
+  - Registro de proveedores (requiere aprobación)
+  - Login de proveedores
+  - Dashboard para gestionar ofertas
+- [x] Gestión de ofertas
+  - Título, descripción, tasa de cambio
+  - Fecha de vencimiento
+  - Activar/desactivar ofertas
+- [x] Admin puede activar/desactivar proveedores
+- [x] Sección en homepage mostrando ofertas activas
+  - Contacto WhatsApp del proveedor
+  - Link al grupo de WhatsApp
 
 ### Aplicación de Usuario
 - [x] Ver destinos disponibles
@@ -44,27 +60,32 @@ Aplicación móvil para gestión de visas entre Cuba y Serbia con panel de admin
 - [x] Ver estado de solicitud
 - [x] Pagos via PayPal (link externo)
 - [x] Contacto via WhatsApp
+- [x] Ver ofertas de servicios (remesas)
 
 ## Base de Datos (MongoDB Atlas)
 
 ### Colecciones
 - **users**: id, email, hashed_password, full_name, phone, passport_number, is_approved, is_active, is_verified
 - **admins**: id, email, hashed_password, role
-- **destinations**: id, country, image_url, visa_types
+- **destinations**: id, country, image_url, visa_types, description
 - **applications**: id, user_id, destination, status, documents
 - **testimonials**: id, image_url, title, description
 - **advisors**: id, name, phone, whatsapp
+- **service_providers**: id, email, business_name, owner_name, whatsapp_number, service_type, is_active
+- **service_offers**: id, provider_id, title, description, exchange_rate, expires_at, is_active
 
 ## Credenciales de Prueba
 - **Admin**: josemgt91@gmail.com / Jmg910217*
+- **Proveedor Test**: remesero@test.com / test123456
 - **WhatsApp**: +381693444935
 
 ## Archivos Clave
 - `/app/backend/server.py` - API FastAPI completa
-- `/app/frontend/app/register.tsx` - Registro con pantalla de aprobación pendiente
-- `/app/frontend/app/login.tsx` - Login con bloqueo para no aprobados
+- `/app/frontend/app/index.tsx` - Homepage con ofertas de servicios
+- `/app/frontend/app/provider.tsx` - Portal de proveedores
+- `/app/frontend/app/admin-providers.tsx` - Admin de proveedores
 - `/app/frontend/app/admin-users.tsx` - Panel de gestión de usuarios
-- `/app/frontend/src/config/api.ts` - Configuración de API
+- `/app/frontend/src/config/api.ts` - Configuración de API y enlaces
 
 ## Tareas Pendientes
 
@@ -72,37 +93,41 @@ Aplicación móvil para gestión de visas entre Cuba y Serbia con panel de admin
 - [x] ~~Crear sitio web público~~ - COMPLETADO
 - [x] ~~Añadir sección de descarga de app en web~~ - COMPLETADO
 - [x] ~~Mejorar diseño responsivo para desktop~~ - COMPLETADO
+- [x] ~~Sistema de proveedores de servicios (remesas)~~ - COMPLETADO
 
 ### P1 - Media Prioridad
 - [ ] Implementar subida de videos para testimonios
 - [ ] Conectar barra de progreso de solicitud al backend
+- [ ] Añadir descripción a destinos (ya está en backend)
 
 ### P2 - Baja Prioridad
 - [ ] Mejorar notificaciones push
 - [ ] Sistema de chat integrado
 - [ ] CI/CD pipeline para builds automáticos del web app
+- [ ] Soporte para múltiples tipos de servicios (tiendas, restaurantes)
 
 ## Changelog
 
-### Feb 23, 2026 (Sesión actual)
-- **Sección de Descarga de App**: Nueva sección en la web para descargar el APK
-  - Botón de descarga directa para Android
-  - Placeholders para Google Play y App Store (próximamente)
-  - Configuración centralizada en `/app/frontend/src/config/api.ts`
-- **Diseño Web Mejorado**:
-  - Grid layout para destinos en desktop (tarjetas más grandes)
-  - Scroll horizontal mantenido para móviles
-  - Mejor aprovechamiento del espacio en pantallas grandes
-- **Refactoring**: Configuración de empresa y enlaces centralizada en api.ts
+### Feb 25, 2026 (Sesión actual)
+- **Sistema de Proveedores de Servicios (Remesas)**:
+  - Backend: Modelos ServiceProvider y ServiceOffer
+  - Endpoints para registro/login de proveedores
+  - CRUD de ofertas para proveedores
+  - Admin puede ver/activar/desactivar proveedores
+  - API pública para ofertas activas
+- **Frontend**:
+  - Portal de proveedores (`/provider`) con login, registro y dashboard
+  - Admin de proveedores (`/admin-providers`)
+  - Sección "Servicios Disponibles" en homepage
+  - Botones de WhatsApp en ofertas
+- **Testing**: 15 tests backend (100%), frontend UI (100%)
 
-### Feb 23, 2026 (Sesión anterior)
-- Implementado sistema completo de aprobación de usuarios por admin
-- Eliminada verificación de email (no funcionaba)
-- Pantalla de "Pendiente de Aprobación" con botón WhatsApp en registro
-- Pantalla de "Cuenta Pendiente" con botón WhatsApp en login para no aprobados
-- Panel admin actualizado con badges de estado (Aprobado/Pendiente) y botones de aprobar/revocar
+### Feb 23, 2026
+- **Sección de Descarga de App**: Nueva sección en la web para descargar el APK
+- **Diseño Web Mejorado**: Grid layout para destinos en desktop
+- **Refactoring**: Configuración centralizada en api.ts
 
 ### Sesiones Anteriores
+- Implementado sistema de aprobación de usuarios
 - Migración completa a Render y MongoDB Atlas
 - Configuración de EAS Build para APK/AAB
-- Corrección de bugs de compilación React Native
