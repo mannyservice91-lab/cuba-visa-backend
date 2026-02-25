@@ -1594,8 +1594,17 @@ async def get_active_service_offers():
 # Public: Get active service providers (for homepage display)
 @api_router.get("/service-providers")
 async def get_active_service_providers(service_type: str = None):
-    """Get all active service providers, optionally filtered by type"""
-    query = {"is_active": True}
+    """Get all active service providers with valid subscription"""
+    now = datetime.utcnow()
+    
+    # Only show providers that are active AND have valid subscription
+    query = {
+        "is_active": True,
+        "$or": [
+            {"subscription_end": {"$gt": now}},
+            {"subscription_end": None, "subscription_plan": "trial"}  # Legacy providers without end date
+        ]
+    }
     if service_type:
         query["service_type"] = service_type
     
