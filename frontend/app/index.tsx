@@ -369,62 +369,78 @@ export default function HomeScreen() {
                 </View>
               </View>
 
-              {/* App Download Section - Only shown on web */}
-              {isWeb && (
-                <View style={styles.downloadSection}>
-                  <View style={styles.downloadCard}>
-                    <View style={styles.downloadHeader}>
-                      <MaterialCommunityIcons name="cellphone-arrow-down" size={32} color="#d4af37" />
-                      <View style={styles.downloadHeaderText}>
-                        <Text style={[styles.downloadTitle, isDesktop && { fontSize: 22 }]}>Descarga Nuestra App</Text>
-                        <Text style={styles.downloadSubtitle}>Gestiona tu visa desde tu móvil</Text>
-                      </View>
-                    </View>
-                    <View style={[styles.downloadButtons, isDesktop && styles.downloadButtonsDesktop]}>
-                      {APP_DOWNLOAD_LINKS.android.enabled && (
+              {/* Service Providers Section - Cards by Type */}
+              {serviceProviders.length > 0 && (
+                <View style={styles.providersSection}>
+                  <Text style={[styles.sectionTitle, isDesktop && { fontSize: 26 }]}>Nuestros Servicios</Text>
+                  <Text style={styles.sectionSubtitle}>Proveedores asociados para tu viaje</Text>
+                  
+                  <View style={[styles.providersGrid, isDesktop && styles.providersGridDesktop]}>
+                    {serviceProviders.map((provider) => {
+                      const typeConfig = SERVICE_TYPE_ICONS[provider.service_type] || SERVICE_TYPE_ICONS.servicios;
+                      return (
                         <TouchableOpacity
-                          style={styles.downloadButton}
-                          onPress={() => openDownloadLink(APP_DOWNLOAD_LINKS.android.url)}
+                          key={provider.id}
+                          style={[styles.providerCard, isDesktop && styles.providerCardDesktop]}
+                          onPress={() => router.push(`/provider-offers?id=${provider.id}`)}
+                          activeOpacity={0.8}
                         >
-                          <Ionicons name="logo-android" size={24} color="#fff" />
-                          <View>
-                            <Text style={styles.downloadButtonLabel}>Android</Text>
-                            <Text style={styles.downloadButtonText}>{APP_DOWNLOAD_LINKS.android.label}</Text>
+                          <View style={[styles.providerIconBg, { backgroundColor: `${typeConfig.color}20` }]}>
+                            <Text style={styles.providerEmoji}>{typeConfig.emoji}</Text>
+                          </View>
+                          <Text style={styles.providerCardName}>{provider.business_name}</Text>
+                          {provider.owner_name && (
+                            <Text style={styles.providerOwner}>con {provider.owner_name}</Text>
+                          )}
+                          <View style={styles.providerActions}>
+                            <TouchableOpacity
+                              style={[styles.providerCallBtn, { backgroundColor: typeConfig.color }]}
+                              onPress={(e) => {
+                                e.stopPropagation();
+                                openProviderWhatsApp(provider.whatsapp_number, provider.business_name);
+                              }}
+                            >
+                              <FontAwesome5 name="whatsapp" size={14} color="#fff" />
+                              <Text style={styles.providerCallText}>Contactar</Text>
+                            </TouchableOpacity>
+                            {provider.whatsapp_group_link && (
+                              <TouchableOpacity
+                                style={styles.providerGroupBtn}
+                                onPress={(e) => {
+                                  e.stopPropagation();
+                                  Linking.openURL(provider.whatsapp_group_link);
+                                }}
+                              >
+                                <Ionicons name="people" size={16} color="#d4af37" />
+                              </TouchableOpacity>
+                            )}
                           </View>
                         </TouchableOpacity>
-                      )}
-                      {APP_DOWNLOAD_LINKS.googlePlay.enabled && (
-                        <TouchableOpacity
-                          style={[styles.downloadButton, styles.downloadButtonPlay]}
-                          onPress={() => openDownloadLink(APP_DOWNLOAD_LINKS.googlePlay.url)}
-                        >
-                          <Ionicons name="logo-google-playstore" size={24} color="#fff" />
-                          <View>
-                            <Text style={styles.downloadButtonLabel}>GET IT ON</Text>
-                            <Text style={styles.downloadButtonText}>{APP_DOWNLOAD_LINKS.googlePlay.label}</Text>
-                          </View>
-                        </TouchableOpacity>
-                      )}
-                      {APP_DOWNLOAD_LINKS.appStore.enabled && (
-                        <TouchableOpacity
-                          style={[styles.downloadButton, styles.downloadButtonApple]}
-                          onPress={() => openDownloadLink(APP_DOWNLOAD_LINKS.appStore.url)}
-                        >
-                          <Ionicons name="logo-apple" size={24} color="#fff" />
-                          <View>
-                            <Text style={styles.downloadButtonLabel}>Download on the</Text>
-                            <Text style={styles.downloadButtonText}>{APP_DOWNLOAD_LINKS.appStore.label}</Text>
-                          </View>
-                        </TouchableOpacity>
-                      )}
-                      {!APP_DOWNLOAD_LINKS.googlePlay.enabled && !APP_DOWNLOAD_LINKS.appStore.enabled && (
-                        <View style={styles.comingSoonBadge}>
-                          <Ionicons name="time-outline" size={16} color="#8899aa" />
-                          <Text style={styles.comingSoonText}>Google Play y App Store próximamente</Text>
-                        </View>
-                      )}
-                    </View>
+                      );
+                    })}
                   </View>
+
+                  {/* Link para ser proveedor */}
+                  <TouchableOpacity
+                    style={styles.providerLink}
+                    onPress={() => router.push('/provider')}
+                  >
+                    <Ionicons name="add-circle-outline" size={16} color="#667788" />
+                    <Text style={styles.providerLinkText}>¿Ofreces servicios? Únete como proveedor</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              {/* No providers yet - Show join link */}
+              {serviceProviders.length === 0 && (
+                <View style={styles.emptyServicesSection}>
+                  <TouchableOpacity
+                    style={styles.becomeProviderBtn}
+                    onPress={() => router.push('/provider')}
+                  >
+                    <Ionicons name="storefront-outline" size={20} color="#d4af37" />
+                    <Text style={styles.becomeProviderText}>Portal de Proveedores</Text>
+                  </TouchableOpacity>
                 </View>
               )}
 
