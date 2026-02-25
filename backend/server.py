@@ -1506,6 +1506,309 @@ async def admin_toggle_advisor(advisor_id: str, current_admin: dict = Depends(ge
     )
     return {"message": f"Asesor {'activado' if new_status else 'desactivado'}", "is_active": new_status}
 
+# ============== SERVICE PROVIDERS (REMESEROS) ROUTES ==============
+
+# Helper function to get current service provider
+async def get_current_provider(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="No se pudieron validar las credenciales",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        provider_id: str = payload.get("provider_id")
+        if email is None or provider_id is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    
+    provider = await db.service_providers.find_one({"email": email, "id": provider_id})
+    if provider is None:
+        raise credentials_exception
+    if not provider.get("is_active", False):
+        raise HTTPException(status_code=403, detail="Cuenta de proveedor no activa. Contacte al administrador.")
+    return provider
+
+# Public: Get active service offers for homepage
+@api_router.get("/service-offers")
+async def get_active_service_offers():
+    """Get all active offers from active providers (for homepage display)"""
+    # Get active providers
+    active_providers = await db.service_providers.find({"is_active": True}).to_list(100)
+    provider_ids = [p["id"] for p in active_providers]
+    provider_map = {p["id"]: p for p in active_providers}
+    
+    # Get active offers that haven't expired
+    now = datetime.utcnow()
+    offers = await db.service_offers.find({
+        "provider_id": {"$in": provider_ids},
+        "is_active": True,
+        "$or": [
+            {"expires_at": None},
+            {"expires_at": {"$gt": now}}
+        ]
+    }).sort("created_at", -1).to_list(50)
+    
+    result = []
+    for offer in offers:
+        provider = provider_map.get(offer["provider_id"])
+        if provider:
+            result.append({
+                "id": offer["id"],
+                "title": offer["title"],
+                "description": offer["description"],
+                "image_data": offer.get("image_data", ""),
+                "exchange_rate": offer.get("exchange_rate", ""),
+                "expires_at": offer.get("expires_at"),
+                "created_at": offer["created_at"],
+                "provider": {
+                    "id": provider["id"],
+                    "business_name": provider["business_name"],
+                    "whatsapp_number": provider["whatsapp_number"],
+                    "whatsapp_group_link": provider.get("whatsapp_group_link", ""),
+                    "logo_url": provider.get("logo_url", ""),
+                    "service_type": provider.get("service_type", "remesas")
+                }
+            })
+    
+    return result
+
+# Provider Registration (needs admin approval)
+@api_router.post("/provider/register")
+async def register_service_provider(provider_data: ServiceProviderRegister):
+    """Register a new service provider (requires admin activation)"""
+    existing = await db.service_providers.find_one({"email": provider_data.email})
+    if existing:
+        raise HTTPException(status_code=400, detail="El email ya está registrado")
+    
+    provider = ServiceProvider(
+        email=provider_data.email,
+        password_hash=get_password_hash(provider_data.password),
+        business_name=provider_data.business_name,
+        owner_name=provider_data.owner_name,
+        phone=provider_data.phone,
+        whatsapp_number=provider_data.whatsapp_number,
+        whatsapp_group_link=provider_data.whatsapp_group_link,
+        service_type=provider_data.service_type,
+        description=provider_data.description,
+        is_active=False  # Requires admin activation
+    )
+    await db.service_providers.insert_one(provider.dict())
+    
+    return {
+        "message": "Registro exitoso. Su cuenta será activada por el administrador.",
+        "provider_id": provider.id
+    }
+
+# Provider Login
+@api_router.post("/provider/login", response_model=ServiceProviderToken)
+async def login_service_provider(credentials: ServiceProviderLogin):
+    """Login for service providers"""
+    provider = await db.service_providers.find_one({"email": credentials.email})
+    if not provider:
+        raise HTTPException(status_code=401, detail="Email o contraseña incorrectos")
+    
+    if not verify_password(credentials.password, provider["password_hash"]):
+        raise HTTPException(status_code=401, detail="Email o contraseña incorrectos")
+    
+    if not provider.get("is_active", False):
+        raise HTTPException(
+            status_code=403, 
+            detail="Su cuenta aún no ha sido activada. Contacte al administrador."
+        )
+    
+    # Update last login
+    await db.service_providers.update_one(
+        {"id": provider["id"]},
+        {"$set": {"last_login": datetime.utcnow()}}
+    )
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": provider["email"], "provider_id": provider["id"]},
+        expires_delta=access_token_expires
+    )
+    
+    return ServiceProviderToken(
+        access_token=access_token,
+        token_type="bearer",
+        provider_id=provider["id"],
+        email=provider["email"],
+        business_name=provider["business_name"],
+        service_type=provider.get("service_type", "remesas")
+    )
+
+# Provider: Get own profile
+@api_router.get("/provider/me")
+async def get_provider_profile(current_provider: dict = Depends(get_current_provider)):
+    """Get current provider's profile"""
+    return {
+        "id": current_provider["id"],
+        "email": current_provider["email"],
+        "business_name": current_provider["business_name"],
+        "owner_name": current_provider["owner_name"],
+        "phone": current_provider["phone"],
+        "whatsapp_number": current_provider["whatsapp_number"],
+        "whatsapp_group_link": current_provider.get("whatsapp_group_link", ""),
+        "service_type": current_provider.get("service_type", "remesas"),
+        "description": current_provider.get("description", ""),
+        "logo_url": current_provider.get("logo_url", ""),
+        "is_active": current_provider.get("is_active", False),
+        "created_at": current_provider["created_at"]
+    }
+
+# Provider: Update own profile
+@api_router.put("/provider/me")
+async def update_provider_profile(
+    update_data: ServiceProviderUpdate,
+    current_provider: dict = Depends(get_current_provider)
+):
+    """Update provider's own profile"""
+    update_dict = {k: v for k, v in update_data.dict().items() if v is not None}
+    if update_dict:
+        await db.service_providers.update_one(
+            {"id": current_provider["id"]},
+            {"$set": update_dict}
+        )
+    
+    updated = await db.service_providers.find_one({"id": current_provider["id"]})
+    return {k: v for k, v in updated.items() if k not in ["_id", "password_hash"]}
+
+# Provider: Get own offers
+@api_router.get("/provider/offers")
+async def get_provider_offers(current_provider: dict = Depends(get_current_provider)):
+    """Get all offers for current provider"""
+    offers = await db.service_offers.find(
+        {"provider_id": current_provider["id"]}
+    ).sort("created_at", -1).to_list(100)
+    
+    return [{k: v for k, v in offer.items() if k != "_id"} for offer in offers]
+
+# Provider: Create offer
+@api_router.post("/provider/offers")
+async def create_provider_offer(
+    offer_data: ServiceOfferCreate,
+    current_provider: dict = Depends(get_current_provider)
+):
+    """Create a new offer"""
+    offer = ServiceOffer(
+        provider_id=current_provider["id"],
+        provider_name=current_provider["business_name"],
+        title=offer_data.title,
+        description=offer_data.description,
+        image_data=offer_data.image_data,
+        exchange_rate=offer_data.exchange_rate,
+        expires_at=offer_data.expires_at
+    )
+    await db.service_offers.insert_one(offer.dict())
+    
+    return {"message": "Oferta creada exitosamente", "offer": offer.dict()}
+
+# Provider: Update offer
+@api_router.put("/provider/offers/{offer_id}")
+async def update_provider_offer(
+    offer_id: str,
+    update_data: ServiceOfferUpdate,
+    current_provider: dict = Depends(get_current_provider)
+):
+    """Update an existing offer (only own offers)"""
+    offer = await db.service_offers.find_one({
+        "id": offer_id,
+        "provider_id": current_provider["id"]
+    })
+    if not offer:
+        raise HTTPException(status_code=404, detail="Oferta no encontrada")
+    
+    update_dict = {k: v for k, v in update_data.dict().items() if v is not None}
+    update_dict["updated_at"] = datetime.utcnow()
+    
+    await db.service_offers.update_one(
+        {"id": offer_id},
+        {"$set": update_dict}
+    )
+    
+    updated = await db.service_offers.find_one({"id": offer_id})
+    return {k: v for k, v in updated.items() if k != "_id"}
+
+# Provider: Delete offer
+@api_router.delete("/provider/offers/{offer_id}")
+async def delete_provider_offer(
+    offer_id: str,
+    current_provider: dict = Depends(get_current_provider)
+):
+    """Delete an offer (only own offers)"""
+    result = await db.service_offers.delete_one({
+        "id": offer_id,
+        "provider_id": current_provider["id"]
+    })
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Oferta no encontrada")
+    
+    return {"message": "Oferta eliminada exitosamente"}
+
+# ============== ADMIN: SERVICE PROVIDERS MANAGEMENT ==============
+
+@api_router.get("/admin/service-providers")
+async def admin_get_all_providers(current_admin: dict = Depends(get_current_admin)):
+    """Get all service providers for admin management"""
+    providers = await db.service_providers.find().sort("created_at", -1).to_list(100)
+    return [{
+        "id": p["id"],
+        "email": p["email"],
+        "business_name": p["business_name"],
+        "owner_name": p["owner_name"],
+        "phone": p["phone"],
+        "whatsapp_number": p["whatsapp_number"],
+        "whatsapp_group_link": p.get("whatsapp_group_link", ""),
+        "service_type": p.get("service_type", "remesas"),
+        "description": p.get("description", ""),
+        "logo_url": p.get("logo_url", ""),
+        "is_active": p.get("is_active", False),
+        "created_at": p["created_at"],
+        "last_login": p.get("last_login")
+    } for p in providers]
+
+@api_router.put("/admin/service-providers/{provider_id}/toggle")
+async def admin_toggle_provider(provider_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Toggle service provider active status (activate/deactivate)"""
+    provider = await db.service_providers.find_one({"id": provider_id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Proveedor no encontrado")
+    
+    new_status = not provider.get("is_active", False)
+    await db.service_providers.update_one(
+        {"id": provider_id},
+        {"$set": {"is_active": new_status}}
+    )
+    
+    return {
+        "message": f"Proveedor {'activado' if new_status else 'desactivado'}",
+        "is_active": new_status
+    }
+
+@api_router.delete("/admin/service-providers/{provider_id}")
+async def admin_delete_provider(provider_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Delete a service provider and all their offers"""
+    provider = await db.service_providers.find_one({"id": provider_id})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Proveedor no encontrado")
+    
+    # Delete all provider's offers
+    await db.service_offers.delete_many({"provider_id": provider_id})
+    
+    # Delete the provider
+    await db.service_providers.delete_one({"id": provider_id})
+    
+    return {"message": "Proveedor y sus ofertas eliminados exitosamente"}
+
+@api_router.get("/admin/service-providers/{provider_id}/offers")
+async def admin_get_provider_offers(provider_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Get all offers for a specific provider"""
+    offers = await db.service_offers.find({"provider_id": provider_id}).sort("created_at", -1).to_list(100)
+    return [{k: v for k, v in offer.items() if k != "_id"} for offer in offers]
+
 # ============== ADMIN LIST ==============
 
 @api_router.get("/admin/admins")
