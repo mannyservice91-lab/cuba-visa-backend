@@ -1575,6 +1575,66 @@ async def get_active_service_offers():
     
     return result
 
+# Public: Get active service providers (for homepage display)
+@api_router.get("/service-providers")
+async def get_active_service_providers(service_type: str = None):
+    """Get all active service providers, optionally filtered by type"""
+    query = {"is_active": True}
+    if service_type:
+        query["service_type"] = service_type
+    
+    providers = await db.service_providers.find(query).sort("business_name", 1).to_list(50)
+    
+    return [{
+        "id": p["id"],
+        "business_name": p["business_name"],
+        "owner_name": p.get("owner_name", ""),
+        "whatsapp_number": p["whatsapp_number"],
+        "whatsapp_group_link": p.get("whatsapp_group_link", ""),
+        "service_type": p.get("service_type", "remesas"),
+        "description": p.get("description", ""),
+        "logo_url": p.get("logo_url", "")
+    } for p in providers]
+
+# Public: Get offers for a specific provider
+@api_router.get("/service-providers/{provider_id}/offers")
+async def get_provider_public_offers(provider_id: str):
+    """Get active offers for a specific provider"""
+    provider = await db.service_providers.find_one({"id": provider_id, "is_active": True})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Proveedor no encontrado")
+    
+    now = datetime.utcnow()
+    offers = await db.service_offers.find({
+        "provider_id": provider_id,
+        "is_active": True,
+        "$or": [
+            {"expires_at": None},
+            {"expires_at": {"$gt": now}}
+        ]
+    }).sort("created_at", -1).to_list(20)
+    
+    return {
+        "provider": {
+            "id": provider["id"],
+            "business_name": provider["business_name"],
+            "owner_name": provider.get("owner_name", ""),
+            "whatsapp_number": provider["whatsapp_number"],
+            "whatsapp_group_link": provider.get("whatsapp_group_link", ""),
+            "service_type": provider.get("service_type", "remesas"),
+            "description": provider.get("description", "")
+        },
+        "offers": [{
+            "id": o["id"],
+            "title": o["title"],
+            "description": o["description"],
+            "image_data": o.get("image_data", ""),
+            "exchange_rate": o.get("exchange_rate", ""),
+            "expires_at": o.get("expires_at"),
+            "created_at": o["created_at"]
+        } for o in offers]
+    }
+
 # Provider Registration (needs admin approval)
 @api_router.post("/provider/register")
 async def register_service_provider(provider_data: ServiceProviderRegister):
