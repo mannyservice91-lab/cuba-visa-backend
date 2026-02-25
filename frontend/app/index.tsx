@@ -54,6 +54,24 @@ interface Testimonial {
   created_at: string;
 }
 
+interface ServiceOffer {
+  id: string;
+  title: string;
+  description: string;
+  image_data: string;
+  exchange_rate: string;
+  expires_at: string | null;
+  created_at: string;
+  provider: {
+    id: string;
+    business_name: string;
+    whatsapp_number: string;
+    whatsapp_group_link: string;
+    logo_url: string;
+    service_type: string;
+  };
+}
+
 const FLAG_EMOJIS: Record<string, string> = {
   RS: '🇷🇸', AM: '🇦🇲', GE: '🇬🇪', IN: '🇮🇳', AE: '🇦🇪', EG: '🇪🇬',
   CU: '🇨🇺', RU: '🇷🇺', ES: '🇪🇸', US: '🇺🇸', DE: '🇩🇪', FR: '🇫🇷',
